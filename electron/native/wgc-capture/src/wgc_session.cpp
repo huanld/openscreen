@@ -28,6 +28,60 @@ bool succeeded(HRESULT hr, const char* label) {
     return false;
 }
 
+Microsoft::WRL::ComPtr<IDXGIAdapter1> findAdapterForMonitor(HMONITOR monitor) {
+    if (!monitor) {
+        return nullptr;
+    }
+
+    Microsoft::WRL::ComPtr<IDXGIFactory1> factory;
+    HRESULT hr = CreateDXGIFactory1(IID_PPV_ARGS(&factory));
+    if (FAILED(hr) || !factory) {
+        std::cerr << "WARNING: CreateDXGIFactory1 failed while resolving monitor adapter (hr=0x"
+                  << std::hex << hr << std::dec << ")" << std::endl;
+        return nullptr;
+    }
+
+    for (UINT adapterIndex = 0;; ++adapterIndex) {
+        Microsoft::WRL::ComPtr<IDXGIAdapter1> adapter;
+        hr = factory->EnumAdapters1(adapterIndex, adapter.GetAddressOf());
+        if (hr == DXGI_ERROR_NOT_FOUND) {
+            break;
+        }
+        if (FAILED(hr) || !adapter) {
+            continue;
+        }
+
+        DXGI_ADAPTER_DESC1 adapterDesc{};
+        if (SUCCEEDED(adapter->GetDesc1(&adapterDesc)) &&
+            (adapterDesc.Flags & DXGI_ADAPTER_FLAG_SOFTWARE) != 0) {
+            continue;
+        }
+
+        for (UINT outputIndex = 0;; ++outputIndex) {
+            Microsoft::WRL::ComPtr<IDXGIOutput> output;
+            hr = adapter->EnumOutputs(outputIndex, output.GetAddressOf());
+            if (hr == DXGI_ERROR_NOT_FOUND) {
+                break;
+            }
+            if (FAILED(hr) || !output) {
+                continue;
+            }
+
+            DXGI_OUTPUT_DESC outputDesc{};
+            if (SUCCEEDED(output->GetDesc(&outputDesc)) && outputDesc.Monitor == monitor) {
+                std::cout << "{\"event\":\"display-adapter-resolved\",\"schemaVersion\":2,"
+                          << "\"adapterIndex\":" << adapterIndex
+                          << ",\"outputIndex\":" << outputIndex << "}" << std::endl;
+                return adapter;
+            }
+        }
+    }
+
+    std::cerr << "WARNING: Could not resolve DXGI adapter for selected monitor; using default adapter"
+              << std::endl;
+    return nullptr;
+}
+
 int64_t timeSpanToHns(wf::TimeSpan const& value) {
     return value.count();
 }
@@ -38,7 +92,7 @@ WgcSession::~WgcSession() {
     stop();
 }
 
-bool WgcSession::createD3DDevice() {
+bool WgcSession::createD3DDevice(IDXGIAdapter* adapter) {
     UINT flags = D3D11_CREATE_DEVICE_BGRA_SUPPORT;
 #if defined(_DEBUG)
     flags |= D3D11_CREATE_DEVICE_DEBUG;
@@ -53,8 +107,8 @@ bool WgcSession::createD3DDevice() {
     D3D_FEATURE_LEVEL featureLevel{};
 
     HRESULT hr = D3D11CreateDevice(
-        nullptr,
-        D3D_DRIVER_TYPE_HARDWARE,
+        adapter,
+        adapter ? D3D_DRIVER_TYPE_UNKNOWN : D3D_DRIVER_TYPE_HARDWARE,
         nullptr,
         flags,
         featureLevels,
@@ -68,6 +122,23 @@ bool WgcSession::createD3DDevice() {
     if (FAILED(hr)) {
         flags &= ~D3D11_CREATE_DEVICE_DEBUG;
         hr = D3D11CreateDevice(
+            adapter,
+            adapter ? D3D_DRIVER_TYPE_UNKNOWN : D3D_DRIVER_TYPE_HARDWARE,
+            nullptr,
+            flags,
+            featureLevels,
+            ARRAYSIZE(featureLevels),
+            D3D11_SDK_VERSION,
+            &d3dDevice_,
+            &featureLevel,
+            &d3dContext_);
+    }
+#endif
+
+    if (FAILED(hr) && adapter) {
+        std::cerr << "WARNING: D3D11CreateDevice failed for selected monitor adapter (hr=0x"
+                  << std::hex << hr << std::dec << "); retrying default adapter" << std::endl;
+        hr = D3D11CreateDevice(
             nullptr,
             D3D_DRIVER_TYPE_HARDWARE,
             nullptr,
@@ -79,7 +150,6 @@ bool WgcSession::createD3DDevice() {
             &featureLevel,
             &d3dContext_);
     }
-#endif
 
     if (!succeeded(hr, "D3D11CreateDevice")) {
         return false;
@@ -98,6 +168,11 @@ bool WgcSession::createD3DDevice() {
 
     winrtDevice_ = inspectableDevice.as<wgd3d::IDirect3DDevice>();
     return true;
+}
+
+bool WgcSession::createD3DDeviceForMonitor(HMONITOR monitor) {
+    auto adapter = findAdapterForMonitor(monitor);
+    return createD3DDevice(adapter.Get());
 }
 
 bool WgcSession::createCaptureItem(HMONITOR monitor) {
@@ -188,7 +263,7 @@ bool WgcSession::applySessionOptions(bool captureCursor) {
 
 bool WgcSession::initialize(HMONITOR monitor, int fps, bool captureCursor) {
     fps_ = fps > 0 ? fps : 60;
-    if (!createD3DDevice()) {
+    if (!createD3DDeviceForMonitor(monitor)) {
         return false;
     }
     if (!createCaptureItem(monitor)) {

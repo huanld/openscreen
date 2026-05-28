@@ -426,6 +426,7 @@ let nativeWindowsCursorRecordingStartMs = 0;
 let nativeWindowsPauseStartedAtMs: number | null = null;
 let nativeWindowsPauseRanges: Array<{ startMs: number; endMs: number }> = [];
 let nativeWindowsIsPaused = false;
+let nativeWindowsCaptureStopping = false;
 const NATIVE_WINDOWS_CAPTURE_STOP_TIMEOUT_MS = 15_000;
 let nativeMacCaptureProcess: ChildProcessWithoutNullStreams | null = null;
 let nativeMacCaptureOutput = "";
@@ -1337,6 +1338,81 @@ function completeNativeWindowsCursorPauseRange(endMs = Date.now()) {
 	nativeWindowsPauseStartedAtMs = null;
 }
 
+function resetNativeWindowsCaptureState() {
+	nativeWindowsCaptureProcess = null;
+	nativeWindowsCaptureTargetPath = null;
+	nativeWindowsCaptureWebcamTargetPath = null;
+	nativeWindowsCaptureRecordingId = null;
+	nativeWindowsCursorOffsetMs = 0;
+	nativeWindowsCursorCaptureMode = "editable-overlay";
+	nativeWindowsCursorRecordingStartMs = 0;
+	nativeWindowsPauseStartedAtMs = null;
+	nativeWindowsPauseRanges = [];
+	nativeWindowsIsPaused = false;
+	nativeWindowsCaptureStopping = false;
+	clearGuideHotkeyRecording();
+}
+
+function hasActiveNativeWindowsCaptureProcess() {
+	const proc = nativeWindowsCaptureProcess;
+	if (!proc) {
+		return false;
+	}
+	if (proc.exitCode === null && !proc.killed) {
+		return true;
+	}
+
+	console.warn("[native-wgc] clearing stale Windows capture process state", {
+		exitCode: proc.exitCode,
+		killed: proc.killed,
+	});
+	resetNativeWindowsCaptureState();
+	return false;
+}
+
+function attachNativeWindowsCaptureLifecycle(
+	proc: ChildProcessWithoutNullStreams,
+	sourceName: string,
+	onRecordingStateChange?: (recording: boolean, sourceName: string) => void,
+) {
+	const cleanupAfterUnexpectedExit = async () => {
+		try {
+			await stopCursorRecording();
+		} catch (error) {
+			console.warn("[native-wgc] failed to stop cursor recording after helper exit", error);
+		}
+		pendingCursorRecordingData = null;
+		resetNativeWindowsCaptureState();
+		onRecordingStateChange?.(false, sourceName);
+	};
+
+	function onClose(code: number | null, signal: NodeJS.Signals | null) {
+		proc.off("error", onError);
+		if (nativeWindowsCaptureProcess !== proc || nativeWindowsCaptureStopping) {
+			return;
+		}
+
+		console.warn("[native-wgc] Windows capture helper exited before stop was requested", {
+			code,
+			signal,
+			output: nativeWindowsCaptureOutput.trim(),
+		});
+		void cleanupAfterUnexpectedExit();
+	}
+	function onError(error: Error) {
+		proc.off("close", onClose);
+		if (nativeWindowsCaptureProcess !== proc || nativeWindowsCaptureStopping) {
+			return;
+		}
+
+		console.warn("[native-wgc] Windows capture helper errored before stop was requested", error);
+		void cleanupAfterUnexpectedExit();
+	}
+
+	proc.once("close", onClose);
+	proc.once("error", onError);
+}
+
 function waitForNativeWindowsCaptureStart(proc: ChildProcessWithoutNullStreams) {
 	return new Promise<void>((resolve, reject) => {
 		const timer = setTimeout(() => {
@@ -2001,7 +2077,7 @@ export function registerIpcHandlers(
 						error: "Windows Graphics Capture requires Windows 10 build 19041 or newer.",
 					};
 				}
-				if (nativeWindowsCaptureProcess) {
+				if (hasActiveNativeWindowsCaptureProcess()) {
 					return { success: false, error: "Native Windows capture is already running." };
 				}
 
@@ -2150,6 +2226,7 @@ export function registerIpcHandlers(
 				});
 
 				const source = selectedSource || { name: "Screen" };
+				attachNativeWindowsCaptureLifecycle(proc, source.name, onRecordingStateChange);
 				startGuideHotkeyRecording(recordingId, bounds);
 				if (onRecordingStateChange) {
 					onRecordingStateChange(true, source.name);
@@ -2164,17 +2241,7 @@ export function registerIpcHandlers(
 			} catch (error) {
 				console.error("Failed to start native Windows recording:", error);
 				nativeWindowsCaptureProcess?.kill();
-				nativeWindowsCaptureProcess = null;
-				nativeWindowsCaptureTargetPath = null;
-				nativeWindowsCaptureWebcamTargetPath = null;
-				nativeWindowsCaptureRecordingId = null;
-				nativeWindowsCursorOffsetMs = 0;
-				nativeWindowsCursorCaptureMode = "editable-overlay";
-				nativeWindowsCursorRecordingStartMs = 0;
-				nativeWindowsPauseStartedAtMs = null;
-				nativeWindowsPauseRanges = [];
-				nativeWindowsIsPaused = false;
-				clearGuideHotkeyRecording();
+				resetNativeWindowsCaptureState();
 				await stopCursorRecording();
 				return { success: false, error: String(error) };
 			}
@@ -2433,11 +2500,13 @@ export function registerIpcHandlers(
 		const recordingId = nativeWindowsCaptureRecordingId ?? Date.now();
 		const cursorCaptureMode = nativeWindowsCursorCaptureMode;
 
-		if (!proc) {
+		if (!proc || proc.exitCode !== null || proc.killed) {
+			resetNativeWindowsCaptureState();
 			return { success: false, error: "Native Windows capture is not running." };
 		}
 
 		try {
+			nativeWindowsCaptureStopping = true;
 			completeNativeWindowsCursorPauseRange();
 			const stoppedPathPromise = waitForNativeWindowsCaptureStop(proc);
 			proc.stdin.write("stop\n");
@@ -2499,17 +2568,7 @@ export function registerIpcHandlers(
 			await stopCursorRecording();
 			return { success: false, error: String(error) };
 		} finally {
-			nativeWindowsCaptureProcess = null;
-			nativeWindowsCaptureTargetPath = null;
-			nativeWindowsCaptureWebcamTargetPath = null;
-			nativeWindowsCaptureRecordingId = null;
-			nativeWindowsCursorOffsetMs = 0;
-			nativeWindowsCursorCaptureMode = "editable-overlay";
-			nativeWindowsCursorRecordingStartMs = 0;
-			nativeWindowsPauseStartedAtMs = null;
-			nativeWindowsPauseRanges = [];
-			nativeWindowsIsPaused = false;
-			clearGuideHotkeyRecording();
+			resetNativeWindowsCaptureState();
 			const source = selectedSource || { name: "Screen" };
 			if (onRecordingStateChange) {
 				onRecordingStateChange(false, source.name);

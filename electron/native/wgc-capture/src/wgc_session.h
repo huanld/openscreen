@@ -2,6 +2,7 @@
 
 #include <Windows.h>
 #include <d3d11.h>
+#include <dxgi.h>
 #include <windows.graphics.capture.h>
 #include <windows.graphics.directx.direct3d11.interop.h>
 #include <winrt/Windows.Foundation.h>
@@ -34,7 +35,8 @@ public:
     ID3D11DeviceContext* context() const;
 
 private:
-    bool createD3DDevice();
+    bool createD3DDevice(IDXGIAdapter* adapter = nullptr);
+    bool createD3DDeviceForMonitor(HMONITOR monitor);
     bool createCaptureItem(HMONITOR monitor);
     bool createCaptureItem(HWND window);
     bool applySessionOptions(bool captureCursor);
