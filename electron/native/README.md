@@ -46,7 +46,7 @@ Build the Windows helper with:
 npm run build:native:win
 ```
 
-The build writes the CMake output to `electron/native/wgc-capture/build/wgc-capture.exe` and copies the redistributable binary to `electron/native/bin/win32-x64/wgc-capture.exe`.
+The build writes the CMake output to `electron/native/wgc-capture/build/wgc-capture.exe` and copies the redistributable binary to `electron/native/bin/win32-x64/wgc-capture.exe`. It also builds `cursor-sampler.exe` for editable cursor telemetry and `guide-hotkey-listener.exe` for the Guide Mode global Ctrl capture hook.
 
 The helper contract is process-based: the app starts the process with one JSON argument and sends commands on stdin. `stop\n` finalizes the recording. During migration the helper prints both newline-delimited JSON events and the legacy text messages `Recording started` / `Recording stopped. Output path: <path>`.
 

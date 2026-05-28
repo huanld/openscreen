@@ -46,8 +46,11 @@ export function buildGuideStepCandidates(
 				0,
 				maxNearbyText,
 			);
-			const label = normalizeText(event.label);
-			const targetText = label ?? normalizeText(targetRegion?.text);
+			const label = normalizeEventLabelForTarget(event);
+			const point = getEventPoint(event);
+			const targetText = point
+				? (normalizeText(targetRegion?.text) ?? label)
+				: (label ?? normalizeText(targetRegion?.text));
 
 			return {
 				id: `candidate-${event.id}`,
@@ -57,6 +60,7 @@ export function buildGuideStepCandidates(
 				action: inferAction(event),
 				targetText,
 				targetRole: inferTargetRole(targetText),
+				position: point ? describeEventPosition(point) : undefined,
 				nearbyText,
 				confidence: calculateCandidateConfidence(event, targetRegion, rankedRegions[0]?.score),
 			};
@@ -275,7 +279,7 @@ function calculateCandidateConfidence(
 			0.45 + clamp01(targetRegion.confidence) * 0.25 + clamp01(score ?? 0) * 0.3,
 		);
 	}
-	if (event.label) {
+	if (normalizeEventLabelForTarget(event)) {
 		return 0.75;
 	}
 	if (getEventPoint(event)) {
@@ -305,6 +309,38 @@ function uniqueText(values: Array<string | undefined>): string[] {
 function normalizeText(value: string | undefined): string | undefined {
 	const text = value?.replace(/\s+/g, " ").trim();
 	return text ? text : undefined;
+}
+
+function normalizeEventLabelForTarget(event: GuideEvent): string | undefined {
+	const label = normalizeText(event.label);
+	if (!label) {
+		return undefined;
+	}
+	if (/^(?:ctrl(?:\s*\+\s*f12)?|control)\s+marker$/i.test(label)) {
+		return undefined;
+	}
+	if (/^manual\s+marker$/i.test(label)) {
+		return undefined;
+	}
+	return label;
+}
+
+function describeEventPosition(point: { x: number; y: number }): GuideStepCandidate["position"] {
+	const normalizedX = clamp01(point.x);
+	const normalizedY = clamp01(point.y);
+	return {
+		normalizedX: roundPosition(normalizedX),
+		normalizedY: roundPosition(normalizedY),
+		xPercent: Math.round(normalizedX * 100),
+		yPercent: Math.round(normalizedY * 100),
+		description: describeScreenRegion(normalizedX, normalizedY),
+	};
+}
+
+function describeScreenRegion(x: number, y: number): string {
+	const vertical = y < 0.33 ? "top" : y > 0.66 ? "bottom" : "middle";
+	const horizontal = x < 0.33 ? "left" : x > 0.66 ? "right" : "center";
+	return vertical === "middle" && horizontal === "center" ? "center" : `${vertical} ${horizontal}`;
 }
 
 function isUsefulOcrText(text: string): boolean {
@@ -344,6 +380,10 @@ function averageHeight(regions: TextRegion[]): number {
 
 function roundConfidence(value: number): number {
 	return Math.round(clamp01(value) * 100) / 100;
+}
+
+function roundPosition(value: number): number {
+	return Math.round(clamp01(value) * 1000) / 1000;
 }
 
 function clamp01(value: number): number {

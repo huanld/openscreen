@@ -3,6 +3,7 @@
 #include <Windows.h>
 
 #include <cstdint>
+#include <string>
 
 struct MonitorBounds {
     int x = 0;
@@ -11,4 +12,7 @@ struct MonitorBounds {
     int height = 0;
 };
 
-HMONITOR findMonitorForCapture(int64_t displayId, const MonitorBounds* bounds);
+HMONITOR findMonitorForCapture(
+    int64_t displayId,
+    const std::string& sourceId,
+    const MonitorBounds* bounds);

@@ -228,6 +228,74 @@ describe("GuideStore", () => {
 		await expect(fs.readFile(html.path, "utf-8")).resolves.toContain("<!doctype html>");
 	});
 
+	it("repairs generic hotkey marker text and attaches AI draft artifacts", async () => {
+		const store = new GuideStore(recordingsDir, {
+			ocrClient: {
+				recognize: async (snapshot) => [
+					{
+						id: `ocr-${snapshot.id}-1`,
+						snapshotId: snapshot.id,
+						text: "Save",
+						confidence: 0.95,
+						box: { x: 0.45, y: 0.45, width: 0.15, height: 0.08 },
+					},
+				],
+			},
+			draftClient: {
+				generate: async () => ({
+					title: "Guide",
+					steps: [
+						{
+							id: "guide-step-1",
+							order: 1,
+							title: "Step 1: Click Ctrl+F12 marker",
+							instruction: "Click Ctrl+F12 marker.",
+						},
+					],
+				}),
+			},
+		});
+		await store.startSession(114);
+		await store.addMarker({
+			recordingId: 114,
+			kind: "hotkey",
+			timeMs: 200,
+			label: "Ctrl+F12 marker",
+			normalizedX: 0.5,
+			normalizedY: 0.5,
+		});
+		const videoPath = path.join(recordingsDir, "recording-114.mp4");
+		await fs.writeFile(videoPath, "");
+		const eventsSession = await store.finalizeEvents({ recordingId: 114, videoPath });
+		await store.writeSnapshot({
+			recordingId: 114,
+			eventId: eventsSession.events[0]?.id ?? "",
+			timeMs: 700,
+			offsetMs: 500,
+			width: 800,
+			height: 600,
+			pngBytes: new Uint8Array([1, 2, 3]).buffer,
+		});
+		await store.runOcr({ recordingId: 114 });
+
+		const draftSession = await store.generateDraft({
+			recordingId: 114,
+			language: "en",
+			provider: "deepseek",
+		});
+
+		expect(draftSession.candidates[0]).toMatchObject({
+			targetText: "Save",
+			position: { xPercent: 50, yPercent: 50 },
+		});
+		expect(draftSession.generatedGuide?.steps[0]).toMatchObject({
+			title: "Step 1: Save",
+			instruction: 'Click "Save".',
+			sourceCandidateId: draftSession.candidates[0]?.id,
+			screenshotPath: draftSession.snapshots[0]?.path,
+		});
+	});
+
 	it("discards a guide session and output directory", async () => {
 		const store = new GuideStore(recordingsDir);
 		const session = await store.startSession(111);

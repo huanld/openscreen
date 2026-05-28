@@ -65,3 +65,19 @@ target_link_libraries(cursor-sampler PRIVATE
   gdi32
   gdiplus
 )
+
+add_executable(guide-hotkey-listener
+  src/guide-hotkey-listener.cpp
+)
+
+target_compile_definitions(guide-hotkey-listener PRIVATE
+  NOMINMAX
+  WIN32_LEAN_AND_MEAN
+  _WIN32_WINNT=0x0A00
+)
+
+target_compile_options(guide-hotkey-listener PRIVATE /EHsc /W4 /utf-8)
+
+target_link_libraries(guide-hotkey-listener PRIVATE
+  user32
+)

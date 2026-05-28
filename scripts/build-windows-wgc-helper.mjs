@@ -126,6 +126,11 @@ if (!fs.existsSync(cursorSamplerOutputPath)) {
 	throw new Error(`WGC helper build completed but ${cursorSamplerOutputPath} was not found.`);
 }
 
+const guideHotkeyListenerOutputPath = path.join(BUILD_DIR, "guide-hotkey-listener.exe");
+if (!fs.existsSync(guideHotkeyListenerOutputPath)) {
+	throw new Error(`WGC helper build completed but ${guideHotkeyListenerOutputPath} was not found.`);
+}
+
 fs.mkdirSync(BIN_DIR, { recursive: true });
 const distributablePath = path.join(BIN_DIR, "wgc-capture.exe");
 fs.copyFileSync(outputPath, distributablePath);
@@ -133,7 +138,12 @@ fs.copyFileSync(outputPath, distributablePath);
 const cursorSamplerDistributablePath = path.join(BIN_DIR, "cursor-sampler.exe");
 fs.copyFileSync(cursorSamplerOutputPath, cursorSamplerDistributablePath);
 
+const guideHotkeyListenerDistributablePath = path.join(BIN_DIR, "guide-hotkey-listener.exe");
+fs.copyFileSync(guideHotkeyListenerOutputPath, guideHotkeyListenerDistributablePath);
+
 console.log(`Built ${outputPath}`);
 console.log(`Copied ${distributablePath}`);
 console.log(`Built ${cursorSamplerOutputPath}`);
 console.log(`Copied ${cursorSamplerDistributablePath}`);
+console.log(`Built ${guideHotkeyListenerOutputPath}`);
+console.log(`Copied ${guideHotkeyListenerDistributablePath}`);

@@ -36,6 +36,13 @@ const candidates: GuideStepCandidate[] = [
 		action: "click",
 		targetText: "Save",
 		targetRole: "button",
+		position: {
+			normalizedX: 0.5,
+			normalizedY: 0.5,
+			xPercent: 50,
+			yPercent: 50,
+			description: "center",
+		},
 		nearbyText: ["Save"],
 		confidence: 0.9,
 	},
@@ -46,7 +53,9 @@ describe("guide draft helpers", () => {
 		const prompt = buildGuideDraftPrompt({ session, candidates, language: "en" });
 
 		expect(prompt).toContain("Return JSON only");
+		expect(prompt).toContain('"sourceCandidateId": "candidate-1"');
 		expect(prompt).toContain('"targetText": "Save"');
+		expect(prompt).toContain('"xPercent": 50');
 		expect(prompt).toContain('"id":"guide-step-1"');
 	});
 

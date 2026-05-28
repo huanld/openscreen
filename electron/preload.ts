@@ -6,6 +6,7 @@ import type {
 	ExportGuideInput,
 	FinalizeGuideEventsInput,
 	GenerateGuideDraftInput,
+	GuideMarkerCapturedPayload,
 	RunGuideOcrInput,
 	SaveGuideAiSettingsInput,
 	SaveGuideInput,
@@ -42,6 +43,13 @@ contextBridge.exposeInMainWorld("electronAPI", {
 			return ipcRenderer.invoke("guide:capture-pointer-marker") as Promise<
 				import("../src/guide/contracts").GuideIpcResult<CaptureGuidePointerMarkerResult>
 			>;
+		},
+		onMarkerCaptured: (callback: (payload: GuideMarkerCapturedPayload) => void) => {
+			const listener = (_event: Electron.IpcRendererEvent, payload: GuideMarkerCapturedPayload) => {
+				callback(payload);
+			};
+			ipcRenderer.on("guide:marker-captured", listener);
+			return () => ipcRenderer.removeListener("guide:marker-captured", listener);
 		},
 		finalizeEvents: (input: FinalizeGuideEventsInput) => {
 			return ipcRenderer.invoke("guide:finalize-events", input);

@@ -921,7 +921,10 @@ export function useScreenRecorder(): UseScreenRecorderReturn {
 			}
 
 			const activeRecordingId = Date.now();
-			const displayId = Number(selectedSource.display_id);
+			const displayId =
+				typeof selectedSource.displayId === "number"
+					? selectedSource.displayId
+					: Number(selectedSource.display_id);
 			const sourceType = selectedSource.id.startsWith("window:") ? "window" : "display";
 			const windowHandle = parseWindowHandleFromSourceId(selectedSource.id);
 			if (webcamEnabled) {
@@ -946,6 +949,7 @@ export function useScreenRecorder(): UseScreenRecorderReturn {
 					type: sourceType,
 					sourceId: selectedSource.id,
 					...(Number.isFinite(displayId) ? { displayId } : {}),
+					...(selectedSource.bounds ? { bounds: selectedSource.bounds } : {}),
 					...(windowHandle ? { windowHandle } : {}),
 				},
 				video: {
@@ -1039,7 +1043,9 @@ export function useScreenRecorder(): UseScreenRecorderReturn {
 			const activeRecordingId = Date.now();
 			const sourceType = selectedSource.id.startsWith("window:") ? "window" : "display";
 			const displayId =
-				Number(selectedSource.display_id) || parseMacDisplayIdFromSourceId(selectedSource.id);
+				typeof selectedSource.displayId === "number"
+					? selectedSource.displayId
+					: Number(selectedSource.display_id) || parseMacDisplayIdFromSourceId(selectedSource.id);
 			const windowId = parseMacWindowIdFromSourceId(selectedSource.id);
 			let nativeWebcamRecorder: RecorderHandle | null = null;
 			if (webcamEnabled) {
@@ -1083,6 +1089,7 @@ export function useScreenRecorder(): UseScreenRecorderReturn {
 					type: sourceType,
 					sourceId: selectedSource.id,
 					...(displayId ? { displayId } : {}),
+					...(selectedSource.bounds ? { bounds: selectedSource.bounds } : {}),
 					...(windowId ? { windowId } : {}),
 				},
 				video: {

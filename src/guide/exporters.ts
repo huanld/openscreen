@@ -97,7 +97,7 @@ function resolveStepClickPoint(
 		: undefined;
 	const eventId = candidate?.eventId;
 	const event = eventId ? session.events.find((item) => item.id === eventId) : undefined;
-	if (!event || event.kind !== "click") {
+	if (!event || (event.kind !== "click" && event.kind !== "hotkey")) {
 		return null;
 	}
 	if (isNormalizedNumber(event.normalizedX) && isNormalizedNumber(event.normalizedY)) {

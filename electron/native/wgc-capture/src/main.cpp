@@ -400,6 +400,7 @@ int main(int argc, char* argv[]) {
     if (config.sourceType == "display") {
         HMONITOR monitor = findMonitorForCapture(
             config.displayId,
+            config.sourceId,
             config.hasDisplayBounds ? &config.bounds : nullptr);
         if (!monitor) {
             std::cerr << "ERROR: Could not resolve monitor" << std::endl;

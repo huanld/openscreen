@@ -79,8 +79,26 @@ export interface GuideStepCandidate {
 	action: GuideAction;
 	targetText?: string;
 	targetRole?: GuideTargetRole;
+	position?: {
+		normalizedX: number;
+		normalizedY: number;
+		xPercent: number;
+		yPercent: number;
+		description: string;
+	};
 	nearbyText: string[];
 	confidence: number;
+}
+
+export interface GuideMarkerCapturedPayload {
+	recordingId: string;
+	eventId: string;
+	timeMs: number;
+	trigger: "button" | "global-control" | "global-shortcut";
+	normalizedX?: number;
+	normalizedY?: number;
+	rawX?: number;
+	rawY?: number;
 }
 
 export interface GeneratedGuideStep {

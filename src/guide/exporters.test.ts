@@ -83,4 +83,22 @@ describe("guide exporters", () => {
 		expect(html).toContain("click-marker");
 		expect(html).toContain("left: 25.00%; top: 75.00%;");
 	});
+
+	it("draws click markers for hotkey events with coordinates", () => {
+		const hotkeySession: GuideSession = {
+			...session,
+			events: [
+				{
+					...session.events[0],
+					kind: "hotkey",
+					source: "guide-hotkey",
+				},
+			],
+		};
+
+		const html = exportGuideToHtml(hotkeySession);
+
+		expect(html).toContain("click-marker");
+		expect(html).toContain("left: 25.00%; top: 75.00%;");
+	});
 });

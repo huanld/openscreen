@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <string>
 #include <vector>
 
 namespace {
@@ -43,9 +44,36 @@ int64_t overlapArea(const RECT& rect, const MonitorBounds& bounds) {
     return static_cast<int64_t>(right - left) * static_cast<int64_t>(bottom - top);
 }
 
+int parseScreenSourceIndex(const std::string& sourceId) {
+    constexpr char prefix[] = "screen:";
+    if (sourceId.rfind(prefix, 0) != 0) {
+        return -1;
+    }
+
+    const size_t start = sizeof(prefix) - 1;
+    const size_t end = sourceId.find(':', start);
+    const std::string indexText = sourceId.substr(
+        start,
+        end == std::string::npos ? std::string::npos : end - start);
+    if (indexText.empty()) {
+        return -1;
+    }
+
+    try {
+        size_t parsed = 0;
+        const int index = std::stoi(indexText, &parsed, 10);
+        return parsed == indexText.size() && index >= 0 ? index : -1;
+    } catch (...) {
+        return -1;
+    }
+}
+
 } // namespace
 
-HMONITOR findMonitorForCapture(int64_t displayId, const MonitorBounds* bounds) {
+HMONITOR findMonitorForCapture(
+    int64_t displayId,
+    const std::string& sourceId,
+    const MonitorBounds* bounds) {
     const auto monitors = enumerateMonitors();
     if (monitors.empty()) {
         return MonitorFromPoint({0, 0}, MONITOR_DEFAULTTOPRIMARY);
@@ -82,6 +110,11 @@ HMONITOR findMonitorForCapture(int64_t displayId, const MonitorBounds* bounds) {
         if (reinterpret_cast<int64_t>(candidate.monitor) == displayId) {
             return candidate.monitor;
         }
+    }
+
+    const int sourceIndex = parseScreenSourceIndex(sourceId);
+    if (sourceIndex >= 0 && static_cast<size_t>(sourceIndex) < monitors.size()) {
+        return monitors[static_cast<size_t>(sourceIndex)].monitor;
     }
 
     return MonitorFromPoint({0, 0}, MONITOR_DEFAULTTOPRIMARY);

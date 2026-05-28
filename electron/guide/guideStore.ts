@@ -336,10 +336,11 @@ export class GuideStore {
 			}
 		}
 
+		const normalizedGuide = normalizeGeneratedGuide(generatedGuide) ?? generatedGuide;
 		const updatedSession = touchSession({
 			...session,
 			candidates,
-			generatedGuide: normalizeGeneratedGuide(generatedGuide) ?? generatedGuide,
+			generatedGuide: enrichGeneratedGuide(normalizedGuide, session, candidates, input.language),
 			status: "draft-ready",
 		});
 		await this.writeSession(updatedSession);
@@ -743,8 +744,38 @@ function normalizeGuideStepCandidate(input: unknown): GuideStepCandidate | null 
 			input.targetRole === "unknown"
 				? input.targetRole
 				: undefined,
+		position: normalizeGuideCandidatePosition(input.position),
 		nearbyText,
 		confidence,
+	};
+}
+
+function normalizeGuideCandidatePosition(
+	input: unknown,
+): GuideStepCandidate["position"] | undefined {
+	if (!isRecord(input)) {
+		return undefined;
+	}
+	const normalizedX = normalizeOptionalNormalizedNumber(input.normalizedX);
+	const normalizedY = normalizeOptionalNormalizedNumber(input.normalizedY);
+	const xPercent = normalizeOptionalNumber(input.xPercent);
+	const yPercent = normalizeOptionalNumber(input.yPercent);
+	const description = normalizeOptionalString(input.description);
+	if (
+		normalizedX === undefined ||
+		normalizedY === undefined ||
+		xPercent === undefined ||
+		yPercent === undefined ||
+		!description
+	) {
+		return undefined;
+	}
+	return {
+		normalizedX,
+		normalizedY,
+		xPercent,
+		yPercent,
+		description,
 	};
 }
 
@@ -783,6 +814,101 @@ function normalizeGeneratedGuide(input: unknown): GeneratedGuide | null {
 		summary: normalizeOptionalString(input.summary),
 		steps,
 	};
+}
+
+function enrichGeneratedGuide(
+	guide: GeneratedGuide,
+	session: GuideSession,
+	candidates: GuideStepCandidate[],
+	language: GenerateGuideDraftInput["language"],
+): GeneratedGuide {
+	const sortedCandidates = [...candidates].sort((left, right) => left.timeMs - right.timeMs);
+	const candidatesById = new Map(candidates.map((candidate) => [candidate.id, candidate]));
+	const snapshotsById = new Map(session.snapshots.map((snapshot) => [snapshot.id, snapshot]));
+	const snapshotsByEventId = new Map(
+		session.snapshots.map((snapshot) => [snapshot.eventId, snapshot]),
+	);
+
+	return {
+		...guide,
+		steps: guide.steps.map((step, index) => {
+			const candidate =
+				(step.sourceCandidateId ? candidatesById.get(step.sourceCandidateId) : undefined) ??
+				sortedCandidates[index];
+			const snapshot = candidate
+				? ((candidate.snapshotId ? snapshotsById.get(candidate.snapshotId) : undefined) ??
+					snapshotsByEventId.get(candidate.eventId))
+				: undefined;
+			const repairedStep = repairGenericMarkerStep(step, candidate, language);
+			return {
+				...repairedStep,
+				sourceCandidateId: candidate?.id ?? repairedStep.sourceCandidateId,
+				screenshotPath: repairedStep.screenshotPath ?? snapshot?.path,
+			};
+		}),
+	};
+}
+
+function repairGenericMarkerStep(
+	step: GeneratedGuideStep,
+	candidate: GuideStepCandidate | undefined,
+	language: GenerateGuideDraftInput["language"],
+): GeneratedGuideStep {
+	if (
+		!candidate ||
+		(!containsGenericMarkerText(step.title) && !containsGenericMarkerText(step.instruction))
+	) {
+		return step;
+	}
+
+	return {
+		...step,
+		title: buildRepairedStepTitle(candidate, step.order, language),
+		instruction: buildRepairedStepInstruction(candidate, language),
+	};
+}
+
+function containsGenericMarkerText(value: string): boolean {
+	return /\b(?:ctrl|control)(?:\s*\+\s*f12)?\s+marker\b/i.test(value);
+}
+
+function buildRepairedStepTitle(
+	candidate: GuideStepCandidate,
+	order: number,
+	language: GenerateGuideDraftInput["language"],
+): string {
+	if (candidate.targetText) {
+		return language === "vi"
+			? `Bước ${order}: ${candidate.targetText}`
+			: `Step ${order}: ${candidate.targetText}`;
+	}
+	if (candidate.position) {
+		return language === "vi"
+			? `Bước ${order}: Vị trí x ${candidate.position.xPercent}%, y ${candidate.position.yPercent}%`
+			: `Step ${order}: Position x ${candidate.position.xPercent}%, y ${candidate.position.yPercent}%`;
+	}
+	return stepTitleFallback(order, language);
+}
+
+function buildRepairedStepInstruction(
+	candidate: GuideStepCandidate,
+	language: GenerateGuideDraftInput["language"],
+): string {
+	if (candidate.targetText) {
+		return language === "vi"
+			? `Nhấn vào "${candidate.targetText}".`
+			: `Click "${candidate.targetText}".`;
+	}
+	if (candidate.position) {
+		return language === "vi"
+			? `Nhấn tại vùng ${candidate.position.description} (x ${candidate.position.xPercent}%, y ${candidate.position.yPercent}%).`
+			: `Click the ${candidate.position.description} area (x ${candidate.position.xPercent}%, y ${candidate.position.yPercent}%).`;
+	}
+	return language === "vi" ? "Thực hiện thao tác tại mốc đã ghi." : "Perform the recorded action.";
+}
+
+function stepTitleFallback(order: number, language: GenerateGuideDraftInput["language"]): string {
+	return language === "vi" ? `Bước ${order}` : `Step ${order}`;
 }
 
 function normalizeArray<T>(input: unknown, normalize: (value: unknown) => T | null): T[] {

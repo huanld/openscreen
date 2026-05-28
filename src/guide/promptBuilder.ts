@@ -17,10 +17,12 @@ export function buildGuideDraftPrompt(input: GuidePromptInput): string {
 	const candidatesJson = JSON.stringify(
 		input.candidates.map((candidate, index) => ({
 			order: index + 1,
+			sourceCandidateId: candidate.id,
 			timeMs: Math.round(candidate.timeMs),
 			action: candidate.action,
 			targetText: candidate.targetText,
 			targetRole: candidate.targetRole,
+			position: candidate.position,
 			nearbyText: candidate.nearbyText,
 			confidence: candidate.confidence,
 		})),
@@ -36,8 +38,10 @@ export function buildGuideDraftPrompt(input: GuidePromptInput): string {
 		"Rules:",
 		"- Use short, explicit step instructions.",
 		"- Prefer visible target text from OCR when it is available.",
+		"- Return sourceCandidateId exactly from the chosen candidate.",
+		"- Never use generic marker text such as Ctrl+F12 marker or Ctrl marker as a UI target.",
 		"- Do not invent buttons or screens that are not in the candidates.",
-		"- If a target is unclear, describe the action by screen position or timestamp.",
+		"- If a target is unclear, describe the action by the candidate position and include the x/y percentages.",
 		"",
 		"Candidates:",
 		candidatesJson,
@@ -92,11 +96,17 @@ function buildInstruction(candidate: GuideStepCandidate, language: GuideLanguage
 		if (target) {
 			return `${candidate.action === "click" ? "Nhấn" : "Thực hiện thao tác"} vào "${target}".`;
 		}
+		if (candidate.position) {
+			return `Nhấn tại vùng ${candidate.position.description} (x ${candidate.position.xPercent}%, y ${candidate.position.yPercent}%).`;
+		}
 		return `Thực hiện thao tác tại mốc ${formatTimestamp(candidate.timeMs)}.`;
 	}
 
 	if (target) {
 		return `${candidate.action === "click" ? "Click" : "Use"} "${target}".`;
+	}
+	if (candidate.position) {
+		return `Click the ${candidate.position.description} area (x ${candidate.position.xPercent}%, y ${candidate.position.yPercent}%).`;
 	}
 	return `Perform the action at ${formatTimestamp(candidate.timeMs)}.`;
 }

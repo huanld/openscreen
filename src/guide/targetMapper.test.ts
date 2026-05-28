@@ -98,6 +98,7 @@ describe("buildGuideStepCandidates", () => {
 			source: "guide-hotkey",
 			normalizedX: 0.5,
 			normalizedY: 0.5,
+			label: "Ctrl+F12 marker",
 		};
 
 		const candidates = buildGuideStepCandidates(session);
@@ -106,6 +107,12 @@ describe("buildGuideStepCandidates", () => {
 			action: "click",
 			targetText: "Save",
 			targetRole: "button",
+			position: {
+				normalizedX: 0.5,
+				normalizedY: 0.5,
+				xPercent: 50,
+				yPercent: 50,
+			},
 		});
 	});
 

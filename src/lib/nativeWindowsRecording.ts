@@ -6,6 +6,12 @@ export type NativeWindowsRecordingRequest = {
 		type: NativeWindowsSourceType;
 		sourceId: string;
 		displayId?: number;
+		bounds?: {
+			x: number;
+			y: number;
+			width: number;
+			height: number;
+		};
 		windowHandle?: string;
 	};
 	video: {

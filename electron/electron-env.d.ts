@@ -53,6 +53,9 @@ interface Window {
 					import("../src/guide/contracts").CaptureGuidePointerMarkerResult
 				>
 			>;
+			onMarkerCaptured: (
+				callback: (payload: import("../src/guide/contracts").GuideMarkerCapturedPayload) => void,
+			) => () => void;
 			finalizeEvents: (
 				input: import("../src/guide/contracts").FinalizeGuideEventsInput,
 			) => Promise<
@@ -376,6 +379,16 @@ interface ProcessedDesktopSource {
 	display_id: string;
 	thumbnail: string | null;
 	appIcon: string | null;
+	displayId?: number;
+	displayIndex?: number;
+	screenIndex?: number;
+	displayLabel?: string;
+	bounds?: {
+		x: number;
+		y: number;
+		width: number;
+		height: number;
+	};
 }
 
 interface CursorTelemetryPoint {

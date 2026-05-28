@@ -5,7 +5,7 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
-import type { DesktopCapturerSource } from "electron";
+import type { DesktopCapturerSource, Rectangle } from "electron";
 import {
 	app,
 	BrowserWindow,
@@ -17,6 +17,7 @@ import {
 	shell,
 	systemPreferences,
 } from "electron";
+import type { GuideMarkerCapturedPayload } from "../../src/guide/contracts";
 import type { NativeMacRecordingRequest } from "../../src/lib/nativeMacRecording";
 import type { NativeWindowsRecordingRequest } from "../../src/lib/nativeWindowsRecording";
 import {
@@ -344,8 +345,15 @@ type SelectedSource = {
 	name: string;
 	id?: string;
 	display_id?: string;
+	displayId?: number;
+	displayIndex?: number;
+	screenIndex?: number;
+	displayLabel?: string;
+	bounds?: SourceBounds;
 	[key: string]: unknown;
 };
+
+type SourceBounds = { x: number; y: number; width: number; height: number };
 
 type AttachNativeMacWebcamRecordingInput = {
 	screenVideoPath?: string;
@@ -429,8 +437,10 @@ let nativeMacCursorRecordingStartMs = 0;
 let nativeMacPauseStartedAtMs: number | null = null;
 let nativeMacPauseRanges: Array<{ startMs: number; endMs: number }> = [];
 let nativeMacIsPaused = false;
+let guideHotkeyListenerProcess: ChildProcessWithoutNullStreams | null = null;
 const GUIDE_MARKER_HOTKEY = "Control+F12";
 const GUIDE_MARKER_HOTKEY_LABEL = "Ctrl+F12";
+type GuideMarkerTrigger = GuideMarkerCapturedPayload["trigger"];
 type GuideHotkeyBounds = { x: number; y: number; width: number; height: number };
 type GuideHotkeyRecordingState = {
 	recordingId: number;
@@ -442,6 +452,8 @@ type GuideHotkeyRecordingState = {
 let activeGuideHotkeyRecording: GuideHotkeyRecordingState | null = null;
 let activeGuideHotkeySessionId: number | null = null;
 let guideMarkerHotkeyRegistered = false;
+let lastGuideHotkeyCaptureAtMs = 0;
+const GUIDE_HOTKEY_CAPTURE_DEBOUNCE_MS = 250;
 
 function normalizeCursorSample(sample: unknown): CursorRecordingSample | null {
 	if (!sample || typeof sample !== "object") {
@@ -590,12 +602,109 @@ function resolveAssetBasePath() {
 	}
 }
 
+function parseDesktopCapturerScreenIndex(sourceId?: string | null): number | null {
+	if (!sourceId?.startsWith("screen:")) {
+		return null;
+	}
+	const indexPart = sourceId.split(":")[1];
+	if (!indexPart || !/^\d+$/.test(indexPart)) {
+		return null;
+	}
+	const index = Number(indexPart);
+	return Number.isInteger(index) && index >= 0 ? index : null;
+}
+
+function normalizeSourceBounds(input: unknown): SourceBounds | undefined {
+	if (!input || typeof input !== "object") {
+		return undefined;
+	}
+	const bounds = input as Partial<SourceBounds>;
+	const x = Number(bounds.x);
+	const y = Number(bounds.y);
+	const width = Number(bounds.width);
+	const height = Number(bounds.height);
+	if (
+		!Number.isFinite(x) ||
+		!Number.isFinite(y) ||
+		!Number.isFinite(width) ||
+		!Number.isFinite(height) ||
+		width <= 0 ||
+		height <= 0
+	) {
+		return undefined;
+	}
+	return {
+		x: Math.round(x),
+		y: Math.round(y),
+		width: Math.round(width),
+		height: Math.round(height),
+	};
+}
+
+function toSourceBounds(bounds: Rectangle): SourceBounds {
+	return {
+		x: Math.round(bounds.x),
+		y: Math.round(bounds.y),
+		width: Math.round(bounds.width),
+		height: Math.round(bounds.height),
+	};
+}
+
+function findDisplayForSource(
+	source: Pick<DesktopCapturerSource, "id" | "display_id">,
+	screenSourceIndex?: number,
+) {
+	const displays = screen.getAllDisplays();
+	const displayId = Number(source.display_id);
+	const displayById = Number.isFinite(displayId)
+		? displays.find((display) => display.id === displayId)
+		: undefined;
+	if (displayById) {
+		return { display: displayById, displayIndex: displays.indexOf(displayById) };
+	}
+
+	const sourceIndex = parseDesktopCapturerScreenIndex(source.id) ?? screenSourceIndex;
+	if (sourceIndex !== null && sourceIndex !== undefined && sourceIndex < displays.length) {
+		return { display: displays[sourceIndex], displayIndex: sourceIndex };
+	}
+
+	return { display: null, displayIndex: undefined };
+}
+
+function getSelectedSourceDisplay() {
+	const displays = screen.getAllDisplays();
+	const explicitDisplayId =
+		typeof selectedSource?.displayId === "number"
+			? selectedSource.displayId
+			: Number(selectedSource?.display_id);
+	const displayById = Number.isFinite(explicitDisplayId)
+		? displays.find((display) => display.id === explicitDisplayId)
+		: undefined;
+	if (displayById) {
+		return displayById;
+	}
+
+	const sourceIndex =
+		typeof selectedSource?.displayIndex === "number"
+			? selectedSource.displayIndex
+			: typeof selectedSource?.screenIndex === "number"
+				? selectedSource.screenIndex
+				: parseDesktopCapturerScreenIndex(selectedSource?.id);
+	if (sourceIndex !== null && sourceIndex !== undefined && sourceIndex < displays.length) {
+		return displays[sourceIndex];
+	}
+
+	return null;
+}
+
 function getSelectedSourceBounds() {
 	const cursor = screen.getCursorScreenPoint();
-	const sourceDisplayId = Number(selectedSource?.display_id);
-	const sourceDisplay = Number.isFinite(sourceDisplayId)
-		? (screen.getAllDisplays().find((display) => display.id === sourceDisplayId) ?? null)
-		: null;
+	const selectedBounds = normalizeSourceBounds(selectedSource?.bounds);
+	if (selectedBounds) {
+		return selectedBounds;
+	}
+
+	const sourceDisplay = getSelectedSourceDisplay();
 	return (sourceDisplay ?? screen.getDisplayNearestPoint(cursor)).bounds;
 }
 
@@ -698,11 +807,20 @@ function clampGuideHotkey01(value: number): number {
 	return Math.min(1, Math.max(0, value));
 }
 
-async function captureGuideHotkeyMarker(guideStore: GuideStore) {
+async function captureGuideHotkeyMarker(
+	guideStore: GuideStore,
+	trigger: GuideMarkerTrigger = "global-shortcut",
+) {
 	const recording = activeGuideHotkeyRecording;
 	if (!recording || activeGuideHotkeySessionId !== recording.recordingId) {
 		return { captured: false };
 	}
+
+	const captureRequestedAtMs = Date.now();
+	if (captureRequestedAtMs - lastGuideHotkeyCaptureAtMs < GUIDE_HOTKEY_CAPTURE_DEBOUNCE_MS) {
+		return { captured: false };
+	}
+	lastGuideHotkeyCaptureAtMs = captureRequestedAtMs;
 
 	const point = getGuideHotkeyPoint(recording.bounds);
 	try {
@@ -714,11 +832,21 @@ async function captureGuideHotkeyMarker(guideStore: GuideStore) {
 			y: point.normalizedY,
 			normalizedX: point.normalizedX,
 			normalizedY: point.normalizedY,
-			label: `${GUIDE_MARKER_HOTKEY_LABEL} marker`,
+		});
+		notifyGuideMarkerCaptured({
+			recordingId: result.event.recordingId,
+			eventId: result.event.id,
+			timeMs: result.event.timeMs,
+			trigger,
+			normalizedX: result.event.normalizedX,
+			normalizedY: result.event.normalizedY,
+			rawX: point.rawX,
+			rawY: point.rawY,
 		});
 		console.info("[guide-hotkey] marker captured", {
 			recordingId: recording.recordingId,
 			timeMs: result.event.timeMs,
+			trigger,
 			normalizedX: result.event.normalizedX,
 			normalizedY: result.event.normalizedY,
 			rawX: point.rawX,
@@ -733,13 +861,110 @@ async function captureGuideHotkeyMarker(guideStore: GuideStore) {
 	}
 }
 
+function notifyGuideMarkerCaptured(payload: GuideMarkerCapturedPayload) {
+	for (const window of BrowserWindow.getAllWindows()) {
+		if (!window.isDestroyed()) {
+			window.webContents.send("guide:marker-captured", payload);
+		}
+	}
+}
+
+function handleGuideHotkeyListenerLine(line: string, guideStore: GuideStore) {
+	const text = line.trim();
+	if (!text) {
+		return;
+	}
+
+	try {
+		const event = JSON.parse(text) as {
+			event?: unknown;
+			key?: unknown;
+			state?: unknown;
+		};
+		if (event.event === "ready") {
+			console.info("[guide-hotkey] native Ctrl listener ready");
+			return;
+		}
+		if (event.event === "guide-hotkey" && event.key === "control" && event.state === "down") {
+			void captureGuideHotkeyMarker(guideStore, "global-control");
+			return;
+		}
+	} catch {
+		console.warn("[guide-hotkey] native listener emitted invalid JSON:", text);
+	}
+}
+
+async function startNativeGuideHotkeyListener(guideStore: GuideStore) {
+	if (process.platform !== "win32" || guideHotkeyListenerProcess) {
+		return;
+	}
+
+	const helperPath = await findNativeGuideHotkeyListenerPath();
+	if (!helperPath) {
+		console.warn("[guide-hotkey] native Ctrl listener is unavailable");
+		return;
+	}
+
+	const proc = spawn(helperPath, [], {
+		cwd: path.dirname(helperPath),
+		stdio: ["pipe", "pipe", "pipe"],
+		windowsHide: true,
+	});
+	proc.stdin.end();
+	guideHotkeyListenerProcess = proc;
+
+	let stdoutBuffer = "";
+	proc.stdout.setEncoding("utf-8");
+	proc.stdout.on("data", (chunk: string) => {
+		stdoutBuffer += chunk;
+		const lines = stdoutBuffer.split(/\r?\n/);
+		stdoutBuffer = lines.pop() ?? "";
+		for (const line of lines) {
+			handleGuideHotkeyListenerLine(line, guideStore);
+		}
+	});
+
+	proc.stderr.setEncoding("utf-8");
+	proc.stderr.on("data", (chunk: string) => {
+		const message = chunk.trim();
+		if (message) {
+			console.warn("[guide-hotkey] native listener:", message);
+		}
+	});
+
+	proc.once("error", (error) => {
+		console.warn("[guide-hotkey] failed to start native Ctrl listener:", error);
+		if (guideHotkeyListenerProcess === proc) {
+			guideHotkeyListenerProcess = null;
+		}
+	});
+	proc.once("exit", (code, signal) => {
+		if (guideHotkeyListenerProcess === proc) {
+			guideHotkeyListenerProcess = null;
+		}
+		if (code !== 0 && code !== null) {
+			console.warn("[guide-hotkey] native Ctrl listener exited", { code, signal });
+		}
+	});
+}
+
+function stopNativeGuideHotkeyListener() {
+	const proc = guideHotkeyListenerProcess;
+	guideHotkeyListenerProcess = null;
+	if (proc && !proc.killed) {
+		proc.kill();
+	}
+}
+
 function registerGuideMarkerHotkey(guideStore: GuideStore) {
 	if (guideMarkerHotkeyRegistered) {
 		return;
 	}
 
+	void startNativeGuideHotkeyListener(guideStore);
+
 	guideMarkerHotkeyRegistered = globalShortcut.register(GUIDE_MARKER_HOTKEY, () => {
-		void captureGuideHotkeyMarker(guideStore);
+		void captureGuideHotkeyMarker(guideStore, "global-shortcut");
 	});
 
 	if (!guideMarkerHotkeyRegistered) {
@@ -749,6 +974,7 @@ function registerGuideMarkerHotkey(guideStore: GuideStore) {
 
 	app.once("will-quit", () => {
 		globalShortcut.unregister(GUIDE_MARKER_HOTKEY);
+		stopNativeGuideHotkeyListener();
 		guideMarkerHotkeyRegistered = false;
 	});
 }
@@ -758,12 +984,7 @@ function getSelectedSourceId() {
 }
 
 function getSelectedDisplay() {
-	const sourceDisplayId = Number(selectedSource?.display_id);
-	if (!Number.isFinite(sourceDisplayId)) {
-		return null;
-	}
-
-	return screen.getAllDisplays().find((display) => display.id === sourceDisplayId) ?? null;
+	return getSelectedSourceDisplay();
 }
 
 function resolveUnpackedAppPath(...segments: string[]) {
@@ -802,12 +1023,42 @@ function getNativeWindowsCaptureHelperCandidates() {
 	].filter((candidate): candidate is string => Boolean(candidate));
 }
 
+function getNativeGuideHotkeyListenerCandidates() {
+	const envPath = process.env.OPENSCREEN_GUIDE_HOTKEY_LISTENER_EXE?.trim();
+	const archTag = process.arch === "arm64" ? "win32-arm64" : "win32-x64";
+	const helperName = "guide-hotkey-listener.exe";
+	return [
+		envPath,
+		resolveUnpackedAppPath("electron", "native", "wgc-capture", "build", "Release", helperName),
+		resolveUnpackedAppPath("electron", "native", "wgc-capture", "build", helperName),
+		resolveUnpackedAppPath("electron", "native", "bin", archTag, helperName),
+		resolvePackagedResourcePath("electron", "native", "bin", archTag, helperName),
+	].filter((candidate): candidate is string => Boolean(candidate));
+}
+
 async function findNativeWindowsCaptureHelperPath() {
 	if (process.platform !== "win32") {
 		return null;
 	}
 
 	for (const candidate of getNativeWindowsCaptureHelperCandidates()) {
+		try {
+			await fs.access(candidate, fsConstants.X_OK);
+			return candidate;
+		} catch {
+			// Try the next configured helper location.
+		}
+	}
+
+	return null;
+}
+
+async function findNativeGuideHotkeyListenerPath() {
+	if (process.platform !== "win32") {
+		return null;
+	}
+
+	for (const candidate of getNativeGuideHotkeyListenerCandidates()) {
 		try {
 			await fs.access(candidate, fsConstants.X_OK);
 			return candidate;
@@ -1480,17 +1731,42 @@ export function registerIpcHandlers(
 	ipcMain.handle("get-sources", async (_, opts) => {
 		const sources = await desktopCapturer.getSources(opts);
 		lastEnumeratedSources = new Map(sources.map((source) => [source.id, source]));
-		return sources.map((source) => ({
-			id: source.id,
-			name: source.name,
-			display_id: source.display_id,
-			thumbnail: source.thumbnail ? source.thumbnail.toDataURL() : null,
-			appIcon: source.appIcon ? source.appIcon.toDataURL() : null,
-		}));
+		let screenSourceIndex = 0;
+		return sources.map((source) => {
+			const isScreenSource = source.id.startsWith("screen:");
+			const sourceIndex = isScreenSource
+				? (parseDesktopCapturerScreenIndex(source.id) ?? screenSourceIndex)
+				: undefined;
+			const { display, displayIndex } = isScreenSource
+				? findDisplayForSource(source, screenSourceIndex)
+				: { display: null, displayIndex: undefined };
+			if (isScreenSource) {
+				screenSourceIndex += 1;
+			}
+			const bounds = display ? toSourceBounds(display.bounds) : undefined;
+			const displayLabel = bounds
+				? `Display ${(displayIndex ?? sourceIndex ?? 0) + 1} - ${bounds.width}x${bounds.height} @ ${bounds.x},${bounds.y}`
+				: undefined;
+			return {
+				id: source.id,
+				name: source.name,
+				display_id: source.display_id,
+				thumbnail: source.thumbnail ? source.thumbnail.toDataURL() : null,
+				appIcon: source.appIcon ? source.appIcon.toDataURL() : null,
+				displayId: display?.id,
+				displayIndex,
+				screenIndex: sourceIndex,
+				displayLabel,
+				bounds,
+			};
+		});
 	});
 
 	ipcMain.handle("select-source", async (_, source: SelectedSource) => {
-		selectedSource = source;
+		selectedSource = {
+			...source,
+			bounds: normalizeSourceBounds(source.bounds),
+		};
 		// Reuse the exact source object returned during enumeration to avoid
 		// Windows window-source id mismatches across separate getSources() calls.
 		selectedDesktopSource =
@@ -1713,16 +1989,19 @@ export function registerIpcHandlers(
 					RECORDINGS_DIR,
 					`${RECORDING_FILE_PREFIX}${recordingId}-webcam.mp4`,
 				);
+				const requestBounds = normalizeSourceBounds(request.source.bounds);
 				const sourceDisplay =
 					request.source.type === "display" && typeof request.source.displayId === "number"
 						? (screen.getAllDisplays().find((display) => display.id === request.source.displayId) ??
 							null)
 						: getSelectedDisplay();
-				const bounds = sourceDisplay?.bounds ?? getSelectedSourceBounds();
+				const bounds = requestBounds ?? sourceDisplay?.bounds ?? getSelectedSourceBounds();
 				const displayId =
 					typeof request.source.displayId === "number" && Number.isFinite(request.source.displayId)
 						? request.source.displayId
-						: Number(selectedSource?.display_id);
+						: typeof selectedSource?.displayId === "number"
+							? selectedSource.displayId
+							: Number(selectedSource?.display_id);
 				const webcamDirectShowClsid = request.webcam.enabled
 					? await resolveDirectShowWebcamClsid(request.webcam.deviceName)
 					: null;
@@ -2365,7 +2644,7 @@ export function registerIpcHandlers(
 		onSessionEnded: (recordingId) => deactivateGuideHotkeySession(recordingId),
 	});
 	ipcMain.handle("guide:capture-pointer-marker", async () => {
-		const result = await captureGuideHotkeyMarker(guideStore);
+		const result = await captureGuideHotkeyMarker(guideStore, "button");
 		if (result.error) {
 			return {
 				success: false,

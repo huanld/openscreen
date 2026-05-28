@@ -11,6 +11,16 @@ interface DesktopSource {
 	thumbnail: string | null;
 	display_id: string;
 	appIcon: string | null;
+	displayId?: number;
+	displayIndex?: number;
+	screenIndex?: number;
+	displayLabel?: string;
+	bounds?: {
+		x: number;
+		y: number;
+		width: number;
+		height: number;
+	};
 }
 
 export function SourceSelector() {
@@ -39,6 +49,11 @@ export function SourceSelector() {
 						thumbnail: source.thumbnail,
 						display_id: source.display_id,
 						appIcon: source.appIcon,
+						displayId: source.displayId,
+						displayIndex: source.displayIndex,
+						screenIndex: source.screenIndex,
+						displayLabel: source.displayLabel,
+						bounds: source.bounds,
 					})),
 				);
 			} catch (error) {
@@ -98,7 +113,14 @@ export function SourceSelector() {
 					{source.appIcon && (
 						<img src={source.appIcon} alt="" className={`${styles.icon} flex-shrink-0`} />
 					)}
-					<div className={`${styles.name} truncate`}>{source.name}</div>
+					<div className="min-w-0">
+						<div className={`${styles.name} truncate`}>{source.name}</div>
+						{source.displayLabel && (
+							<div className="truncate text-[9px] leading-3 text-zinc-500">
+								{source.displayLabel}
+							</div>
+						)}
+					</div>
 				</div>
 			</div>
 		);
