@@ -56,6 +56,7 @@ export interface GuideSnapshot {
 	offsetMs: number;
 	path: string;
 	markedPath?: string;
+	ocrCompletedAt?: string;
 	width: number;
 	height: number;
 }

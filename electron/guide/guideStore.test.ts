@@ -232,6 +232,74 @@ describe("GuideStore", () => {
 		await expect(fs.readFile(html.path, "utf-8")).resolves.toContain("<!doctype html>");
 	});
 
+	it("resumes OCR without reprocessing completed snapshots", async () => {
+		const recognizedSnapshotIds: string[] = [];
+		const store = new GuideStore(recordingsDir, {
+			ocrClient: {
+				recognize: async (snapshot) => {
+					recognizedSnapshotIds.push(snapshot.id);
+					return [];
+				},
+			},
+		});
+		await store.startSession(115);
+		const firstMarker = await store.addMarker({
+			recordingId: 115,
+			kind: "hotkey",
+			timeMs: 100,
+			label: "Ctrl+F12 marker",
+			normalizedX: 0.25,
+			normalizedY: 0.35,
+		});
+		const secondMarker = await store.addMarker({
+			recordingId: 115,
+			kind: "hotkey",
+			timeMs: 300,
+			label: "Ctrl+F12 marker",
+			normalizedX: 0.6,
+			normalizedY: 0.7,
+		});
+		const firstEvent = firstMarker.event;
+		const secondEvent = secondMarker.event;
+		await store.writeSnapshot({
+			recordingId: 115,
+			eventId: firstEvent?.id ?? "",
+			timeMs: 100,
+			offsetMs: 0,
+			width: 800,
+			height: 600,
+			pngBytes: new Uint8Array([1, 2, 3]).buffer,
+		});
+		await store.writeSnapshot({
+			recordingId: 115,
+			eventId: secondEvent?.id ?? "",
+			timeMs: 300,
+			offsetMs: 0,
+			width: 800,
+			height: 600,
+			pngBytes: new Uint8Array([4, 5, 6]).buffer,
+		});
+
+		await store.runOcr({
+			recordingId: 115,
+			snapshotIds: [`snapshot-${firstEvent?.id}`],
+		});
+		expect(recognizedSnapshotIds).toEqual([`snapshot-${firstEvent?.id}`]);
+
+		const resumedSession = await store.runOcr({ recordingId: 115 });
+		expect(recognizedSnapshotIds).toEqual([
+			`snapshot-${firstEvent?.id}`,
+			`snapshot-${secondEvent?.id}`,
+		]);
+		expect(resumedSession.snapshots.every((snapshot) => snapshot.ocrCompletedAt)).toBe(true);
+
+		await store.runOcr({ recordingId: 115 });
+		expect(recognizedSnapshotIds).toEqual([
+			`snapshot-${firstEvent?.id}`,
+			`snapshot-${secondEvent?.id}`,
+		]);
+	});
+
 	it("repairs generic hotkey marker text and attaches AI draft artifacts", async () => {
 		const store = new GuideStore(recordingsDir, {
 			ocrClient: {

@@ -177,17 +177,7 @@ function drawSnapshotMarker(
 	point: { x: number; y: number },
 ) {
 	const shortSide = Math.max(1, Math.min(canvas.width, canvas.height));
-	const haloRadius = clampNumber(Math.round(shortSide * 0.012), 8, 14);
-	const dotRadius = clampNumber(Math.round(shortSide * 0.0045), 3, 6);
-	const lineWidth = Math.max(1, Math.round(shortSide * 0.0015));
-
-	context.beginPath();
-	context.arc(point.x, point.y, haloRadius, 0, Math.PI * 2);
-	context.fillStyle = "rgba(250, 204, 21, 0.34)";
-	context.fill();
-	context.lineWidth = lineWidth;
-	context.strokeStyle = "rgba(239, 68, 68, 0.72)";
-	context.stroke();
+	const dotRadius = clampNumber(Math.round(shortSide * 0.005), 4, 7);
 
 	context.beginPath();
 	context.arc(point.x, point.y, dotRadius, 0, Math.PI * 2);

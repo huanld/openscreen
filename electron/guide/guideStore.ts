@@ -58,6 +58,8 @@ const VALID_EVENT_SOURCES = new Set<GuideEventSource>([
 	"review-ui",
 ]);
 
+const guideOcrJobsByRecordingId = new Map<string, Promise<GuideSession>>();
+
 export class GuideStoreError extends Error {
 	constructor(
 		readonly code: GuideErrorCode,
@@ -259,50 +261,103 @@ export class GuideStore {
 	}
 
 	async runOcr(input: RunGuideOcrInput): Promise<GuideSession> {
-		const session = await this.readSession(input.recordingId);
-		const requestedIds = new Set(input.snapshotIds ?? []);
-		const snapshots =
-			requestedIds.size > 0
-				? session.snapshots.filter((snapshot) => requestedIds.has(snapshot.id))
-				: session.snapshots;
-		if (snapshots.length === 0) {
-			throw new GuideStoreError("guide-invalid-input", "No guide snapshots are available for OCR.");
+		const recordingId = normalizeGuideRecordingId(input.recordingId);
+		if (!recordingId) {
+			throw new GuideStoreError("guide-invalid-input", "OCR run is missing recordingId.");
 		}
 
-		const ocrClient =
-			this.dependencies.ocrClient ??
-			DefaultGuideOcrClient.fromConfig(await this.dependencies.ocrConfigProvider?.getOcrConfig());
-		const shouldFocusOcrSnapshots =
-			this.dependencies.focusOcrSnapshots ?? this.dependencies.ocrClient === undefined;
-		const eventsById = new Map(session.events.map((event) => [event.id, event]));
-		const blocks: OcrBlock[] = [];
-		try {
-			for (const snapshot of snapshots) {
-				const focusedSnapshot = shouldFocusOcrSnapshots
-					? await createFocusedOcrSnapshot({
-							snapshot,
-							event: eventsById.get(snapshot.eventId),
-							outputDir: session.outputDir,
-						})
-					: { snapshot };
-				const recognizedBlocks = await ocrClient.recognize(focusedSnapshot.snapshot);
-				blocks.push(...remapFocusedOcrBlocks(recognizedBlocks, focusedSnapshot.transform));
+		const previousJob =
+			guideOcrJobsByRecordingId.get(recordingId)?.catch(() => undefined) ?? Promise.resolve();
+		const nextJob = previousJob.then(async () => {
+			let session = await this.readSession(recordingId);
+			const requestedIds = new Set(input.snapshotIds ?? []);
+			const snapshots =
+				requestedIds.size > 0
+					? session.snapshots.filter((snapshot) => requestedIds.has(snapshot.id))
+					: session.snapshots;
+			if (snapshots.length === 0) {
+				throw new GuideStoreError(
+					"guide-invalid-input",
+					"No guide snapshots are available for OCR.",
+				);
 			}
-		} catch (error) {
-			throw new GuideStoreError(
-				"guide-ocr-unavailable",
-				error instanceof Error ? error.message : "OCR failed.",
-				true,
-			);
-		}
 
-		const snapshotIds = new Set(snapshots.map((snapshot) => snapshot.id));
+			const completedSnapshotIds = new Set(
+				session.snapshots
+					.filter((snapshot) => isSnapshotOcrCompleted(snapshot, session.ocrBlocks))
+					.map((snapshot) => snapshot.id),
+			);
+			const pendingSnapshots = snapshots.filter(
+				(snapshot) => !completedSnapshotIds.has(snapshot.id),
+			);
+			if (pendingSnapshots.length === 0) {
+				if (session.status === "ocr-ready") {
+					return session;
+				}
+				const readySession = touchSession({
+					...session,
+					status: "ocr-ready",
+					candidates: buildGuideStepCandidates(session),
+				});
+				await this.writeSession(readySession);
+				return readySession;
+			}
+
+			const ocrClient =
+				this.dependencies.ocrClient ??
+				DefaultGuideOcrClient.fromConfig(await this.dependencies.ocrConfigProvider?.getOcrConfig());
+			const shouldFocusOcrSnapshots =
+				this.dependencies.focusOcrSnapshots ?? this.dependencies.ocrClient === undefined;
+			const eventsById = new Map(session.events.map((event) => [event.id, event]));
+			try {
+				for (const snapshot of pendingSnapshots) {
+					const focusedSnapshot = shouldFocusOcrSnapshots
+						? await createFocusedOcrSnapshot({
+								snapshot,
+								event: eventsById.get(snapshot.eventId),
+								outputDir: session.outputDir,
+							})
+						: { snapshot };
+					const recognizedBlocks = await ocrClient.recognize(focusedSnapshot.snapshot);
+					const blocks = remapFocusedOcrBlocks(recognizedBlocks, focusedSnapshot.transform);
+					session = await this.writeOcrSnapshotProgress(session, snapshot.id, blocks);
+				}
+			} catch (error) {
+				throw new GuideStoreError(
+					"guide-ocr-unavailable",
+					error instanceof Error ? error.message : "OCR failed.",
+					true,
+				);
+			}
+
+			return session;
+		});
+		guideOcrJobsByRecordingId.set(recordingId, nextJob);
+		try {
+			return await nextJob;
+		} finally {
+			if (guideOcrJobsByRecordingId.get(recordingId) === nextJob) {
+				guideOcrJobsByRecordingId.delete(recordingId);
+			}
+		}
+	}
+
+	private async writeOcrSnapshotProgress(
+		session: GuideSession,
+		snapshotId: string,
+		blocks: OcrBlock[],
+	): Promise<GuideSession> {
 		const updatedOcrBlocks = [
-			...session.ocrBlocks.filter((block) => !snapshotIds.has(block.snapshotId)),
+			...session.ocrBlocks.filter((block) => block.snapshotId !== snapshotId),
 			...blocks,
 		];
+		const completedAt = new Date().toISOString();
+		const updatedSnapshots = session.snapshots.map((snapshot) =>
+			snapshot.id === snapshotId ? { ...snapshot, ocrCompletedAt: completedAt } : snapshot,
+		);
 		const draftSession = {
 			...session,
+			snapshots: updatedSnapshots,
 			ocrBlocks: updatedOcrBlocks,
 		};
 		const updatedSession = touchSession({
@@ -679,6 +734,7 @@ function normalizeGuideSnapshot(input: unknown): GuideSnapshot | null {
 	const eventId = normalizeString(input.eventId);
 	const pathValue = normalizeString(input.path);
 	const markedPath = normalizeOptionalString(input.markedPath);
+	const ocrCompletedAt = normalizeOptionalString(input.ocrCompletedAt);
 	const timeMs = normalizeNonNegativeNumber(input.timeMs);
 	const offsetMs = normalizeOptionalNumber(input.offsetMs);
 	const width = normalizePositiveInteger(input.width);
@@ -694,7 +750,23 @@ function normalizeGuideSnapshot(input: unknown): GuideSnapshot | null {
 	) {
 		return null;
 	}
-	return { id, eventId, timeMs, offsetMs, path: pathValue, markedPath, width, height };
+	return {
+		id,
+		eventId,
+		timeMs,
+		offsetMs,
+		path: pathValue,
+		markedPath,
+		ocrCompletedAt,
+		width,
+		height,
+	};
+}
+
+function isSnapshotOcrCompleted(snapshot: GuideSnapshot, ocrBlocks: OcrBlock[]): boolean {
+	return (
+		Boolean(snapshot.ocrCompletedAt) || ocrBlocks.some((block) => block.snapshotId === snapshot.id)
+	);
 }
 
 function normalizeOcrBlock(input: unknown): OcrBlock | null {

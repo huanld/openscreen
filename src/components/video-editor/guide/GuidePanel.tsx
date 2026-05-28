@@ -367,7 +367,11 @@ export function GuidePanel({ recordingId, videoPath, videoSourcePath }: GuidePan
 				});
 				setSession(current);
 			}
-			if (current.ocrBlocks.length === 0 && current.snapshots.length > 0) {
+			const ocrCompletedSnapshotIds = new Set(current.ocrBlocks.map((block) => block.snapshotId));
+			const hasPendingOcr = current.snapshots.some(
+				(snapshot) => !snapshot.ocrCompletedAt && !ocrCompletedSnapshotIds.has(snapshot.id),
+			);
+			if (hasPendingOcr) {
 				const ocrResult = await window.electronAPI.guide.runOcr({
 					recordingId: current.recordingId,
 				});

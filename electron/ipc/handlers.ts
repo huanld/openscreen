@@ -974,21 +974,13 @@ try {
   $graphics.SmoothingMode = [System.Drawing.Drawing2D.SmoothingMode]::AntiAlias
   $graphics.DrawImage($source, 0, 0, $source.Width, $source.Height)
   $shortSide = [Math]::Max(1, [Math]::Min($source.Width, $source.Height))
-  $haloRadius = [Math]::Min(14, [Math]::Max(8, [Math]::Round($shortSide * 0.012)))
-  $dotRadius = [Math]::Min(6, [Math]::Max(3, [Math]::Round($shortSide * 0.0045)))
-  $lineWidth = [Math]::Max(1, [Math]::Round($shortSide * 0.0015))
+  $dotRadius = [Math]::Min(7, [Math]::Max(4, [Math]::Round($shortSide * 0.005)))
   $x = [Math]::Min($source.Width, [Math]::Max(0, ${marker.x.toFixed(4)}))
   $y = [Math]::Min($source.Height, [Math]::Max(0, ${marker.y.toFixed(4)}))
-  $haloBrush = [System.Drawing.SolidBrush]::new([System.Drawing.Color]::FromArgb(87, 250, 204, 21))
-  $ringPen = [System.Drawing.Pen]::new([System.Drawing.Color]::FromArgb(184, 239, 68, 68), $lineWidth)
   $dotBrush = [System.Drawing.SolidBrush]::new([System.Drawing.Color]::FromArgb(235, 220, 38, 38))
   try {
-    $graphics.FillEllipse($haloBrush, $x - $haloRadius, $y - $haloRadius, $haloRadius * 2, $haloRadius * 2)
-    $graphics.DrawEllipse($ringPen, $x - $haloRadius, $y - $haloRadius, $haloRadius * 2, $haloRadius * 2)
     $graphics.FillEllipse($dotBrush, $x - $dotRadius, $y - $dotRadius, $dotRadius * 2, $dotRadius * 2)
   } finally {
-    $haloBrush.Dispose()
-    $ringPen.Dispose()
     $dotBrush.Dispose()
   }
   $bitmap.Save($outputPath, [System.Drawing.Imaging.ImageFormat]::Png)
