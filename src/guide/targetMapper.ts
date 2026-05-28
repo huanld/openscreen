@@ -233,7 +233,7 @@ function pointInsideExpandedBox(
 }
 
 function inferAction(event: GuideEvent): GuideAction {
-	if (event.kind === "click") {
+	if (event.kind === "click" || (event.kind === "hotkey" && getEventPoint(event))) {
 		return "click";
 	}
 	return "manual";

@@ -143,6 +143,7 @@ export function LaunchWindow() {
 		top: 12,
 		maxHeight: 240,
 	});
+	const guideCtrlMarkerArmedRef = useRef(false);
 
 	const {
 		devices: micDevices,
@@ -246,6 +247,47 @@ export function LaunchWindow() {
 			window.removeEventListener("keydown", handleEscape);
 		};
 	}, [isLanguageMenuOpen]);
+
+	useEffect(() => {
+		if (!recording || !guideModeEnabled) {
+			guideCtrlMarkerArmedRef.current = false;
+			return;
+		}
+
+		const isCtrlKey = (event: KeyboardEvent) =>
+			event.key === "Control" || event.code === "ControlLeft" || event.code === "ControlRight";
+
+		const handleKeyDown = (event: KeyboardEvent) => {
+			if (!isCtrlKey(event) || event.repeat || guideCtrlMarkerArmedRef.current) {
+				return;
+			}
+
+			guideCtrlMarkerArmedRef.current = true;
+			event.preventDefault();
+			event.stopPropagation();
+			addGuideMarker();
+		};
+
+		const releaseCtrlMarker = (event?: KeyboardEvent) => {
+			if (event && !isCtrlKey(event)) {
+				return;
+			}
+			guideCtrlMarkerArmedRef.current = false;
+		};
+		const handleWindowBlur = () => {
+			guideCtrlMarkerArmedRef.current = false;
+		};
+
+		window.addEventListener("keydown", handleKeyDown, { capture: true });
+		window.addEventListener("keyup", releaseCtrlMarker, { capture: true });
+		window.addEventListener("blur", handleWindowBlur);
+
+		return () => {
+			window.removeEventListener("keydown", handleKeyDown, { capture: true });
+			window.removeEventListener("keyup", releaseCtrlMarker, { capture: true });
+			window.removeEventListener("blur", handleWindowBlur);
+		};
+	}, [addGuideMarker, guideModeEnabled, recording]);
 
 	useEffect(() => {
 		if (!isLanguageMenuOpen || !languageTriggerRef.current) return;

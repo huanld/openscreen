@@ -209,18 +209,27 @@ export function useScreenRecorder(): UseScreenRecorderReturn {
 			return;
 		}
 
-		void window.electronAPI.guide
-			.addMarker({
+		void (async () => {
+			if (window.electronAPI?.guide.capturePointerMarker) {
+				const captureResult = await window.electronAPI.guide.capturePointerMarker();
+				if (captureResult.success && captureResult.data.captured) {
+					return;
+				}
+				if (!captureResult.success) {
+					console.warn("Failed to capture guide pointer marker:", captureResult.error);
+				}
+			}
+
+			const result = await window.electronAPI.guide.addMarker({
 				recordingId: activeRecordingId,
 				kind: "manual",
 				timeMs: getRecordingDurationMs(),
 				label: "Manual marker",
-			})
-			.then((result) => {
-				if (!result.success) {
-					console.warn("Failed to add guide marker:", result.error);
-				}
 			});
+			if (!result.success) {
+				console.warn("Failed to add guide marker:", result.error);
+			}
+		})();
 	}, [getRecordingDurationMs, recording]);
 
 	const selectMimeType = () => {

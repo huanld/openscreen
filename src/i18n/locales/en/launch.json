@@ -31,7 +31,7 @@
 	"guide": {
 		"enableGuideMode": "Enable guide mode",
 		"disableGuideMode": "Disable guide mode",
-		"addMarker": "Add guide marker"
+		"addMarker": "Capture guide marker (Ctrl or Ctrl+F12)"
 	},
 	"sourceSelector": {
 		"loading": "Loading sources...",

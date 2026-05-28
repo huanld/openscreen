@@ -48,6 +48,11 @@ interface Window {
 					event: import("../src/guide/contracts").GuideEvent;
 				}>
 			>;
+			capturePointerMarker: () => Promise<
+				import("../src/guide/contracts").GuideIpcResult<
+					import("../src/guide/contracts").CaptureGuidePointerMarkerResult
+				>
+			>;
 			finalizeEvents: (
 				input: import("../src/guide/contracts").FinalizeGuideEventsInput,
 			) => Promise<

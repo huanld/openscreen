@@ -127,6 +127,7 @@ export class GuideStore {
 			kind: input.kind,
 			source: input.kind === "hotkey" ? "guide-hotkey" : "review-ui",
 			timeMs: Math.max(0, input.timeMs),
+			...normalizeMarkerPoint(input),
 			label: normalizeOptionalString(input.label),
 			screenshotOffsetMs: 500,
 			createdAt: new Date().toISOString(),
@@ -811,6 +812,31 @@ function normalizeNonNegativeNumber(value: unknown): number | null {
 
 function normalizeOptionalNumber(value: unknown): number | undefined {
 	return typeof value === "number" && Number.isFinite(value) ? value : undefined;
+}
+
+function normalizeMarkerPoint(
+	input: AddGuideMarkerInput,
+): Pick<GuideEvent, "x" | "y" | "normalizedX" | "normalizedY"> {
+	const normalizedX = normalizeOptionalNormalizedNumber(input.normalizedX ?? input.x);
+	const normalizedY = normalizeOptionalNormalizedNumber(input.normalizedY ?? input.y);
+	if (normalizedX === undefined || normalizedY === undefined) {
+		return {};
+	}
+
+	return {
+		x: normalizedX,
+		y: normalizedY,
+		normalizedX,
+		normalizedY,
+	};
+}
+
+function normalizeOptionalNormalizedNumber(value: unknown): number | undefined {
+	if (typeof value !== "number" || !Number.isFinite(value)) {
+		return undefined;
+	}
+
+	return Math.min(1, Math.max(0, value));
 }
 
 function normalizePositiveInteger(value: unknown): number | null {

@@ -18,15 +18,25 @@ import type {
 import type { DeepSeekSettingsStore } from "./ai/deepseekSettingsStore";
 import { GuideStore, GuideStoreError } from "./guideStore";
 
+export interface GuideIpcLifecycle {
+	onSessionStarted?: (session: GuideSession) => void;
+	onSessionEnded?: (recordingId: unknown) => void;
+}
+
 export function registerGuideIpcHandlers(
 	ipcMain: IpcMain,
 	store: GuideStore,
 	aiSettingsStore?: DeepSeekSettingsStore,
+	lifecycle: GuideIpcLifecycle = {},
 ): void {
 	ipcMain.handle(
 		"guide:start-session",
 		async (_, recordingId): Promise<GuideIpcResult<GuideSession>> => {
-			return await toGuideResult(() => store.startSession(recordingId));
+			const result = await toGuideResult(() => store.startSession(recordingId));
+			if (result.success) {
+				lifecycle.onSessionStarted?.(result.data);
+			}
+			return result;
 		},
 	);
 
@@ -50,7 +60,11 @@ export function registerGuideIpcHandlers(
 	ipcMain.handle(
 		"guide:finalize-events",
 		async (_, input: FinalizeGuideEventsInput): Promise<GuideIpcResult<GuideSession>> => {
-			return await toGuideResult(() => store.finalizeEvents(input));
+			const result = await toGuideResult(() => store.finalizeEvents(input));
+			if (result.success) {
+				lifecycle.onSessionEnded?.(input.recordingId);
+			}
+			return result;
 		},
 	);
 
@@ -110,10 +124,14 @@ export function registerGuideIpcHandlers(
 	ipcMain.handle(
 		"guide:discard-session",
 		async (_, input: DiscardGuideSessionInput): Promise<GuideIpcResult<{ discarded: true }>> => {
-			return await toGuideResult(async () => {
+			const result = await toGuideResult(async () => {
 				await store.discardSession(input);
-				return { discarded: true };
+				return { discarded: true as const };
 			});
+			if (result.success) {
+				lifecycle.onSessionEnded?.(input.recordingId);
+			}
+			return result;
 		},
 	);
 }

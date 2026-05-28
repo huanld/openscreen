@@ -11,6 +11,7 @@ import {
 	BrowserWindow,
 	desktopCapturer,
 	dialog,
+	globalShortcut,
 	ipcMain,
 	screen,
 	shell,
@@ -428,6 +429,19 @@ let nativeMacCursorRecordingStartMs = 0;
 let nativeMacPauseStartedAtMs: number | null = null;
 let nativeMacPauseRanges: Array<{ startMs: number; endMs: number }> = [];
 let nativeMacIsPaused = false;
+const GUIDE_MARKER_HOTKEY = "Control+F12";
+const GUIDE_MARKER_HOTKEY_LABEL = "Ctrl+F12";
+type GuideHotkeyBounds = { x: number; y: number; width: number; height: number };
+type GuideHotkeyRecordingState = {
+	recordingId: number;
+	startedAtMs: number;
+	accumulatedPausedMs: number;
+	pausedAtMs: number | null;
+	bounds: GuideHotkeyBounds;
+};
+let activeGuideHotkeyRecording: GuideHotkeyRecordingState | null = null;
+let activeGuideHotkeySessionId: number | null = null;
+let guideMarkerHotkeyRegistered = false;
 
 function normalizeCursorSample(sample: unknown): CursorRecordingSample | null {
 	if (!sample || typeof sample !== "object") {
@@ -583,6 +597,160 @@ function getSelectedSourceBounds() {
 		? (screen.getAllDisplays().find((display) => display.id === sourceDisplayId) ?? null)
 		: null;
 	return (sourceDisplay ?? screen.getDisplayNearestPoint(cursor)).bounds;
+}
+
+function normalizeGuideHotkeyRecordingId(recordingId: unknown): number | null {
+	if (typeof recordingId === "number" && Number.isFinite(recordingId)) {
+		return Math.trunc(recordingId);
+	}
+	if (typeof recordingId === "string" && recordingId.trim()) {
+		const numeric = Number(recordingId);
+		return Number.isFinite(numeric) ? Math.trunc(numeric) : null;
+	}
+	return null;
+}
+
+function sanitizeGuideHotkeyBounds(bounds: GuideHotkeyBounds): GuideHotkeyBounds {
+	return {
+		x: Number.isFinite(bounds.x) ? bounds.x : 0,
+		y: Number.isFinite(bounds.y) ? bounds.y : 0,
+		width: Number.isFinite(bounds.width) && bounds.width > 0 ? bounds.width : 1,
+		height: Number.isFinite(bounds.height) && bounds.height > 0 ? bounds.height : 1,
+	};
+}
+
+function startGuideHotkeyRecording(
+	recordingIdInput: unknown,
+	bounds: GuideHotkeyBounds = getSelectedSourceBounds(),
+) {
+	const recordingId = normalizeGuideHotkeyRecordingId(recordingIdInput);
+	if (recordingId === null) {
+		return;
+	}
+
+	activeGuideHotkeyRecording = {
+		recordingId,
+		startedAtMs: Date.now(),
+		accumulatedPausedMs: 0,
+		pausedAtMs: null,
+		bounds: sanitizeGuideHotkeyBounds(bounds),
+	};
+}
+
+function clearGuideHotkeyRecording() {
+	activeGuideHotkeyRecording = null;
+	activeGuideHotkeySessionId = null;
+}
+
+function activateGuideHotkeySession(recordingIdInput: unknown) {
+	const recordingId = normalizeGuideHotkeyRecordingId(recordingIdInput);
+	if (recordingId !== null) {
+		activeGuideHotkeySessionId = recordingId;
+	}
+}
+
+function deactivateGuideHotkeySession(recordingIdInput: unknown) {
+	const recordingId = normalizeGuideHotkeyRecordingId(recordingIdInput);
+	if (recordingId === null || activeGuideHotkeySessionId === recordingId) {
+		activeGuideHotkeySessionId = null;
+	}
+}
+
+function pauseGuideHotkeyRecording() {
+	if (activeGuideHotkeyRecording && activeGuideHotkeyRecording.pausedAtMs === null) {
+		activeGuideHotkeyRecording.pausedAtMs = Date.now();
+	}
+}
+
+function resumeGuideHotkeyRecording() {
+	if (!activeGuideHotkeyRecording || activeGuideHotkeyRecording.pausedAtMs === null) {
+		return;
+	}
+
+	activeGuideHotkeyRecording.accumulatedPausedMs += Math.max(
+		0,
+		Date.now() - activeGuideHotkeyRecording.pausedAtMs,
+	);
+	activeGuideHotkeyRecording.pausedAtMs = null;
+}
+
+function getGuideHotkeyRecordingTimeMs(recording: GuideHotkeyRecordingState): number {
+	const now = recording.pausedAtMs ?? Date.now();
+	return Math.max(0, now - recording.startedAtMs - recording.accumulatedPausedMs);
+}
+
+function getGuideHotkeyPoint(boundsInput: GuideHotkeyBounds) {
+	const bounds = sanitizeGuideHotkeyBounds(boundsInput);
+	const cursor = screen.getCursorScreenPoint();
+	return {
+		normalizedX: clampGuideHotkey01((cursor.x - bounds.x) / bounds.width),
+		normalizedY: clampGuideHotkey01((cursor.y - bounds.y) / bounds.height),
+		rawX: cursor.x,
+		rawY: cursor.y,
+		bounds,
+	};
+}
+
+function clampGuideHotkey01(value: number): number {
+	if (!Number.isFinite(value)) {
+		return 0;
+	}
+	return Math.min(1, Math.max(0, value));
+}
+
+async function captureGuideHotkeyMarker(guideStore: GuideStore) {
+	const recording = activeGuideHotkeyRecording;
+	if (!recording || activeGuideHotkeySessionId !== recording.recordingId) {
+		return { captured: false };
+	}
+
+	const point = getGuideHotkeyPoint(recording.bounds);
+	try {
+		const result = await guideStore.addMarker({
+			recordingId: recording.recordingId,
+			kind: "hotkey",
+			timeMs: getGuideHotkeyRecordingTimeMs(recording),
+			x: point.normalizedX,
+			y: point.normalizedY,
+			normalizedX: point.normalizedX,
+			normalizedY: point.normalizedY,
+			label: `${GUIDE_MARKER_HOTKEY_LABEL} marker`,
+		});
+		console.info("[guide-hotkey] marker captured", {
+			recordingId: recording.recordingId,
+			timeMs: result.event.timeMs,
+			normalizedX: result.event.normalizedX,
+			normalizedY: result.event.normalizedY,
+			rawX: point.rawX,
+			rawY: point.rawY,
+			bounds: point.bounds,
+		});
+		return { captured: true, ...result };
+	} catch (error) {
+		const message = error instanceof Error ? error.message : String(error);
+		console.warn("[guide-hotkey] failed to capture marker:", message);
+		return { captured: false, error: message };
+	}
+}
+
+function registerGuideMarkerHotkey(guideStore: GuideStore) {
+	if (guideMarkerHotkeyRegistered) {
+		return;
+	}
+
+	guideMarkerHotkeyRegistered = globalShortcut.register(GUIDE_MARKER_HOTKEY, () => {
+		void captureGuideHotkeyMarker(guideStore);
+	});
+
+	if (!guideMarkerHotkeyRegistered) {
+		console.warn(`[guide-hotkey] failed to register ${GUIDE_MARKER_HOTKEY_LABEL}`);
+		return;
+	}
+
+	app.once("will-quit", () => {
+		globalShortcut.unregister(GUIDE_MARKER_HOTKEY);
+		guideMarkerHotkeyRegistered = false;
+	});
 }
 
 function getSelectedSourceId() {
@@ -1666,6 +1834,7 @@ export function registerIpcHandlers(
 				});
 
 				const source = selectedSource || { name: "Screen" };
+				startGuideHotkeyRecording(recordingId, bounds);
 				if (onRecordingStateChange) {
 					onRecordingStateChange(true, source.name);
 				}
@@ -1689,6 +1858,7 @@ export function registerIpcHandlers(
 				nativeWindowsPauseStartedAtMs = null;
 				nativeWindowsPauseRanges = [];
 				nativeWindowsIsPaused = false;
+				clearGuideHotkeyRecording();
 				await stopCursorRecording();
 				return { success: false, error: String(error) };
 			}
@@ -1811,6 +1981,7 @@ export function registerIpcHandlers(
 					: 0;
 
 			const source = selectedSource || { name: "Screen" };
+			startGuideHotkeyRecording(recordingId, bounds);
 			if (onRecordingStateChange) {
 				onRecordingStateChange(true, source.name);
 			}
@@ -1833,6 +2004,7 @@ export function registerIpcHandlers(
 			nativeMacPauseStartedAtMs = null;
 			nativeMacPauseRanges = [];
 			nativeMacIsPaused = false;
+			clearGuideHotkeyRecording();
 			await stopCursorRecording();
 			return { success: false, error: error instanceof Error ? error.message : String(error) };
 		}
@@ -1858,6 +2030,7 @@ export function registerIpcHandlers(
 			proc.stdin.write("pause\n");
 			nativeMacIsPaused = true;
 			nativeMacPauseStartedAtMs = Date.now();
+			pauseGuideHotkeyRecording();
 			return { success: true };
 		} catch (error) {
 			return { success: false, error: error instanceof Error ? error.message : String(error) };
@@ -1884,6 +2057,7 @@ export function registerIpcHandlers(
 			proc.stdin.write("resume\n");
 			completeNativeMacCursorPauseRange();
 			nativeMacIsPaused = false;
+			resumeGuideHotkeyRecording();
 			return { success: true };
 		} catch (error) {
 			return { success: false, error: error instanceof Error ? error.message : String(error) };
@@ -1906,6 +2080,7 @@ export function registerIpcHandlers(
 			proc.stdin.write("pause\n");
 			nativeWindowsIsPaused = true;
 			nativeWindowsPauseStartedAtMs = Date.now();
+			pauseGuideHotkeyRecording();
 			return { success: true };
 		} catch (error) {
 			return { success: false, error: error instanceof Error ? error.message : String(error) };
@@ -1928,6 +2103,7 @@ export function registerIpcHandlers(
 			proc.stdin.write("resume\n");
 			completeNativeWindowsCursorPauseRange();
 			nativeWindowsIsPaused = false;
+			resumeGuideHotkeyRecording();
 			return { success: true };
 		} catch (error) {
 			return { success: false, error: error instanceof Error ? error.message : String(error) };
@@ -2017,6 +2193,7 @@ export function registerIpcHandlers(
 			nativeWindowsPauseStartedAtMs = null;
 			nativeWindowsPauseRanges = [];
 			nativeWindowsIsPaused = false;
+			clearGuideHotkeyRecording();
 			const source = selectedSource || { name: "Screen" };
 			if (onRecordingStateChange) {
 				onRecordingStateChange(false, source.name);
@@ -2102,6 +2279,7 @@ export function registerIpcHandlers(
 			nativeMacPauseStartedAtMs = null;
 			nativeMacPauseRanges = [];
 			nativeMacIsPaused = false;
+			clearGuideHotkeyRecording();
 			const source = selectedSource || { name: "Screen" };
 			if (onRecordingStateChange) {
 				onRecordingStateChange(false, source.name);
@@ -2178,11 +2356,27 @@ export function registerIpcHandlers(
 	const guideAiSettingsStore = new DeepSeekSettingsStore(
 		path.join(app.getPath("userData"), "guide-ai-settings.json"),
 	);
-	registerGuideIpcHandlers(
-		ipcMain,
-		new GuideStore(RECORDINGS_DIR, { deepSeekConfigProvider: guideAiSettingsStore }),
-		guideAiSettingsStore,
-	);
+	const guideStore = new GuideStore(RECORDINGS_DIR, {
+		deepSeekConfigProvider: guideAiSettingsStore,
+	});
+	registerGuideMarkerHotkey(guideStore);
+	registerGuideIpcHandlers(ipcMain, guideStore, guideAiSettingsStore, {
+		onSessionStarted: (session) => activateGuideHotkeySession(session.recordingId),
+		onSessionEnded: (recordingId) => deactivateGuideHotkeySession(recordingId),
+	});
+	ipcMain.handle("guide:capture-pointer-marker", async () => {
+		const result = await captureGuideHotkeyMarker(guideStore);
+		if (result.error) {
+			return {
+				success: false,
+				code: "guide-internal-error",
+				error: result.error,
+				retryable: true,
+			};
+		}
+
+		return { success: true, data: result };
+	});
 
 	ipcMain.handle("store-recorded-session", async (_, payload: StoreRecordedSessionInput) => {
 		try {
@@ -2314,6 +2508,11 @@ export function registerIpcHandlers(
 				await startCursorRecording(recordingId);
 			} else {
 				await stopCursorRecording();
+			}
+			if (recording) {
+				startGuideHotkeyRecording(recordingId, getSelectedSourceBounds());
+			} else {
+				clearGuideHotkeyRecording();
 			}
 
 			const source = selectedSource || { name: "Screen" };

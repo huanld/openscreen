@@ -13,6 +13,7 @@ dist-electron
 dist-ssr
 *.local
 .env
+.env.signing.local
 
 # Native helper build outputs
 /electron/native/wgc-capture/build/

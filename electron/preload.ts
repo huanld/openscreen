@@ -1,6 +1,7 @@
 import { contextBridge, ipcRenderer } from "electron";
 import type {
 	AddGuideMarkerInput,
+	CaptureGuidePointerMarkerResult,
 	DiscardGuideSessionInput,
 	ExportGuideInput,
 	FinalizeGuideEventsInput,
@@ -36,6 +37,11 @@ contextBridge.exposeInMainWorld("electronAPI", {
 		},
 		addMarker: (input: AddGuideMarkerInput) => {
 			return ipcRenderer.invoke("guide:add-marker", input);
+		},
+		capturePointerMarker: () => {
+			return ipcRenderer.invoke("guide:capture-pointer-marker") as Promise<
+				import("../src/guide/contracts").GuideIpcResult<CaptureGuidePointerMarkerResult>
+			>;
 		},
 		finalizeEvents: (input: FinalizeGuideEventsInput) => {
 			return ipcRenderer.invoke("guide:finalize-events", input);

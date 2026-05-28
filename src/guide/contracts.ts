@@ -115,11 +115,21 @@ export interface GuideSession {
 	updatedAt: string;
 }
 
+export interface CaptureGuidePointerMarkerResult {
+	captured: boolean;
+	session?: GuideSession;
+	event?: GuideEvent;
+}
+
 export interface AddGuideMarkerInput {
 	recordingId: GuideRecordingIdInput;
 	timeMs: number;
 	kind: "hotkey" | "manual";
 	label?: string;
+	x?: number;
+	y?: number;
+	normalizedX?: number;
+	normalizedY?: number;
 }
 
 export interface FinalizeGuideEventsInput {

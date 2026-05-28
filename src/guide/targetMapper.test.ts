@@ -90,6 +90,25 @@ describe("buildGuideStepCandidates", () => {
 		});
 	});
 
+	it("treats hotkey markers with coordinates like clicks", () => {
+		const session = createSession();
+		session.events[0] = {
+			...session.events[0],
+			kind: "hotkey",
+			source: "guide-hotkey",
+			normalizedX: 0.5,
+			normalizedY: 0.5,
+		};
+
+		const candidates = buildGuideStepCandidates(session);
+
+		expect(candidates[0]).toMatchObject({
+			action: "click",
+			targetText: "Save",
+			targetRole: "button",
+		});
+	});
+
 	it("prefers a nearby line phrase over a single OCR word", () => {
 		const session = createSession();
 		session.events[0] = {

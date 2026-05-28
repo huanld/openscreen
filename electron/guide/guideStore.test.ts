@@ -42,9 +42,17 @@ describe("GuideStore", () => {
 			kind: "hotkey",
 			timeMs: 500,
 			label: "First",
+			normalizedX: 0.25,
+			normalizedY: 0.75,
 		});
 
 		expect(result.event.kind).toBe("hotkey");
+		expect(result.event).toMatchObject({
+			x: 0.25,
+			y: 0.75,
+			normalizedX: 0.25,
+			normalizedY: 0.75,
+		});
 		expect(result.session.events.map((event) => event.timeMs)).toEqual([500, 2000]);
 		expect(result.session.events[0]?.source).toBe("guide-hotkey");
 		expect(result.session.events[1]?.source).toBe("review-ui");
