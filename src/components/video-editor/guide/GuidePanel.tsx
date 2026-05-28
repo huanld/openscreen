@@ -9,6 +9,7 @@ import type {
 	GuideLanguage,
 	GuideOcrProfile,
 	GuideSession,
+	GuideSnapshot,
 } from "@/guide/contracts";
 import { captureGuideSnapshots } from "@/guide/snapshot/extractGuideSnapshots";
 
@@ -20,6 +21,13 @@ interface GuidePanelProps {
 }
 
 type BusyAction = "load" | "generate";
+
+interface GuideProgressState {
+	label: string;
+	current: number;
+	total: number;
+	detail?: string;
+}
 
 const COPY = {
 	en: {
@@ -63,6 +71,11 @@ const COPY = {
 		noEvents: "No click events were captured for this guide.",
 		ocrUnavailable: "Local OCR service is unavailable. You can still create a local draft.",
 		exported: "Guide exported",
+		progressPreparing: "Preparing events",
+		progressSnapshots: "Capturing snapshots",
+		progressOcr: "Running OCR",
+		progressDraft: "Writing draft",
+		progressExport: "Exporting files",
 	},
 	vi: {
 		title: "Hướng dẫn",
@@ -105,8 +118,31 @@ const COPY = {
 		noEvents: "Chưa ghi nhận click event nào cho guide này.",
 		ocrUnavailable: "OCR local chưa chạy. Vẫn có thể tạo draft local.",
 		exported: "Đã export hướng dẫn",
+		progressPreparing: "Đang chuẩn bị events",
+		progressSnapshots: "Đang chụp ảnh",
+		progressOcr: "Đang OCR",
+		progressDraft: "Đang tạo draft",
+		progressExport: "Đang export file",
 	},
 } as const;
+
+function getPendingOcrSnapshots(session: GuideSession): GuideSnapshot[] {
+	const ocrCompletedSnapshotIds = new Set(session.ocrBlocks.map((block) => block.snapshotId));
+	return session.snapshots.filter(
+		(snapshot) => !snapshot.ocrCompletedAt && !ocrCompletedSnapshotIds.has(snapshot.id),
+	);
+}
+
+function getProgressPercent(progress: GuideProgressState | null): number {
+	if (!progress) {
+		return 0;
+	}
+	if (progress.total <= 0) {
+		return 100;
+	}
+	const percent = Math.round((progress.current / progress.total) * 100);
+	return Math.min(100, Math.max(progress.current > 0 ? 8 : 4, percent));
+}
 
 export function GuidePanel({ recordingId, videoPath, videoSourcePath }: GuidePanelProps) {
 	const { locale } = useI18n();
@@ -124,8 +160,10 @@ export function GuidePanel({ recordingId, videoPath, videoSourcePath }: GuidePan
 	const [ocrProfile, setOcrProfile] = useState<GuideOcrProfile>("vietnamese");
 	const [ocrLanguage, setOcrLanguage] = useState("vi,en");
 	const [message, setMessage] = useState<string | null>(null);
+	const [progress, setProgress] = useState<GuideProgressState | null>(null);
 
 	const isBusy = busyAction !== null;
+	const progressPercent = getProgressPercent(progress);
 	const canUseGuide = Boolean(recordingId && videoSourcePath && window.electronAPI?.guide);
 	const generatedSteps = session?.generatedGuide?.steps ?? [];
 	const statusLabel = useMemo(() => {
@@ -220,6 +258,15 @@ export function GuidePanel({ recordingId, videoPath, videoSourcePath }: GuidePan
 		}
 
 		let current = session;
+		const readResult = await window.electronAPI.guide.readSession(recordingId);
+		if (readResult.success) {
+			current = readResult.data;
+		} else if (readResult.code === "guide-session-not-found") {
+			current = null;
+		} else if (!current) {
+			throw new Error(readResult.error);
+		}
+
 		if (!current) {
 			const startResult = await window.electronAPI.guide.startSession(recordingId);
 			if (!startResult.success) {
@@ -251,6 +298,7 @@ export function GuidePanel({ recordingId, videoPath, videoSourcePath }: GuidePan
 			}
 			setBusyAction(action);
 			setMessage(null);
+			setProgress(null);
 			try {
 				await task();
 			} catch (error) {
@@ -355,25 +403,59 @@ export function GuidePanel({ recordingId, videoPath, videoSourcePath }: GuidePan
 			if (!videoPath) {
 				throw new Error("Video URL is not available.");
 			}
+			setProgress({
+				label: copy.progressPreparing,
+				current: 0,
+				total: 1,
+				detail: "0/1",
+			});
 			let current = await ensureEventsSession();
+			setProgress({
+				label: copy.progressPreparing,
+				current: 1,
+				total: 1,
+				detail: "1/1",
+			});
 			if (current.events.length === 0) {
 				throw new Error(copy.noEvents);
 			}
-			if (current.snapshots.length < current.events.length) {
+			const snapshotEventIds = new Set(current.snapshots.map((snapshot) => snapshot.eventId));
+			const pendingSnapshotTotal = current.events.filter(
+				(event) => !snapshotEventIds.has(event.id),
+			).length;
+			if (pendingSnapshotTotal > 0) {
+				setProgress({
+					label: copy.progressSnapshots,
+					current: 0,
+					total: pendingSnapshotTotal,
+					detail: `0/${pendingSnapshotTotal}`,
+				});
 				current = await captureGuideSnapshots({
 					session: current,
 					videoUrl: videoPath,
 					maxWidth: 1280,
+					onProgress: ({ completed, total }) => {
+						setProgress({
+							label: copy.progressSnapshots,
+							current: completed,
+							total,
+							detail: `${completed}/${total}`,
+						});
+					},
 				});
 				setSession(current);
 			}
-			const ocrCompletedSnapshotIds = new Set(current.ocrBlocks.map((block) => block.snapshotId));
-			const hasPendingOcr = current.snapshots.some(
-				(snapshot) => !snapshot.ocrCompletedAt && !ocrCompletedSnapshotIds.has(snapshot.id),
-			);
-			if (hasPendingOcr) {
+			const pendingOcrSnapshots = getPendingOcrSnapshots(current);
+			for (const [index, snapshot] of pendingOcrSnapshots.entries()) {
+				setProgress({
+					label: copy.progressOcr,
+					current: index,
+					total: pendingOcrSnapshots.length,
+					detail: `${index + 1}/${pendingOcrSnapshots.length}`,
+				});
 				const ocrResult = await window.electronAPI.guide.runOcr({
 					recordingId: current.recordingId,
+					snapshotIds: [snapshot.id],
 				});
 				if (!ocrResult.success) {
 					if (ocrResult.code === "guide-ocr-unavailable") {
@@ -383,7 +465,19 @@ export function GuidePanel({ recordingId, videoPath, videoSourcePath }: GuidePan
 				}
 				current = ocrResult.data;
 				setSession(current);
+				setProgress({
+					label: copy.progressOcr,
+					current: index + 1,
+					total: pendingOcrSnapshots.length,
+					detail: `${index + 1}/${pendingOcrSnapshots.length}`,
+				});
 			}
+			setProgress({
+				label: copy.progressDraft,
+				current: 0,
+				total: 1,
+				detail: "0/1",
+			});
 			const result = await window.electronAPI.guide.generateDraft({
 				recordingId: current.recordingId,
 				language: guideLanguage,
@@ -392,18 +486,44 @@ export function GuidePanel({ recordingId, videoPath, videoSourcePath }: GuidePan
 			if (!result.success) {
 				throw new Error(result.error);
 			}
+			current = result.data;
+			setSession(current);
+			setProgress({
+				label: copy.progressDraft,
+				current: 1,
+				total: 1,
+				detail: "1/1",
+			});
+			setProgress({
+				label: copy.progressExport,
+				current: 0,
+				total: 2,
+				detail: "0/2",
+			});
 			const markdownResult = await window.electronAPI.guide.exportMarkdown({
 				recordingId: current.recordingId,
 			});
 			if (!markdownResult.success) {
 				throw new Error(markdownResult.error);
 			}
+			setProgress({
+				label: copy.progressExport,
+				current: 1,
+				total: 2,
+				detail: "1/2",
+			});
 			const htmlResult = await window.electronAPI.guide.exportHtml({
 				recordingId: current.recordingId,
 			});
 			if (!htmlResult.success) {
 				throw new Error(htmlResult.error);
 			}
+			setProgress({
+				label: copy.progressExport,
+				current: 2,
+				total: 2,
+				detail: "2/2",
+			});
 			const revealResult = await window.electronAPI.revealInFolder(htmlResult.data.path);
 			if (!revealResult.success) {
 				toast.warning(revealResult.error ?? "Unable to open guide folder.");
@@ -419,6 +539,11 @@ export function GuidePanel({ recordingId, videoPath, videoSourcePath }: GuidePan
 		copy.keyMissing,
 		copy.noEvents,
 		copy.ocrUnavailable,
+		copy.progressDraft,
+		copy.progressExport,
+		copy.progressOcr,
+		copy.progressPreparing,
+		copy.progressSnapshots,
 		ensureEventsSession,
 		guideLanguage,
 		provider,
@@ -449,6 +574,24 @@ export function GuidePanel({ recordingId, videoPath, videoSourcePath }: GuidePan
 					{canUseGuide ? statusLabel : copy.noRecording}
 				</p>
 				{message && <p className="mb-2 text-[11px] leading-4 text-amber-300">{message}</p>}
+				{progress && (
+					<div className="mb-2 rounded-md border border-white/[0.07] bg-white/[0.035] px-2 py-1.5">
+						<div className="mb-1 flex items-center justify-between gap-2 text-[10px] leading-4">
+							<span className="min-w-0 truncate font-semibold text-slate-200">
+								{progress.label}
+							</span>
+							<span className="shrink-0 text-slate-500">
+								{progress.detail ?? `${progress.current}/${progress.total}`}
+							</span>
+						</div>
+						<div className="h-1.5 overflow-hidden rounded-full bg-white/[0.06]">
+							<div
+								className="h-full rounded-full bg-[#34B27B] transition-all duration-200"
+								style={{ width: `${progressPercent}%` }}
+							/>
+						</div>
+					</div>
+				)}
 
 				<div className="mb-2 flex items-center gap-1.5">
 					<select

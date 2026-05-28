@@ -4,6 +4,13 @@ export interface CaptureGuideSnapshotsInput {
 	session: GuideSession;
 	videoUrl: string;
 	maxWidth?: number;
+	onProgress?: (progress: CaptureGuideSnapshotsProgress) => void;
+}
+
+export interface CaptureGuideSnapshotsProgress {
+	event: GuideEvent;
+	completed: number;
+	total: number;
 }
 
 export async function captureGuideSnapshots(
@@ -11,6 +18,13 @@ export async function captureGuideSnapshots(
 ): Promise<GuideSession> {
 	const events = [...input.session.events].sort((left, right) => left.timeMs - right.timeMs);
 	if (events.length === 0) {
+		return input.session;
+	}
+	const existingSnapshotsByEventId = new Set(
+		input.session.snapshots.map((snapshot) => snapshot.eventId),
+	);
+	const pendingEvents = events.filter((event) => !existingSnapshotsByEventId.has(event.id));
+	if (pendingEvents.length === 0) {
 		return input.session;
 	}
 
@@ -35,13 +49,8 @@ export async function captureGuideSnapshots(
 		canvas.height = Math.max(1, Math.round(sourceHeight * scale));
 
 		let latestSession = input.session;
-		const existingSnapshotsByEventId = new Set(
-			input.session.snapshots.map((snapshot) => snapshot.eventId),
-		);
-		for (const event of events) {
-			if (existingSnapshotsByEventId.has(event.id)) {
-				continue;
-			}
+		let completed = 0;
+		for (const event of pendingEvents) {
 			const offsetMs = event.screenshotOffsetMs ?? 500;
 			const timeMs = getSnapshotTimeMs(event, offsetMs, video.duration);
 			await seekVideo(video, timeMs / 1000);
@@ -65,6 +74,12 @@ export async function captureGuideSnapshots(
 				throw new Error(result.error);
 			}
 			latestSession = result.data;
+			completed += 1;
+			input.onProgress?.({
+				event,
+				completed,
+				total: pendingEvents.length,
+			});
 		}
 
 		return latestSession;
