@@ -28,6 +28,11 @@
 		"useEditableCursor": "編集可能なカーソルを使う",
 		"useSystemCursor": "システムカーソルを使う"
 	},
+	"guide": {
+		"enableGuideMode": "Enable guide mode",
+		"disableGuideMode": "Disable guide mode",
+		"addMarker": "Add guide marker"
+	},
 	"sourceSelector": {
 		"loading": "ソースを読み込み中...",
 		"screens": "画面 ({{count}})",

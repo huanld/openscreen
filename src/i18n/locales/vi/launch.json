@@ -43,5 +43,10 @@
 	"cursor": {
 		"useEditableCursor": "Dùng con trỏ có thể chỉnh sửa",
 		"useSystemCursor": "Dùng con trỏ hệ thống"
+	},
+	"guide": {
+		"enableGuideMode": "Bật chế độ tạo hướng dẫn",
+		"disableGuideMode": "Tắt chế độ tạo hướng dẫn",
+		"addMarker": "Thêm mốc hướng dẫn"
 	}
 }

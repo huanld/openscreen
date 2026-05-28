@@ -41,7 +41,7 @@ export function ShortcutsProvider({ children }: { children: ReactNode }) {
 			});
 
 		window.electronAPI
-			.getShortcuts?.()
+			?.getShortcuts?.()
 			.then((saved) => {
 				if (saved) {
 					setShortcuts(mergeWithDefaults(saved as Partial<ShortcutsConfig>));
@@ -54,7 +54,7 @@ export function ShortcutsProvider({ children }: { children: ReactNode }) {
 
 	const persistShortcuts = useCallback(
 		async (config?: ShortcutsConfig) => {
-			await window.electronAPI.saveShortcuts?.(config ?? shortcuts);
+			await window.electronAPI?.saveShortcuts?.(config ?? shortcuts);
 		},
 		[shortcuts],
 	);

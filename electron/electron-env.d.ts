@@ -27,6 +27,94 @@ interface Window {
 		invokeNativeBridge: <TData = unknown>(
 			request: import("../src/native/contracts").NativeBridgeRequest,
 		) => Promise<import("../src/native/contracts").NativeBridgeResponse<TData>>;
+		guide: {
+			startSession: (
+				recordingId: import("../src/guide/contracts").GuideRecordingIdInput,
+			) => Promise<
+				import("../src/guide/contracts").GuideIpcResult<
+					import("../src/guide/contracts").GuideSession
+				>
+			>;
+			readSession: (
+				recordingId: import("../src/guide/contracts").GuideRecordingIdInput,
+			) => Promise<
+				import("../src/guide/contracts").GuideIpcResult<
+					import("../src/guide/contracts").GuideSession
+				>
+			>;
+			addMarker: (input: import("../src/guide/contracts").AddGuideMarkerInput) => Promise<
+				import("../src/guide/contracts").GuideIpcResult<{
+					session: import("../src/guide/contracts").GuideSession;
+					event: import("../src/guide/contracts").GuideEvent;
+				}>
+			>;
+			finalizeEvents: (
+				input: import("../src/guide/contracts").FinalizeGuideEventsInput,
+			) => Promise<
+				import("../src/guide/contracts").GuideIpcResult<
+					import("../src/guide/contracts").GuideSession
+				>
+			>;
+			writeSnapshot: (
+				input: import("../src/guide/contracts").WriteGuideSnapshotInput,
+			) => Promise<
+				import("../src/guide/contracts").GuideIpcResult<
+					import("../src/guide/contracts").GuideSession
+				>
+			>;
+			runOcr: (
+				input: import("../src/guide/contracts").RunGuideOcrInput,
+			) => Promise<
+				import("../src/guide/contracts").GuideIpcResult<
+					import("../src/guide/contracts").GuideSession
+				>
+			>;
+			generateDraft: (
+				input: import("../src/guide/contracts").GenerateGuideDraftInput,
+			) => Promise<
+				import("../src/guide/contracts").GuideIpcResult<
+					import("../src/guide/contracts").GuideSession
+				>
+			>;
+			getAiSettings: () => Promise<
+				import("../src/guide/contracts").GuideIpcResult<
+					import("../src/guide/contracts").GuideAiSettings
+				>
+			>;
+			saveAiSettings: (
+				input: import("../src/guide/contracts").SaveGuideAiSettingsInput,
+			) => Promise<
+				import("../src/guide/contracts").GuideIpcResult<
+					import("../src/guide/contracts").GuideAiSettings
+				>
+			>;
+			saveGuide: (
+				input: import("../src/guide/contracts").SaveGuideInput,
+			) => Promise<
+				import("../src/guide/contracts").GuideIpcResult<
+					import("../src/guide/contracts").GuideSession
+				>
+			>;
+			exportMarkdown: (
+				input: import("../src/guide/contracts").ExportGuideInput,
+			) => Promise<
+				import("../src/guide/contracts").GuideIpcResult<
+					import("../src/guide/contracts").ExportGuideResult
+				>
+			>;
+			exportHtml: (
+				input: import("../src/guide/contracts").ExportGuideInput,
+			) => Promise<
+				import("../src/guide/contracts").GuideIpcResult<
+					import("../src/guide/contracts").ExportGuideResult
+				>
+			>;
+			discardSession: (input: import("../src/guide/contracts").DiscardGuideSessionInput) => Promise<
+				import("../src/guide/contracts").GuideIpcResult<{
+					discarded: true;
+				}>
+			>;
+		};
 		getSources: (opts: Electron.SourcesOptions) => Promise<ProcessedDesktopSource[]>;
 		switchToEditor: () => Promise<void>;
 		switchToHud: () => Promise<void>;

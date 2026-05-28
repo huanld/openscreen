@@ -1,4 +1,4 @@
-import { Check, ChevronDown, Languages } from "lucide-react";
+import { BookOpen, Check, ChevronDown, Flag, Languages } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { BsPauseCircle, BsPlayCircle, BsRecordCircle } from "react-icons/bs";
@@ -99,6 +99,9 @@ export function LaunchWindow() {
 		toggleRecording,
 		togglePaused,
 		canPauseRecording,
+		guideModeEnabled,
+		setGuideModeEnabled,
+		addGuideMarker,
 		restartRecording,
 		cancelRecording,
 		microphoneEnabled,
@@ -692,6 +695,29 @@ export function LaunchWindow() {
 							)}
 						</button>
 					)}
+					<Tooltip
+						content={guideModeEnabled ? t("guide.disableGuideMode") : t("guide.enableGuideMode")}
+					>
+						<button
+							data-testid="launch-guide-mode-button"
+							className={`${hudIconBtnClasses} relative ${
+								guideModeEnabled
+									? "bg-blue-500/20 text-blue-100 ring-1 ring-blue-300/60 shadow-[0_0_14px_rgba(59,130,246,0.38),inset_0_1px_0_rgba(255,255,255,0.18)] hover:bg-blue-500/25"
+									: "bg-transparent opacity-60 hover:opacity-100"
+							}`}
+							onClick={() => setGuideModeEnabled(!guideModeEnabled)}
+							disabled={recording}
+							aria-pressed={guideModeEnabled}
+						>
+							<BookOpen
+								size={ICON_SIZE}
+								className={guideModeEnabled ? "text-blue-200" : "text-white/40"}
+							/>
+							{guideModeEnabled && (
+								<span className="absolute right-1 top-1 h-1.5 w-1.5 rounded-full bg-blue-200 shadow-[0_0_8px_rgba(147,197,253,0.9)]" />
+							)}
+						</button>
+					</Tooltip>
 				</div>
 
 				{/* Record/Stop group */}
@@ -724,6 +750,17 @@ export function LaunchWindow() {
 
 				{recording && (
 					<div className={`flex items-center gap-0.5 ${styles.electronNoDrag}`}>
+						{guideModeEnabled && (
+							<Tooltip content={t("guide.addMarker")}>
+								<button
+									data-testid="launch-guide-marker-button"
+									className={hudAuxIconBtnClasses}
+									onClick={addGuideMarker}
+								>
+									<Flag size={ICON_SIZE} className="text-blue-300" />
+								</button>
+							</Tooltip>
+						)}
 						{canPauseRecording && (
 							<Tooltip
 								content={paused ? t("tooltips.resumeRecording") : t("tooltips.pauseRecording")}

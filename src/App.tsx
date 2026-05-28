@@ -18,6 +18,7 @@ export default function App() {
 	const [windowType, setWindowType] = useState(
 		() => new URLSearchParams(window.location.search).get("windowType") || "",
 	);
+	const hasElectronBridge = Boolean(window.electronAPI);
 
 	useEffect(() => {
 		const type = new URLSearchParams(window.location.search).get("windowType") || "";
@@ -71,11 +72,7 @@ export default function App() {
 					</ShortcutsProvider>
 				);
 			default:
-				return (
-					<div className="w-full h-full bg-background text-foreground">
-						<h1>Openscreen</h1>
-					</div>
-				);
+				return hasElectronBridge ? <LaunchWindow /> : <BrowserDevFallback />;
 		}
 	})();
 
@@ -84,5 +81,23 @@ export default function App() {
 			{content}
 			<Toaster theme="dark" className="pointer-events-auto" />
 		</TooltipProvider>
+	);
+}
+
+function BrowserDevFallback() {
+	return (
+		<div className="flex h-screen w-screen items-center justify-center bg-[#08090b] px-6 text-slate-100">
+			<div className="w-full max-w-[520px] rounded-lg border border-white/10 bg-white/[0.035] p-5 shadow-2xl">
+				<h1 className="mb-2 text-xl font-semibold tracking-normal">OpenScreen desktop app</h1>
+				<p className="mb-4 text-sm leading-6 text-slate-300">
+					This localhost page is only the Vite renderer. Recording, file access, guide generation,
+					and export require the Electron window because those actions use the preload bridge.
+				</p>
+				<div className="rounded-md border border-white/10 bg-black/30 px-3 py-2 text-xs text-slate-300">
+					Use the separate Electron window titled <span className="text-slate-100">openscreen</span>
+					.
+				</div>
+			</div>
+		</div>
 	);
 }

@@ -43,5 +43,10 @@
 	"cursor": {
 		"useEditableCursor": "استخدام مؤشر قابل للتحرير",
 		"useSystemCursor": "استخدام مؤشر النظام"
+	},
+	"guide": {
+		"enableGuideMode": "Enable guide mode",
+		"disableGuideMode": "Disable guide mode",
+		"addMarker": "Add guide marker"
 	}
 }

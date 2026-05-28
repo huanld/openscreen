@@ -1,4 +1,15 @@
 import { contextBridge, ipcRenderer } from "electron";
+import type {
+	AddGuideMarkerInput,
+	DiscardGuideSessionInput,
+	ExportGuideInput,
+	FinalizeGuideEventsInput,
+	GenerateGuideDraftInput,
+	RunGuideOcrInput,
+	SaveGuideAiSettingsInput,
+	SaveGuideInput,
+	WriteGuideSnapshotInput,
+} from "../src/guide/contracts";
 import type { NativeMacRecordingRequest } from "../src/lib/nativeMacRecording";
 import type { NativeWindowsRecordingRequest } from "../src/lib/nativeWindowsRecording";
 import type { RecordingSession, StoreRecordedSessionInput } from "../src/lib/recordingSession";
@@ -15,6 +26,47 @@ contextBridge.exposeInMainWorld("electronAPI", {
 	assetBaseUrl,
 	invokeNativeBridge: <TData>(request: NativeBridgeRequest) => {
 		return ipcRenderer.invoke(NATIVE_BRIDGE_CHANNEL, request) as Promise<TData>;
+	},
+	guide: {
+		startSession: (recordingId: string | number) => {
+			return ipcRenderer.invoke("guide:start-session", recordingId);
+		},
+		readSession: (recordingId: string | number) => {
+			return ipcRenderer.invoke("guide:read-session", recordingId);
+		},
+		addMarker: (input: AddGuideMarkerInput) => {
+			return ipcRenderer.invoke("guide:add-marker", input);
+		},
+		finalizeEvents: (input: FinalizeGuideEventsInput) => {
+			return ipcRenderer.invoke("guide:finalize-events", input);
+		},
+		writeSnapshot: (input: WriteGuideSnapshotInput) => {
+			return ipcRenderer.invoke("guide:write-snapshot", input);
+		},
+		runOcr: (input: RunGuideOcrInput) => {
+			return ipcRenderer.invoke("guide:run-ocr", input);
+		},
+		generateDraft: (input: GenerateGuideDraftInput) => {
+			return ipcRenderer.invoke("guide:generate-draft", input);
+		},
+		getAiSettings: () => {
+			return ipcRenderer.invoke("guide:get-ai-settings");
+		},
+		saveAiSettings: (input: SaveGuideAiSettingsInput) => {
+			return ipcRenderer.invoke("guide:save-ai-settings", input);
+		},
+		saveGuide: (input: SaveGuideInput) => {
+			return ipcRenderer.invoke("guide:save-guide", input);
+		},
+		exportMarkdown: (input: ExportGuideInput) => {
+			return ipcRenderer.invoke("guide:export-markdown", input);
+		},
+		exportHtml: (input: ExportGuideInput) => {
+			return ipcRenderer.invoke("guide:export-html", input);
+		},
+		discardSession: (input: DiscardGuideSessionInput) => {
+			return ipcRenderer.invoke("guide:discard-session", input);
+		},
 	},
 	hudOverlayHide: () => {
 		ipcRenderer.send("hud-overlay-hide");

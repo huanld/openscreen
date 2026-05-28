@@ -28,6 +28,11 @@
 		"useEditableCursor": "Use editable cursor",
 		"useSystemCursor": "Use system cursor"
 	},
+	"guide": {
+		"enableGuideMode": "Enable guide mode",
+		"disableGuideMode": "Disable guide mode",
+		"addMarker": "Add guide marker"
+	},
 	"sourceSelector": {
 		"loading": "Loading sources...",
 		"screens": "Screens ({{count}})",

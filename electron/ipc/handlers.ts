@@ -35,6 +35,9 @@ import type {
 	ProjectFileResult,
 	ProjectPathResult,
 } from "../../src/native/contracts";
+import { DeepSeekSettingsStore } from "../guide/ai/deepseekSettingsStore";
+import { registerGuideIpcHandlers } from "../guide/guideIpc";
+import { GuideStore } from "../guide/guideStore";
 import { mainT } from "../i18n";
 import { RECORDINGS_DIR } from "../main";
 import { createCursorRecordingSession } from "../native-bridge/cursor/recording/factory";
@@ -2172,6 +2175,14 @@ export function registerIpcHandlers(
 	// never buffers the full video in memory (the #616 fix).
 	const recordingStreams = new RecordingStreamRegistry();
 	registerRecordingStreamHandlers(ipcMain, recordingStreams, resolveRecordingOutputPath);
+	const guideAiSettingsStore = new DeepSeekSettingsStore(
+		path.join(app.getPath("userData"), "guide-ai-settings.json"),
+	);
+	registerGuideIpcHandlers(
+		ipcMain,
+		new GuideStore(RECORDINGS_DIR, { deepSeekConfigProvider: guideAiSettingsStore }),
+		guideAiSettingsStore,
+	);
 
 	ipcMain.handle("store-recorded-session", async (_, payload: StoreRecordedSessionInput) => {
 		try {

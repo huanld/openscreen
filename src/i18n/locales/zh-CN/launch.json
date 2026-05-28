@@ -28,6 +28,11 @@
 		"useEditableCursor": "使用可编辑光标",
 		"useSystemCursor": "使用系统光标"
 	},
+	"guide": {
+		"enableGuideMode": "Enable guide mode",
+		"disableGuideMode": "Disable guide mode",
+		"addMarker": "Add guide marker"
+	},
 	"sourceSelector": {
 		"loading": "正在加载源...",
 		"screens": "屏幕 ({{count}})",

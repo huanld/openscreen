@@ -3,11 +3,14 @@
   "$schema": "https://raw.githubusercontent.com/electron-userland/electron-builder/master/packages/app-builder-lib/scheme.json",
   "appId": "com.siddharthvaddem.openscreen",
   "asar": true,
-  // .node binaries can't be dlopen'd from inside an asar — must live unpacked.
+  // .node binaries cannot be loaded from inside an asar; keep them unpacked.
   "asarUnpack": [
     "**/*.node"
   ],
   "productName": "Openscreen",
+  "toolsets": {
+    "winCodeSign": "1.1.0"
+  },
   "npmRebuild": true,
   "buildDependenciesFromSource": true,
   "compression": "normal",
@@ -76,11 +79,23 @@
       "nsis"
     ],
     "icon": "icons/icons/win/icon.ico",
+    "signAndEditExecutable": false,
+    "signExts": ["!.exe"],
     "extraResources": [
       {
         "from": "electron/native/bin",
         "to": "electron/native/bin",
         "filter": ["win32-*/*"]
+      },
+      {
+        "from": "tools/ocr/dist/openscreen-ocr-service",
+        "to": "ocr-service",
+        "filter": ["**/*"]
+      },
+      {
+        "from": "tools/ocr/models/paddlex",
+        "to": "ocr-models/paddlex",
+        "filter": ["**/*"]
       }
     ]
   },

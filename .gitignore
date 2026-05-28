@@ -20,6 +20,10 @@ dist-ssr
 /electron/native/screencapturekit/.build/
 /electron/native/screencapturekit/.swiftpm/
 /electron/native/bin/
+/tools/ocr/build/
+/tools/ocr/dist/
+/tools/ocr/models/**/.gitattributes
+/tools/ocr/models/**/README.md
 
 # Native macOS generated files
 DerivedData/
@@ -40,6 +44,8 @@ xcuserdata/
 release/**
 *.kiro/
 .claude/
+__pycache__/
+*.py[cod]
 # npx electron-builder --mac --win
 
 # Playwright
@@ -63,3 +69,8 @@ result-*
 #others
 
 **/*.import
+
+# Local agent/tooling state
+/.agent/
+/.serena/
+/.venv-ocr-build/

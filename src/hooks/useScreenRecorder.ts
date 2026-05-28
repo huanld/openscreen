@@ -54,6 +54,9 @@ type UseScreenRecorderReturn = {
 	toggleRecording: () => void;
 	togglePaused: () => void;
 	canPauseRecording: boolean;
+	guideModeEnabled: boolean;
+	setGuideModeEnabled: (enabled: boolean) => void;
+	addGuideMarker: () => void;
 	restartRecording: () => void;
 	cancelRecording: () => void;
 	microphoneEnabled: boolean;
@@ -100,6 +103,7 @@ export function useScreenRecorder(): UseScreenRecorderReturn {
 	const [systemAudioEnabled, setSystemAudioEnabled] = useState(false);
 	const [webcamEnabled, setWebcamEnabledState] = useState(false);
 	const [cursorCaptureMode, setCursorCaptureMode] = useState<CursorCaptureMode>("editable-overlay");
+	const [guideModeEnabled, setGuideModeEnabledState] = useState(false);
 	const screenRecorder = useRef<RecorderHandle | null>(null);
 	const webcamRecorder = useRef<RecorderHandle | null>(null);
 	const nativeWindowsRecording = useRef<NativeWindowsRecordingHandle | null>(null);
@@ -117,6 +121,8 @@ export function useScreenRecorder(): UseScreenRecorderReturn {
 	const discardRecordingId = useRef<number | null>(null);
 	const restarting = useRef(false);
 	const countdownRunId = useRef(0);
+	const activeGuideRecordingId = useRef<number | null>(null);
+	const guideModeEnabledRef = useRef(false);
 	const [countdownActive, setCountdownActive] = useState(false);
 	const webcamReady = useRef(false);
 	const webcamAcquireId = useRef(0);
@@ -133,6 +139,89 @@ export function useScreenRecorder(): UseScreenRecorderReturn {
 			segmentStartedAt.current === null ? 0 : Date.now() - segmentStartedAt.current;
 		return accumulatedDurationMs.current + segmentDuration;
 	}, []);
+
+	const setGuideModeEnabled = useCallback(
+		(enabled: boolean) => {
+			if (recording) {
+				return;
+			}
+			guideModeEnabledRef.current = enabled;
+			setGuideModeEnabledState(enabled);
+		},
+		[recording],
+	);
+
+	const startGuideSession = useCallback(async (activeRecordingId: number) => {
+		if (!guideModeEnabledRef.current || !window.electronAPI?.guide) {
+			return;
+		}
+
+		const result = await window.electronAPI.guide.startSession(activeRecordingId);
+		if (!result.success) {
+			console.warn("Failed to start guide session:", result.error);
+			return;
+		}
+
+		activeGuideRecordingId.current = activeRecordingId;
+	}, []);
+
+	const finalizeGuideSession = useCallback(
+		async (activeRecordingId: number, videoPath?: string | null) => {
+			if (
+				activeGuideRecordingId.current !== activeRecordingId ||
+				!videoPath ||
+				!window.electronAPI?.guide
+			) {
+				return;
+			}
+
+			const result = await window.electronAPI.guide.finalizeEvents({
+				recordingId: activeRecordingId,
+				videoPath,
+			});
+			if (!result.success) {
+				console.warn("Failed to finalize guide session:", result.error);
+			}
+			activeGuideRecordingId.current = null;
+		},
+		[],
+	);
+
+	const discardGuideSession = useCallback(async (activeRecordingId: number) => {
+		if (!window.electronAPI?.guide) {
+			return;
+		}
+
+		const result = await window.electronAPI.guide.discardSession({
+			recordingId: activeRecordingId,
+		});
+		if (!result.success) {
+			console.warn("Failed to discard guide session:", result.error);
+		}
+		if (activeGuideRecordingId.current === activeRecordingId) {
+			activeGuideRecordingId.current = null;
+		}
+	}, []);
+
+	const addGuideMarker = useCallback(() => {
+		const activeRecordingId = activeGuideRecordingId.current;
+		if (!recording || activeRecordingId === null || !window.electronAPI?.guide) {
+			return;
+		}
+
+		void window.electronAPI.guide
+			.addMarker({
+				recordingId: activeRecordingId,
+				kind: "manual",
+				timeMs: getRecordingDurationMs(),
+				label: "Manual marker",
+			})
+			.then((result) => {
+				if (!result.success) {
+					console.warn("Failed to add guide marker:", result.error);
+				}
+			});
+	}, [getRecordingDurationMs, recording]);
 
 	const selectMimeType = () => {
 		// H.264 first: hardware-accelerated on all modern devices, gives sharp
@@ -337,6 +426,7 @@ export function useScreenRecorder(): UseScreenRecorderReturn {
 					const screenBlob = await activeScreenRecorder.recordedBlobPromise;
 					if (discardRecordingId.current === activeRecordingId) {
 						window.electronAPI?.discardCursorTelemetry(activeRecordingId);
+						await discardGuideSession(activeRecordingId);
 						return;
 					}
 					// When streaming succeeded the blob is empty — the data is already on disk.
@@ -393,6 +483,10 @@ export function useScreenRecorder(): UseScreenRecorderReturn {
 					} else if (result.path) {
 						await window.electronAPI.setCurrentVideoPath(result.path);
 					}
+					await finalizeGuideSession(
+						activeRecordingId,
+						result.session?.screenVideoPath ?? result.path,
+					);
 
 					await window.electronAPI.switchToEditor();
 				} catch (error) {
@@ -417,7 +511,7 @@ export function useScreenRecorder(): UseScreenRecorderReturn {
 				}
 			})();
 		},
-		[cursorCaptureMode, teardownMedia],
+		[cursorCaptureMode, discardGuideSession, finalizeGuideSession, teardownMedia],
 	);
 
 	const finalizeNativeWindowsRecording = useCallback(
@@ -456,6 +550,7 @@ export function useScreenRecorder(): UseScreenRecorderReturn {
 			try {
 				const result = await window.electronAPI.stopNativeWindowsRecording(discard);
 				if (discard || result.discarded) {
+					await discardGuideSession(activeNativeRecording.recordingId);
 					clearNativeRecordingState();
 					return true;
 				}
@@ -501,6 +596,10 @@ export function useScreenRecorder(): UseScreenRecorderReturn {
 				} else if (result.path) {
 					await window.electronAPI.setCurrentVideoPath(result.path);
 				}
+				await finalizeGuideSession(
+					activeNativeRecording.recordingId,
+					storedSession?.screenVideoPath ?? result.path,
+				);
 
 				await window.electronAPI.switchToEditor();
 				return true;
@@ -517,7 +616,7 @@ export function useScreenRecorder(): UseScreenRecorderReturn {
 				}
 			}
 		},
-		[cursorCaptureMode, getRecordingDurationMs],
+		[cursorCaptureMode, discardGuideSession, finalizeGuideSession, getRecordingDurationMs],
 	);
 
 	const finalizeNativeMacRecording = useCallback(
@@ -570,6 +669,7 @@ export function useScreenRecorder(): UseScreenRecorderReturn {
 				const result = await window.electronAPI.stopNativeMacRecording(discard);
 				const webcamAsset = await webcamAssetPromise;
 				if (discard || result.discarded) {
+					await discardGuideSession(activeNativeRecording.recordingId);
 					clearNativeRecordingState();
 					return true;
 				}
@@ -601,6 +701,10 @@ export function useScreenRecorder(): UseScreenRecorderReturn {
 				} else if (result.path) {
 					await window.electronAPI.setCurrentVideoPath(result.path);
 				}
+				await finalizeGuideSession(
+					activeNativeRecording.recordingId,
+					result.session?.screenVideoPath ?? result.path,
+				);
 
 				await window.electronAPI.switchToEditor();
 				return true;
@@ -617,7 +721,7 @@ export function useScreenRecorder(): UseScreenRecorderReturn {
 				}
 			}
 		},
-		[cursorCaptureMode, getRecordingDurationMs],
+		[cursorCaptureMode, discardGuideSession, finalizeGuideSession, getRecordingDurationMs],
 	);
 
 	const stopRecording = useRef(() => {
@@ -885,6 +989,7 @@ export function useScreenRecorder(): UseScreenRecorderReturn {
 			accumulatedDurationMs.current = 0;
 			segmentStartedAt.current = Date.now();
 			allowAutoFinalize.current = true;
+			await startGuideSession(result.recordingId);
 			setRecording(true);
 			setPaused(false);
 			setElapsedSeconds(0);
@@ -1029,6 +1134,7 @@ export function useScreenRecorder(): UseScreenRecorderReturn {
 			accumulatedDurationMs.current = 0;
 			segmentStartedAt.current = Date.now();
 			allowAutoFinalize.current = true;
+			await startGuideSession(result.recordingId);
 			setRecording(true);
 			setPaused(false);
 			setElapsedSeconds(0);
@@ -1368,6 +1474,7 @@ export function useScreenRecorder(): UseScreenRecorderReturn {
 			accumulatedDurationMs.current = 0;
 			segmentStartedAt.current = Date.now();
 			allowAutoFinalize.current = true;
+			await startGuideSession(activeRecordingId);
 			setRecording(true);
 			setPaused(false);
 			setElapsedSeconds(0);
@@ -1664,6 +1771,9 @@ export function useScreenRecorder(): UseScreenRecorderReturn {
 		toggleRecording,
 		togglePaused,
 		canPauseRecording,
+		guideModeEnabled,
+		setGuideModeEnabled,
+		addGuideMarker,
 		restartRecording,
 		cancelRecording,
 		microphoneEnabled,

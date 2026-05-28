@@ -43,5 +43,10 @@
 	"cursor": {
 		"useEditableCursor": "Использовать редактируемый курсор",
 		"useSystemCursor": "Использовать системный курсор"
+	},
+	"guide": {
+		"enableGuideMode": "Enable guide mode",
+		"disableGuideMode": "Disable guide mode",
+		"addMarker": "Add guide marker"
 	}
 }

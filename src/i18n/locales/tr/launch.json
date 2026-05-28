@@ -28,6 +28,11 @@
 		"useEditableCursor": "Düzenlenebilir imleci kullan",
 		"useSystemCursor": "Sistem imlecini kullan"
 	},
+	"guide": {
+		"enableGuideMode": "Enable guide mode",
+		"disableGuideMode": "Disable guide mode",
+		"addMarker": "Add guide marker"
+	},
 	"sourceSelector": {
 		"loading": "Kaynaklar yükleniyor...",
 		"screens": "Ekranlar ({{count}})",

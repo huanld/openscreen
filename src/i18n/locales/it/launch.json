@@ -28,6 +28,11 @@
 		"useEditableCursor": "Usa cursore modificabile",
 		"useSystemCursor": "Usa cursore di sistema"
 	},
+	"guide": {
+		"enableGuideMode": "Enable guide mode",
+		"disableGuideMode": "Disable guide mode",
+		"addMarker": "Add guide marker"
+	},
 	"sourceSelector": {
 		"loading": "Caricamento sorgenti...",
 		"screens": "Schermi ({{count}})",
