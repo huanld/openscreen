@@ -7,6 +7,7 @@ import type {
 	GuideAiProvider,
 	GuideAiSettings,
 	GuideLanguage,
+	GuideOcrProfile,
 	GuideSession,
 } from "@/guide/contracts";
 import { captureGuideSnapshots } from "@/guide/snapshot/extractGuideSnapshots";
@@ -42,13 +43,19 @@ const COPY = {
 		captureStep: "Capture step",
 		captureLabel: "Manual capture",
 		settings: "Settings",
+		guideSettings: "Guide settings",
 		apiKey: "API key env",
 		apiKeyPlaceholder: "DEEPSEEK_API_KEY",
 		baseUrl: "Base URL",
 		model: "Model",
+		ocrProfile: "OCR profile",
+		ocrLanguage: "OCR languages",
+		ocrFast: "Fast Latin",
+		ocrVietnamese: "Vietnamese Enhanced",
+		ocrHybrid: "Hybrid Vi + Latin",
 		saveSettings: "Save",
 		clearKey: "Reset env",
-		keySaved: "DeepSeek settings saved.",
+		settingsSaved: "Guide settings saved.",
 		keyMissing: "Set a DeepSeek API key environment variable before generating with DeepSeek.",
 		keyConfigured: "Env ready",
 		keyNotConfigured: "Env value missing",
@@ -78,13 +85,19 @@ const COPY = {
 		captureStep: "Chụp bước",
 		captureLabel: "Chụp thủ công",
 		settings: "Cài đặt",
+		guideSettings: "Guide settings",
 		apiKey: "API key env",
 		apiKeyPlaceholder: "DEEPSEEK_API_KEY",
 		baseUrl: "Base URL",
 		model: "Model",
+		ocrProfile: "OCR profile",
+		ocrLanguage: "OCR languages",
+		ocrFast: "Fast Latin",
+		ocrVietnamese: "Vietnamese Enhanced",
+		ocrHybrid: "Hybrid Vi + Latin",
 		saveSettings: "Lưu",
 		clearKey: "Reset env",
-		keySaved: "Đã lưu cài đặt DeepSeek.",
+		settingsSaved: "Da luu cai dat guide.",
 		keyMissing: "Hãy set biến môi trường DeepSeek API key trước khi tạo draft bằng DeepSeek.",
 		keyConfigured: "Env ready",
 		keyNotConfigured: "Chưa thấy giá trị env",
@@ -108,6 +121,8 @@ export function GuidePanel({ recordingId, videoPath, videoSourcePath }: GuidePan
 	const [deepSeekApiKeyEnvName, setDeepSeekApiKeyEnvName] = useState("DEEPSEEK_API_KEY");
 	const [deepSeekBaseUrl, setDeepSeekBaseUrl] = useState("https://api.deepseek.com");
 	const [deepSeekModel, setDeepSeekModel] = useState("deepseek-chat");
+	const [ocrProfile, setOcrProfile] = useState<GuideOcrProfile>("vietnamese");
+	const [ocrLanguage, setOcrLanguage] = useState("vi,en");
 	const [message, setMessage] = useState<string | null>(null);
 
 	const isBusy = busyAction !== null;
@@ -138,6 +153,8 @@ export function GuidePanel({ recordingId, videoPath, videoSourcePath }: GuidePan
 		setDeepSeekBaseUrl(result.data.deepseek.baseUrl);
 		setDeepSeekModel(result.data.deepseek.model);
 		setDeepSeekApiKeyEnvName(result.data.deepseek.apiKeyEnvName);
+		setOcrProfile(result.data.ocr.profile);
+		setOcrLanguage(result.data.ocr.language);
 	}, []);
 
 	useEffect(() => {
@@ -269,6 +286,8 @@ export function GuidePanel({ recordingId, videoPath, videoSourcePath }: GuidePan
 				deepseekApiKeyEnvName: deepSeekApiKeyEnvName,
 				baseUrl: deepSeekBaseUrl,
 				model: deepSeekModel,
+				ocrProfile,
+				ocrLanguage,
 			});
 			if (!result.success) {
 				throw new Error(result.error);
@@ -277,7 +296,9 @@ export function GuidePanel({ recordingId, videoPath, videoSourcePath }: GuidePan
 			setDeepSeekApiKeyEnvName(result.data.deepseek.apiKeyEnvName);
 			setDeepSeekBaseUrl(result.data.deepseek.baseUrl);
 			setDeepSeekModel(result.data.deepseek.model);
-			toast.success(copy.keySaved);
+			setOcrProfile(result.data.ocr.profile);
+			setOcrLanguage(result.data.ocr.language);
+			toast.success(copy.settingsSaved);
 		} catch (error) {
 			const text = error instanceof Error ? error.message : String(error);
 			setMessage(text);
@@ -285,7 +306,14 @@ export function GuidePanel({ recordingId, videoPath, videoSourcePath }: GuidePan
 		} finally {
 			setSettingsBusy(false);
 		}
-	}, [copy.keySaved, deepSeekApiKeyEnvName, deepSeekBaseUrl, deepSeekModel]);
+	}, [
+		copy.settingsSaved,
+		deepSeekApiKeyEnvName,
+		deepSeekBaseUrl,
+		deepSeekModel,
+		ocrLanguage,
+		ocrProfile,
+	]);
 
 	const handleClearDeepSeekKey = useCallback(async () => {
 		if (!window.electronAPI?.guide?.saveAiSettings) {
@@ -298,13 +326,17 @@ export function GuidePanel({ recordingId, videoPath, videoSourcePath }: GuidePan
 				clearDeepseekApiKeyEnvName: true,
 				baseUrl: deepSeekBaseUrl,
 				model: deepSeekModel,
+				ocrProfile,
+				ocrLanguage,
 			});
 			if (!result.success) {
 				throw new Error(result.error);
 			}
 			setAiSettings(result.data);
 			setDeepSeekApiKeyEnvName(result.data.deepseek.apiKeyEnvName);
-			toast.success(copy.keySaved);
+			setOcrProfile(result.data.ocr.profile);
+			setOcrLanguage(result.data.ocr.language);
+			toast.success(copy.settingsSaved);
 		} catch (error) {
 			const text = error instanceof Error ? error.message : String(error);
 			setMessage(text);
@@ -312,7 +344,7 @@ export function GuidePanel({ recordingId, videoPath, videoSourcePath }: GuidePan
 		} finally {
 			setSettingsBusy(false);
 		}
-	}, [copy.keySaved, deepSeekBaseUrl, deepSeekModel]);
+	}, [copy.settingsSaved, deepSeekBaseUrl, deepSeekModel, ocrLanguage, ocrProfile]);
 
 	const handleGenerateGuide = useCallback(() => {
 		void runAction("generate", async () => {
@@ -455,7 +487,7 @@ export function GuidePanel({ recordingId, videoPath, videoSourcePath }: GuidePan
 						<div className="flex items-center justify-between gap-2">
 							<div className="min-w-0">
 								<div className="truncate text-[11px] font-semibold text-slate-100">
-									{copy.deepseek} {copy.settings}
+									{copy.guideSettings}
 								</div>
 								<div className="truncate text-[10px] text-slate-500">
 									{aiSettings?.deepseek.hasApiKey
@@ -468,6 +500,33 @@ export function GuidePanel({ recordingId, videoPath, videoSourcePath }: GuidePan
 							<span className="shrink-0 rounded border border-white/[0.08] px-1.5 py-0.5 text-[10px] text-slate-500">
 								{aiSettings?.deepseek.storage ?? "none"}
 							</span>
+						</div>
+
+						<div className="grid grid-cols-2 gap-1.5">
+							<label className="block min-w-0 text-[10px] font-medium text-slate-400">
+								{copy.ocrProfile}
+								<select
+									value={ocrProfile}
+									onChange={(event) => setOcrProfile(event.target.value as GuideOcrProfile)}
+									disabled={settingsBusy}
+									className="mt-1 h-8 w-full rounded-md border border-white/[0.08] bg-black/20 px-2 text-[11px] text-slate-100 outline-none"
+								>
+									<option value="vietnamese">{copy.ocrVietnamese}</option>
+									<option value="hybrid">{copy.ocrHybrid}</option>
+									<option value="fast">{copy.ocrFast}</option>
+								</select>
+							</label>
+							<label className="block min-w-0 text-[10px] font-medium text-slate-400">
+								{copy.ocrLanguage}
+								<input
+									type="text"
+									value={ocrLanguage}
+									onChange={(event) => setOcrLanguage(event.target.value)}
+									placeholder="vi,en"
+									disabled={settingsBusy}
+									className="mt-1 h-8 w-full rounded-md border border-white/[0.08] bg-black/20 px-2 text-[11px] text-slate-100 outline-none placeholder:text-slate-600"
+								/>
+							</label>
 						</div>
 
 						<label className="block text-[10px] font-medium text-slate-400">

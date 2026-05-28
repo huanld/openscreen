@@ -1,8 +1,12 @@
-import { describe, expect, it } from "vitest";
+import fs from "node:fs/promises";
+import os from "node:os";
+import path from "node:path";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import type { GuideSnapshot, OcrBlock } from "../../../src/guide/contracts";
 import {
 	DefaultGuideOcrClient,
 	normalizeOcrResponse,
+	PaddleOcrHttpClient,
 	parseWindowsOcrPayload,
 } from "./paddleOcrClient";
 
@@ -15,6 +19,10 @@ const snapshot: GuideSnapshot = {
 	width: 1000,
 	height: 800,
 };
+
+afterEach(() => {
+	vi.unstubAllGlobals();
+});
 
 describe("normalizeOcrResponse", () => {
 	it("normalizes pixel boxes into guide OCR blocks", () => {
@@ -64,6 +72,35 @@ describe("normalizeOcrResponse", () => {
 			confidence: 0.8,
 			box: { x: 0.1, y: 0.25, width: 0.2, height: 0.075 },
 		});
+	});
+});
+
+describe("PaddleOcrHttpClient", () => {
+	it("sends the selected OCR profile to the local service", async () => {
+		const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "openscreen-ocr-client-"));
+		const imagePath = path.join(tempDir, "step.png");
+		await fs.writeFile(imagePath, Buffer.from([137, 80, 78, 71]));
+		const requests: unknown[] = [];
+		vi.stubGlobal(
+			"fetch",
+			vi.fn(async (_url: string, init?: RequestInit) => {
+				requests.push(JSON.parse(String(init?.body ?? "{}")));
+				return new Response(JSON.stringify({ blocks: [] }), {
+					status: 200,
+					headers: { "content-type": "application/json" },
+				});
+			}),
+		);
+
+		const client = new PaddleOcrHttpClient("https://ocr.example.test", "vi,en", "hybrid");
+		await client.recognize({ ...snapshot, path: imagePath });
+
+		expect(requests[0]).toMatchObject({
+			language: "vi,en",
+			profile: "hybrid",
+			path: imagePath,
+		});
+		await fs.rm(tempDir, { recursive: true, force: true });
 	});
 });
 

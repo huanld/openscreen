@@ -6,7 +6,7 @@ OpenScreen calls OCR through a local HTTP service. The default endpoint is:
 http://127.0.0.1:8866/ocr
 ```
 
-The app sends either `imageBase64` or `path` and expects OCR blocks:
+The app sends either `imageBase64` or `path`, plus optional `language` and `profile`, and expects OCR blocks:
 
 ```json
 {
@@ -38,7 +38,7 @@ If `paddle` is still missing after installing `paddleocr`, install the CPU Paddl
 ```powershell
 .\.venv-ocr\Scripts\Activate.ps1
 $env:PADDLEOCR_DEVICE="cpu"
-$env:PADDLEOCR_LANG="latin"
+$env:OPENSCREEN_OCR_PROFILE="vietnamese"
 npm run ocr:paddle
 ```
 
@@ -58,7 +58,8 @@ Expected healthy environment:
   "paddleocrInstalled": true,
   "paddleInstalled": true,
   "engineReady": false,
-  "defaultLanguage": "latin"
+  "defaultLanguage": "vi,en",
+  "defaultProfile": "vietnamese"
 }
 ```
 
@@ -67,7 +68,10 @@ Expected healthy environment:
 ## Configuration
 
 - `PADDLEOCR_DEVICE`: `cpu`, `gpu:0`, or another PaddleOCR device string.
-- `PADDLEOCR_LANG`: defaults to `latin`; this is preferred for Vietnamese UI text because it uses a Latin-script recognition model.
+- `OPENSCREEN_OCR_PROFILE`: `fast`, `vietnamese`, or `hybrid`. The default `vietnamese` profile upscales and sharpens focused UI screenshots before OCR.
+- `OPENSCREEN_GUIDE_OCR_LANGUAGE`: defaults to `vi,en`.
+- `PADDLEOCR_LANG`: optional hard override. Leave unset for the app profile/language settings to work.
 - `PADDLEOCR_VERSION`: defaults to `PP-OCRv5`.
 - `PADDLEOCR_USE_MOBILE`: defaults to `1`; set to `0` to use the default/server models.
+- `PADDLEOCR_REC_MODEL`: optional recognizer model override. The bundled profile uses `latin_PP-OCRv5_mobile_rec`, which supports Vietnamese Latin-script text.
 - `OPENSCREEN_GUIDE_OCR_URL`: OpenScreen OCR endpoint override; defaults to `http://127.0.0.1:8866`.

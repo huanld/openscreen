@@ -1,13 +1,18 @@
 import { execFile } from "node:child_process";
 import fs from "node:fs/promises";
 import { promisify } from "node:util";
-import type { GuideSnapshot, OcrBlock } from "../../../src/guide/contracts";
+import type { GuideOcrProfile, GuideSnapshot, OcrBlock } from "../../../src/guide/contracts";
 import { ensureBundledOcrServiceRunning } from "./bundledOcrService";
 
 const execFileAsync = promisify(execFile);
 
 export interface GuideOcrClient {
 	recognize(snapshot: GuideSnapshot): Promise<OcrBlock[]>;
+}
+
+export interface GuideOcrClientConfig {
+	profile: GuideOcrProfile;
+	language: string;
 }
 
 interface PaddleOcrResponseBlock {
@@ -21,7 +26,8 @@ interface PaddleOcrResponseBlock {
 export class PaddleOcrHttpClient implements GuideOcrClient {
 	constructor(
 		private readonly baseUrl = process.env.OPENSCREEN_GUIDE_OCR_URL ?? "http://127.0.0.1:8866",
-		private readonly language = process.env.OPENSCREEN_GUIDE_OCR_LANGUAGE ?? "vi,en",
+		private readonly language = normalizeOcrLanguage(process.env.OPENSCREEN_GUIDE_OCR_LANGUAGE),
+		private readonly profile = normalizeOcrProfile(process.env.OPENSCREEN_GUIDE_OCR_PROFILE),
 	) {}
 
 	async recognize(snapshot: GuideSnapshot): Promise<OcrBlock[]> {
@@ -36,6 +42,7 @@ export class PaddleOcrHttpClient implements GuideOcrClient {
 					imageBase64,
 					path: snapshot.path,
 					language: this.language,
+					profile: this.profile,
 				}),
 			});
 		} catch (error) {
@@ -54,7 +61,9 @@ export class PaddleOcrHttpClient implements GuideOcrClient {
 }
 
 export class WindowsOcrClient implements GuideOcrClient {
-	constructor(private readonly language = process.env.OPENSCREEN_GUIDE_OCR_LANGUAGE ?? "vi,en") {}
+	constructor(
+		private readonly language = normalizeOcrLanguage(process.env.OPENSCREEN_GUIDE_OCR_LANGUAGE),
+	) {}
 
 	async recognize(snapshot: GuideSnapshot): Promise<OcrBlock[]> {
 		if (process.platform !== "win32") {
@@ -96,6 +105,14 @@ export class WindowsOcrClient implements GuideOcrClient {
 }
 
 export class DefaultGuideOcrClient implements GuideOcrClient {
+	static fromConfig(config?: Partial<GuideOcrClientConfig>): DefaultGuideOcrClient {
+		const normalizedConfig = normalizeOcrClientConfig(config);
+		return new DefaultGuideOcrClient(
+			new PaddleOcrHttpClient(undefined, normalizedConfig.language, normalizedConfig.profile),
+			new WindowsOcrClient(normalizedConfig.language),
+		);
+	}
+
 	constructor(
 		private readonly httpClient = new PaddleOcrHttpClient(),
 		private readonly windowsClient = new WindowsOcrClient(),
@@ -117,6 +134,31 @@ export class DefaultGuideOcrClient implements GuideOcrClient {
 			}
 		}
 	}
+}
+
+function normalizeOcrClientConfig(
+	config: Partial<GuideOcrClientConfig> | undefined,
+): GuideOcrClientConfig {
+	return {
+		profile: normalizeOcrProfile(config?.profile ?? process.env.OPENSCREEN_GUIDE_OCR_PROFILE),
+		language: normalizeOcrLanguage(config?.language ?? process.env.OPENSCREEN_GUIDE_OCR_LANGUAGE),
+	};
+}
+
+function normalizeOcrProfile(value: string | undefined): GuideOcrProfile {
+	if (value === "fast" || value === "vietnamese" || value === "hybrid") {
+		return value;
+	}
+	return "vietnamese";
+}
+
+function normalizeOcrLanguage(value: string | undefined): string {
+	const normalized = value
+		?.split(",")
+		.map((part) => part.trim().toLowerCase())
+		.filter(Boolean)
+		.join(",");
+	return normalized || "vi,en";
 }
 
 export function parseWindowsOcrPayload(stdout: string): unknown {

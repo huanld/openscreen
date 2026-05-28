@@ -9,6 +9,7 @@ export type GuideTargetRole = "button" | "menu" | "tab" | "field" | "link" | "un
 export type GuideLanguage = "vi" | "en";
 export type GuideAiProvider = "deepseek" | "local";
 export type GuideSecretStorage = "environment" | "none";
+export type GuideOcrProfile = "fast" | "vietnamese" | "hybrid";
 
 export type GuideSessionStatus =
 	| "recording"
@@ -178,6 +179,11 @@ export interface GenerateGuideDraftInput {
 }
 
 export interface GuideAiSettings {
+	ocr: {
+		profile: GuideOcrProfile;
+		language: string;
+		updatedAt?: string;
+	};
 	deepseek: {
 		hasApiKey: boolean;
 		apiKeyEnvName: string;
@@ -194,6 +200,8 @@ export interface SaveGuideAiSettingsInput {
 	clearDeepseekApiKeyEnvName?: boolean;
 	baseUrl?: string;
 	model?: string;
+	ocrProfile?: GuideOcrProfile;
+	ocrLanguage?: string;
 }
 
 export interface SaveGuideInput {

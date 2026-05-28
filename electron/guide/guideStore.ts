@@ -34,7 +34,10 @@ import {
 	DeepSeekGuideClientError,
 	type GuideDraftClient,
 } from "./ai/deepseekGuideClient";
-import type { DeepSeekGuideConfigProvider } from "./ai/deepseekSettingsStore";
+import type {
+	DeepSeekGuideConfigProvider,
+	GuideOcrConfigProvider,
+} from "./ai/deepseekSettingsStore";
 import { type GuidePaths, normalizeGuideRecordingId, resolveGuidePaths } from "./guidePaths";
 import { createFocusedOcrSnapshot, remapFocusedOcrBlocks } from "./ocr/focusedOcrSnapshot";
 import { DefaultGuideOcrClient, type GuideOcrClient } from "./ocr/paddleOcrClient";
@@ -70,6 +73,7 @@ export interface GuideStoreDependencies {
 	ocrClient?: GuideOcrClient;
 	draftClient?: GuideDraftClient;
 	deepSeekConfigProvider?: DeepSeekGuideConfigProvider;
+	ocrConfigProvider?: GuideOcrConfigProvider;
 	focusOcrSnapshots?: boolean;
 }
 
@@ -255,7 +259,9 @@ export class GuideStore {
 			throw new GuideStoreError("guide-invalid-input", "No guide snapshots are available for OCR.");
 		}
 
-		const ocrClient = this.dependencies.ocrClient ?? new DefaultGuideOcrClient();
+		const ocrClient =
+			this.dependencies.ocrClient ??
+			DefaultGuideOcrClient.fromConfig(await this.dependencies.ocrConfigProvider?.getOcrConfig());
 		const shouldFocusOcrSnapshots =
 			this.dependencies.focusOcrSnapshots ?? this.dependencies.ocrClient === undefined;
 		const eventsById = new Map(session.events.map((event) => [event.id, event]));

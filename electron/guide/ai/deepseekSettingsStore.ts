@@ -1,6 +1,10 @@
 import fs from "node:fs/promises";
 import path from "node:path";
-import type { GuideAiSettings, SaveGuideAiSettingsInput } from "../../../src/guide/contracts";
+import type {
+	GuideAiSettings,
+	GuideOcrProfile,
+	SaveGuideAiSettingsInput,
+} from "../../../src/guide/contracts";
 
 export interface DeepSeekGuideConfig {
 	apiKey?: string;
@@ -12,8 +16,22 @@ export interface DeepSeekGuideConfigProvider {
 	getDeepSeekConfig(): Promise<DeepSeekGuideConfig>;
 }
 
+export interface GuideOcrConfig {
+	profile: GuideOcrProfile;
+	language: string;
+}
+
+export interface GuideOcrConfigProvider {
+	getOcrConfig(): Promise<GuideOcrConfig>;
+}
+
 interface PersistedGuideAiSettings {
 	schemaVersion: 1;
+	ocr?: {
+		profile?: GuideOcrProfile;
+		language?: string;
+		updatedAt?: string;
+	};
 	deepseek?: {
 		apiKeyEnvName?: string;
 		baseUrl?: string;
@@ -25,8 +43,10 @@ interface PersistedGuideAiSettings {
 const DEFAULT_DEEPSEEK_API_KEY_ENV_NAME = "DEEPSEEK_API_KEY";
 const DEFAULT_DEEPSEEK_BASE_URL = "https://api.deepseek.com";
 const DEFAULT_DEEPSEEK_MODEL = "deepseek-chat";
+const DEFAULT_OCR_PROFILE: GuideOcrProfile = "vietnamese";
+const DEFAULT_OCR_LANGUAGE = "vi,en";
 
-export class DeepSeekSettingsStore implements DeepSeekGuideConfigProvider {
+export class DeepSeekSettingsStore implements DeepSeekGuideConfigProvider, GuideOcrConfigProvider {
 	constructor(private readonly filePath: string) {}
 
 	async getStatus(): Promise<GuideAiSettings> {
@@ -35,6 +55,13 @@ export class DeepSeekSettingsStore implements DeepSeekGuideConfigProvider {
 		const activeApiKey = process.env[apiKeyEnvName];
 
 		return {
+			ocr: {
+				profile: normalizeOcrProfile(raw?.ocr?.profile ?? process.env.OPENSCREEN_GUIDE_OCR_PROFILE),
+				language: normalizeOcrLanguage(
+					raw?.ocr?.language ?? process.env.OPENSCREEN_GUIDE_OCR_LANGUAGE,
+				),
+				updatedAt: raw?.ocr?.updatedAt,
+			},
 			deepseek: {
 				hasApiKey: Boolean(activeApiKey),
 				apiKeyEnvName,
@@ -49,7 +76,14 @@ export class DeepSeekSettingsStore implements DeepSeekGuideConfigProvider {
 
 	async save(input: SaveGuideAiSettingsInput): Promise<GuideAiSettings> {
 		const current = (await this.readSettings()) ?? { schemaVersion: 1 };
+		const currentOcr = current.ocr ?? {};
 		const currentDeepSeek = current.deepseek ?? {};
+		const nextOcr = {
+			...currentOcr,
+			profile: normalizeOcrProfile(input.ocrProfile ?? currentOcr.profile),
+			language: normalizeOcrLanguage(input.ocrLanguage ?? currentOcr.language),
+			updatedAt: new Date().toISOString(),
+		};
 		const nextDeepSeek = {
 			...currentDeepSeek,
 			baseUrl: normalizeBaseUrl(input.baseUrl ?? currentDeepSeek.baseUrl),
@@ -65,6 +99,7 @@ export class DeepSeekSettingsStore implements DeepSeekGuideConfigProvider {
 
 		await this.writeSettings({
 			schemaVersion: 1,
+			ocr: nextOcr,
 			deepseek: nextDeepSeek,
 		});
 		return await this.getStatus();
@@ -77,6 +112,16 @@ export class DeepSeekSettingsStore implements DeepSeekGuideConfigProvider {
 			apiKey: process.env[apiKeyEnvName],
 			baseUrl: normalizeBaseUrl(raw?.deepseek?.baseUrl ?? process.env.DEEPSEEK_BASE_URL),
 			model: normalizeModel(raw?.deepseek?.model ?? process.env.DEEPSEEK_MODEL),
+		};
+	}
+
+	async getOcrConfig(): Promise<GuideOcrConfig> {
+		const raw = await this.readSettings();
+		return {
+			profile: normalizeOcrProfile(raw?.ocr?.profile ?? process.env.OPENSCREEN_GUIDE_OCR_PROFILE),
+			language: normalizeOcrLanguage(
+				raw?.ocr?.language ?? process.env.OPENSCREEN_GUIDE_OCR_LANGUAGE,
+			),
 		};
 	}
 
@@ -120,6 +165,11 @@ function normalizePersistedSettings(input: unknown): PersistedGuideAiSettings | 
 	}
 	return {
 		schemaVersion: 1,
+		ocr: {
+			profile: normalizeOcrProfile(raw.ocr?.profile),
+			language: normalizeOcrLanguage(raw.ocr?.language),
+			updatedAt: raw.ocr?.updatedAt,
+		},
 		deepseek: {
 			apiKeyEnvName: normalizeEnvName(raw.deepseek?.apiKeyEnvName),
 			baseUrl: raw.deepseek?.baseUrl,
@@ -154,4 +204,20 @@ function normalizeBaseUrl(value: string | undefined): string {
 
 function normalizeModel(value: string | undefined): string {
 	return value?.trim() || DEFAULT_DEEPSEEK_MODEL;
+}
+
+function normalizeOcrProfile(value: string | undefined): GuideOcrProfile {
+	if (value === "fast" || value === "vietnamese" || value === "hybrid") {
+		return value;
+	}
+	return DEFAULT_OCR_PROFILE;
+}
+
+function normalizeOcrLanguage(value: string | undefined): string {
+	const normalized = value
+		?.split(",")
+		.map((part) => part.trim().toLowerCase())
+		.filter(Boolean)
+		.join(",");
+	return normalized || DEFAULT_OCR_LANGUAGE;
 }

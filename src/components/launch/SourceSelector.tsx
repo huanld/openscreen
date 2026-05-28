@@ -65,7 +65,13 @@ export function SourceSelector() {
 		fetchSources();
 	}, []);
 
-	const screenSources = sources.filter((s) => s.id.startsWith("screen:"));
+	const screenSources = sources
+		.filter((s) => s.id.startsWith("screen:"))
+		.sort(
+			(left, right) =>
+				(left.displayIndex ?? left.screenIndex ?? Number.MAX_SAFE_INTEGER) -
+				(right.displayIndex ?? right.screenIndex ?? Number.MAX_SAFE_INTEGER),
+		);
 	const windowSources = sources.filter((s) => s.id.startsWith("window:"));
 
 	const handleSourceSelect = (source: DesktopSource) => setSelectedSource(source);
@@ -96,11 +102,17 @@ export function SourceSelector() {
 				onClick={() => handleSourceSelect(source)}
 			>
 				<div className="relative mb-1.5 overflow-hidden rounded-lg border border-white/[0.06] bg-black/30">
-					<img
-						src={source.thumbnail || ""}
-						alt={source.name}
-						className="w-full aspect-video object-cover"
-					/>
+					{source.thumbnail ? (
+						<img
+							src={source.thumbnail}
+							alt={source.name}
+							className="w-full aspect-video object-cover"
+						/>
+					) : (
+						<div className="flex aspect-video w-full items-center justify-center bg-zinc-950 text-center text-[11px] font-medium text-zinc-400">
+							{source.displayLabel ?? source.name}
+						</div>
+					)}
 					{isSelected && (
 						<div className="absolute right-1.5 top-1.5">
 							<div className={styles.checkBadge}>

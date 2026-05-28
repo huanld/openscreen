@@ -1732,7 +1732,7 @@ export function registerIpcHandlers(
 		const sources = await desktopCapturer.getSources(opts);
 		lastEnumeratedSources = new Map(sources.map((source) => [source.id, source]));
 		let screenSourceIndex = 0;
-		return sources.map((source) => {
+		const processedSources = sources.map((source) => {
 			const isScreenSource = source.id.startsWith("screen:");
 			const sourceIndex = isScreenSource
 				? (parseDesktopCapturerScreenIndex(source.id) ?? screenSourceIndex)
@@ -1760,6 +1760,43 @@ export function registerIpcHandlers(
 				bounds,
 			};
 		});
+		const screenDisplays = screen.getAllDisplays();
+		const mappedDisplayIds = new Set(
+			processedSources
+				.filter((source) => source.id.startsWith("screen:") && typeof source.displayId === "number")
+				.map((source) => source.displayId),
+		);
+		const fallbackScreenSources = screenDisplays
+			.map((display, displayIndex) => ({ display, displayIndex }))
+			.filter(({ display }) => !mappedDisplayIds.has(display.id))
+			.map(({ display, displayIndex }) => {
+				const bounds = toSourceBounds(display.bounds);
+				return {
+					id: `screen:${displayIndex}:fallback:${display.id}`,
+					name: `Screen ${displayIndex + 1}`,
+					display_id: String(display.id),
+					thumbnail: null,
+					appIcon: null,
+					displayId: display.id,
+					displayIndex,
+					screenIndex: displayIndex,
+					displayLabel: `Display ${displayIndex + 1} - ${bounds.width}x${bounds.height} @ ${bounds.x},${bounds.y}`,
+					bounds,
+				};
+			});
+		if (fallbackScreenSources.length > 0) {
+			console.warn("[desktop-capturer] added fallback display sources", {
+				capturerScreens: processedSources.filter((source) => source.id.startsWith("screen:"))
+					.length,
+				electronDisplays: screenDisplays.length,
+				fallbackScreens: fallbackScreenSources.map((source) => ({
+					id: source.id,
+					displayId: source.displayId,
+					bounds: source.bounds,
+				})),
+			});
+		}
+		return [...processedSources, ...fallbackScreenSources];
 	});
 
 	ipcMain.handle("select-source", async (_, source: SelectedSource) => {
@@ -2637,6 +2674,7 @@ export function registerIpcHandlers(
 	);
 	const guideStore = new GuideStore(RECORDINGS_DIR, {
 		deepSeekConfigProvider: guideAiSettingsStore,
+		ocrConfigProvider: guideAiSettingsStore,
 	});
 	registerGuideMarkerHotkey(guideStore);
 	registerGuideIpcHandlers(ipcMain, guideStore, guideAiSettingsStore, {
