@@ -79,6 +79,7 @@
       "nsis"
     ],
     "icon": "icons/icons/win/icon.ico",
+    "requestedExecutionLevel": "requireAdministrator",
     "signAndEditExecutable": false,
     "signExts": ["!.exe"],
     "extraResources": [
@@ -101,6 +102,8 @@
   },
   "nsis": {
     "oneClick": false,
-    "allowToChangeInstallationDirectory": true
+    "allowToChangeInstallationDirectory": true,
+    "perMachine": true,
+    "include": "build/installer.nsh"
   }
 }

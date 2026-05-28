@@ -55,6 +55,7 @@ export interface GuideSnapshot {
 	timeMs: number;
 	offsetMs: number;
 	path: string;
+	markedPath?: string;
 	width: number;
 	height: number;
 }
@@ -163,6 +164,7 @@ export interface WriteGuideSnapshotInput {
 	timeMs: number;
 	offsetMs: number;
 	pngBytes: ArrayBuffer;
+	markedPngBytes?: ArrayBuffer;
 	width: number;
 	height: number;
 }

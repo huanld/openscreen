@@ -1,14 +1,17 @@
-import { type ChildProcessWithoutNullStreams, spawn } from "node:child_process";
+import { type ChildProcessWithoutNullStreams, execFile, spawn } from "node:child_process";
 import fs from "node:fs/promises";
 import path from "node:path";
+import { promisify } from "node:util";
 import { app } from "electron";
 
 const DEFAULT_OCR_BASE_URL = "http://127.0.0.1:8866";
 const DEFAULT_OCR_PORT = "8866";
+const WINDOWS_SERVICE_NAME = "OpenScreenOCR";
 const SERVICE_EXE_NAME = "openscreen-ocr-service.exe";
 const HEALTH_TIMEOUT_MS = 1000;
 const STARTUP_TIMEOUT_MS = 90000;
 const PADDLEX_MODEL_NAMES = ["PP-OCRv5_mobile_det", "latin_PP-OCRv5_mobile_rec"];
+const execFileAsync = promisify(execFile);
 
 let ocrProcess: ChildProcessWithoutNullStreams | null = null;
 let startupPromise: Promise<void> | null = null;
@@ -21,6 +24,11 @@ export async function ensureBundledOcrServiceRunning(
 		return;
 	}
 	if (await isOcrServiceHealthy(baseUrl, HEALTH_TIMEOUT_MS)) {
+		return;
+	}
+
+	if (process.platform === "win32" && (await startInstalledWindowsOcrService())) {
+		await waitForOcrServiceHealth(baseUrl, STARTUP_TIMEOUT_MS);
 		return;
 	}
 
@@ -48,6 +56,39 @@ function shouldManageOcrService(baseUrl: string): boolean {
 		);
 	} catch {
 		return false;
+	}
+}
+
+async function startInstalledWindowsOcrService(): Promise<boolean> {
+	const query = await runSc(["query", WINDOWS_SERVICE_NAME]);
+	if (!query.success) {
+		return false;
+	}
+	if (/\bRUNNING\b/i.test(query.output)) {
+		return true;
+	}
+
+	const start = await runSc(["start", WINDOWS_SERVICE_NAME]);
+	return start.success || /\b1056\b/.test(start.output) || /already running/i.test(start.output);
+}
+
+async function runSc(args: string[]): Promise<{ success: boolean; output: string }> {
+	try {
+		const result = await execFileAsync("sc.exe", args, {
+			windowsHide: true,
+			timeout: 10000,
+			maxBuffer: 512 * 1024,
+		});
+		return {
+			success: true,
+			output: `${result.stdout ?? ""}\n${result.stderr ?? ""}`,
+		};
+	} catch (error) {
+		const failed = error as { stdout?: string; stderr?: string };
+		return {
+			success: false,
+			output: `${failed.stdout ?? ""}\n${failed.stderr ?? ""}`,
+		};
 	}
 }
 
@@ -160,6 +201,7 @@ function startOcrServiceProcess(
 			PADDLEOCR_USE_MOBILE: process.env.PADDLEOCR_USE_MOBILE ?? "1",
 			OPENSCREEN_OCR_PROFILE:
 				process.env.OPENSCREEN_OCR_PROFILE ?? process.env.OPENSCREEN_GUIDE_OCR_PROFILE ?? "",
+			OPENSCREEN_OCR_WARMUP: process.env.OPENSCREEN_OCR_WARMUP ?? "1",
 			PADDLE_PDX_ENABLE_MKLDNN_BYDEFAULT: process.env.PADDLE_PDX_ENABLE_MKLDNN_BYDEFAULT ?? "False",
 			PADDLE_PDX_CACHE_HOME: process.env.PADDLE_PDX_CACHE_HOME ?? runtimePaths.paddlexCachePath,
 			PADDLE_PDX_DISABLE_MODEL_SOURCE_CHECK:

@@ -1,10 +1,11 @@
-import { type ChildProcessWithoutNullStreams, spawn } from "node:child_process";
+import { type ChildProcessWithoutNullStreams, execFile, spawn } from "node:child_process";
 import { EventEmitter } from "node:events";
 import { constants as fsConstants } from "node:fs";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
+import { promisify } from "node:util";
 import type { DesktopCapturerSource, Rectangle } from "electron";
 import {
 	app,
@@ -17,7 +18,7 @@ import {
 	shell,
 	systemPreferences,
 } from "electron";
-import type { GuideMarkerCapturedPayload } from "../../src/guide/contracts";
+import type { GuideEvent, GuideMarkerCapturedPayload } from "../../src/guide/contracts";
 import type { NativeMacRecordingRequest } from "../../src/lib/nativeMacRecording";
 import type { NativeWindowsRecordingRequest } from "../../src/lib/nativeWindowsRecording";
 import {
@@ -56,6 +57,7 @@ const RECORDING_SESSION_SUFFIX = ".session.json";
 const ALLOWED_IMPORT_VIDEO_EXTENSIONS = new Set([".webm", ".mp4", ".mov", ".avi", ".mkv"]);
 const PREVIEW_AUDIO_DIR = path.join(app.getPath("userData"), "preview-audio");
 const nativeMacCaptureEvents = new EventEmitter();
+const execFileAsync = promisify(execFile);
 
 /**
  * Paths explicitly approved by the user via file picker dialogs or project loads.
@@ -454,6 +456,7 @@ let activeGuideHotkeyRecording: GuideHotkeyRecordingState | null = null;
 let activeGuideHotkeySessionId: number | null = null;
 let guideMarkerHotkeyRegistered = false;
 let lastGuideHotkeyCaptureAtMs = 0;
+const guideHotkeyBackgroundJobs = new Map<string, Promise<void>>();
 const GUIDE_HOTKEY_CAPTURE_DEBOUNCE_MS = 250;
 
 function normalizeCursorSample(sample: unknown): CursorRecordingSample | null {
@@ -808,6 +811,203 @@ function clampGuideHotkey01(value: number): number {
 	return Math.min(1, Math.max(0, value));
 }
 
+async function captureGuideHotkeySnapshotAndRunOcr(
+	guideStore: GuideStore,
+	event: GuideEvent,
+	boundsInput: GuideHotkeyBounds,
+	point: { normalizedX: number; normalizedY: number },
+) {
+	try {
+		const bounds = sanitizeGuideHotkeyBounds(boundsInput);
+		const sources = await desktopCapturer.getSources({
+			types: ["screen"],
+			thumbnailSize: {
+				width: Math.max(1, Math.round(bounds.width)),
+				height: Math.max(1, Math.round(bounds.height)),
+			},
+		});
+		const source = findScreenSourceForGuideBounds(sources, bounds);
+		if (!source || source.thumbnail.isEmpty()) {
+			console.warn("[guide-hotkey] no live screen thumbnail was available for OCR");
+			return;
+		}
+
+		const pngBuffer = source.thumbnail.toPNG();
+		const imageSize = source.thumbnail.getSize();
+		const markedPngBuffer = await createMarkedGuideSnapshotPng(pngBuffer, {
+			width: imageSize.width,
+			height: imageSize.height,
+			x: point.normalizedX * imageSize.width,
+			y: point.normalizedY * imageSize.height,
+		}).catch((error) => {
+			console.warn("[guide-hotkey] failed to create marked live snapshot:", error);
+			return undefined;
+		});
+
+		enqueueGuideHotkeyBackgroundJob(event.recordingId, async () => {
+			const session = await guideStore.writeSnapshot({
+				recordingId: event.recordingId,
+				eventId: event.id,
+				timeMs: event.timeMs,
+				offsetMs: 0,
+				pngBytes: bufferToArrayBuffer(pngBuffer),
+				markedPngBytes: markedPngBuffer ? bufferToArrayBuffer(markedPngBuffer) : undefined,
+				width: imageSize.width,
+				height: imageSize.height,
+			});
+			const snapshot = session.snapshots.find((item) => item.eventId === event.id);
+			if (!snapshot) {
+				return;
+			}
+
+			await guideStore.runOcr({
+				recordingId: event.recordingId,
+				snapshotIds: [snapshot.id],
+			});
+			console.info("[guide-hotkey] live snapshot OCR completed", {
+				recordingId: event.recordingId,
+				eventId: event.id,
+				snapshotId: snapshot.id,
+			});
+		});
+	} catch (error) {
+		console.warn("[guide-hotkey] live snapshot OCR failed:", error);
+	}
+}
+
+function enqueueGuideHotkeyBackgroundJob(recordingId: string, job: () => Promise<void>) {
+	const previousJob =
+		guideHotkeyBackgroundJobs.get(recordingId)?.catch(() => undefined) ?? Promise.resolve();
+	const nextJob = previousJob
+		.then(job)
+		.catch((error) => {
+			console.warn("[guide-hotkey] background OCR job failed:", error);
+		})
+		.finally(() => {
+			if (guideHotkeyBackgroundJobs.get(recordingId) === nextJob) {
+				guideHotkeyBackgroundJobs.delete(recordingId);
+			}
+		});
+	guideHotkeyBackgroundJobs.set(recordingId, nextJob);
+}
+
+function findScreenSourceForGuideBounds(
+	sources: DesktopCapturerSource[],
+	bounds: GuideHotkeyBounds,
+): DesktopCapturerSource | undefined {
+	const displays = screen.getAllDisplays();
+	const displayIndex = displays.findIndex((display) =>
+		rectMatchesGuideBounds(display.bounds, bounds),
+	);
+	const display = displayIndex >= 0 ? displays[displayIndex] : undefined;
+	if (display) {
+		const byDisplayId = sources.find((source) => Number(source.display_id) === display.id);
+		if (byDisplayId) {
+			return byDisplayId;
+		}
+		const bySourceIndex = sources.find(
+			(source) => parseDesktopCapturerScreenIndex(source.id) === displayIndex,
+		);
+		if (bySourceIndex) {
+			return bySourceIndex;
+		}
+	}
+	return sources.find((source) => source.id.startsWith("screen:")) ?? sources[0];
+}
+
+function rectMatchesGuideBounds(rect: Rectangle, bounds: GuideHotkeyBounds): boolean {
+	return (
+		Math.round(rect.x) === Math.round(bounds.x) &&
+		Math.round(rect.y) === Math.round(bounds.y) &&
+		Math.round(rect.width) === Math.round(bounds.width) &&
+		Math.round(rect.height) === Math.round(bounds.height)
+	);
+}
+
+async function createMarkedGuideSnapshotPng(
+	pngBuffer: Buffer,
+	marker: { width: number; height: number; x: number; y: number },
+): Promise<Buffer> {
+	const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "openscreen-guide-marker-"));
+	const sourcePath = path.join(tempDir, "source.png");
+	const outputPath = path.join(tempDir, "marked.png");
+	try {
+		await fs.writeFile(sourcePath, pngBuffer);
+		await execFileAsync(
+			"powershell.exe",
+			[
+				"-NoProfile",
+				"-ExecutionPolicy",
+				"Bypass",
+				"-EncodedCommand",
+				buildMarkerScript(sourcePath, outputPath, marker),
+			],
+			{
+				timeout: 30000,
+				windowsHide: true,
+				maxBuffer: 1024 * 1024,
+			},
+		);
+		return await fs.readFile(outputPath);
+	} finally {
+		await fs.rm(tempDir, { recursive: true, force: true }).catch(() => undefined);
+	}
+}
+
+function buildMarkerScript(
+	sourcePath: string,
+	outputPath: string,
+	marker: { width: number; height: number; x: number; y: number },
+): string {
+	const sourcePathBase64 = Buffer.from(sourcePath, "utf8").toString("base64");
+	const outputPathBase64 = Buffer.from(outputPath, "utf8").toString("base64");
+	const script = `
+$ErrorActionPreference = "Stop"
+$sourcePath = [System.Text.Encoding]::UTF8.GetString([Convert]::FromBase64String("${sourcePathBase64}"))
+$outputPath = [System.Text.Encoding]::UTF8.GetString([Convert]::FromBase64String("${outputPathBase64}"))
+Add-Type -AssemblyName System.Drawing
+
+$source = [System.Drawing.Image]::FromFile($sourcePath)
+$bitmap = [System.Drawing.Bitmap]::new($source.Width, $source.Height)
+$graphics = [System.Drawing.Graphics]::FromImage($bitmap)
+try {
+  $graphics.SmoothingMode = [System.Drawing.Drawing2D.SmoothingMode]::AntiAlias
+  $graphics.DrawImage($source, 0, 0, $source.Width, $source.Height)
+  $shortSide = [Math]::Max(1, [Math]::Min($source.Width, $source.Height))
+  $haloRadius = [Math]::Min(14, [Math]::Max(8, [Math]::Round($shortSide * 0.012)))
+  $dotRadius = [Math]::Min(6, [Math]::Max(3, [Math]::Round($shortSide * 0.0045)))
+  $lineWidth = [Math]::Max(1, [Math]::Round($shortSide * 0.0015))
+  $x = [Math]::Min($source.Width, [Math]::Max(0, ${marker.x.toFixed(4)}))
+  $y = [Math]::Min($source.Height, [Math]::Max(0, ${marker.y.toFixed(4)}))
+  $haloBrush = [System.Drawing.SolidBrush]::new([System.Drawing.Color]::FromArgb(87, 250, 204, 21))
+  $ringPen = [System.Drawing.Pen]::new([System.Drawing.Color]::FromArgb(184, 239, 68, 68), $lineWidth)
+  $dotBrush = [System.Drawing.SolidBrush]::new([System.Drawing.Color]::FromArgb(235, 220, 38, 38))
+  try {
+    $graphics.FillEllipse($haloBrush, $x - $haloRadius, $y - $haloRadius, $haloRadius * 2, $haloRadius * 2)
+    $graphics.DrawEllipse($ringPen, $x - $haloRadius, $y - $haloRadius, $haloRadius * 2, $haloRadius * 2)
+    $graphics.FillEllipse($dotBrush, $x - $dotRadius, $y - $dotRadius, $dotRadius * 2, $dotRadius * 2)
+  } finally {
+    $haloBrush.Dispose()
+    $ringPen.Dispose()
+    $dotBrush.Dispose()
+  }
+  $bitmap.Save($outputPath, [System.Drawing.Imaging.ImageFormat]::Png)
+} finally {
+  $graphics.Dispose()
+  $bitmap.Dispose()
+  $source.Dispose()
+}
+`;
+	return Buffer.from(script, "utf16le").toString("base64");
+}
+
+function bufferToArrayBuffer(buffer: Buffer): ArrayBuffer {
+	return buffer.buffer.slice(
+		buffer.byteOffset,
+		buffer.byteOffset + buffer.byteLength,
+	) as ArrayBuffer;
+}
+
 async function captureGuideHotkeyMarker(
 	guideStore: GuideStore,
 	trigger: GuideMarkerTrigger = "global-shortcut",
@@ -854,6 +1054,7 @@ async function captureGuideHotkeyMarker(
 			rawY: point.rawY,
 			bounds: point.bounds,
 		});
+		void captureGuideHotkeySnapshotAndRunOcr(guideStore, result.event, recording.bounds, point);
 		return { captured: true, ...result };
 	} catch (error) {
 		const message = error instanceof Error ? error.message : String(error);

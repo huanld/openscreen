@@ -131,6 +131,11 @@ if (!fs.existsSync(guideHotkeyListenerOutputPath)) {
 	throw new Error(`WGC helper build completed but ${guideHotkeyListenerOutputPath} was not found.`);
 }
 
+const ocrServiceWrapperOutputPath = path.join(BUILD_DIR, "openscreen-ocr-service-wrapper.exe");
+if (!fs.existsSync(ocrServiceWrapperOutputPath)) {
+	throw new Error(`WGC helper build completed but ${ocrServiceWrapperOutputPath} was not found.`);
+}
+
 fs.mkdirSync(BIN_DIR, { recursive: true });
 const distributablePath = path.join(BIN_DIR, "wgc-capture.exe");
 fs.copyFileSync(outputPath, distributablePath);
@@ -141,9 +146,14 @@ fs.copyFileSync(cursorSamplerOutputPath, cursorSamplerDistributablePath);
 const guideHotkeyListenerDistributablePath = path.join(BIN_DIR, "guide-hotkey-listener.exe");
 fs.copyFileSync(guideHotkeyListenerOutputPath, guideHotkeyListenerDistributablePath);
 
+const ocrServiceWrapperDistributablePath = path.join(BIN_DIR, "openscreen-ocr-service-wrapper.exe");
+fs.copyFileSync(ocrServiceWrapperOutputPath, ocrServiceWrapperDistributablePath);
+
 console.log(`Built ${outputPath}`);
 console.log(`Copied ${distributablePath}`);
 console.log(`Built ${cursorSamplerOutputPath}`);
 console.log(`Copied ${cursorSamplerDistributablePath}`);
 console.log(`Built ${guideHotkeyListenerOutputPath}`);
 console.log(`Copied ${guideHotkeyListenerDistributablePath}`);
+console.log(`Built ${ocrServiceWrapperOutputPath}`);
+console.log(`Copied ${ocrServiceWrapperDistributablePath}`);

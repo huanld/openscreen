@@ -10,8 +10,9 @@ export function exportGuideToMarkdown(session: GuideSession): string {
 
 	for (const step of guide.steps) {
 		lines.push(`## ${step.order}. ${step.title}`, "", step.instruction, "");
-		if (step.screenshotPath) {
-			lines.push(`![${escapeMarkdownAlt(step.title)}](${path.basename(step.screenshotPath)})`, "");
+		const screenshotPath = resolveStepScreenshotPath(step, session);
+		if (screenshotPath) {
+			lines.push(`![${escapeMarkdownAlt(step.title)}](${path.basename(screenshotPath)})`, "");
 		}
 	}
 
@@ -36,10 +37,8 @@ export function exportGuideToHtml(session: GuideSession): string {
     .step { border-top: 1px solid #e5e7eb; padding: 22px 0; }
     .step h2 { font-size: 18px; margin: 0 0 8px; }
     .step p { margin: 0 0 12px; }
-    .shot { display: inline-block; position: relative; max-width: 100%; margin: 0; }
+    .shot { display: inline-block; max-width: 100%; margin: 0; }
     img { display: block; max-width: 100%; border: 1px solid #e5e7eb; border-radius: 6px; }
-    .click-marker { position: absolute; width: 26px; height: 26px; border: 3px solid #ef4444; border-radius: 999px; box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.18), 0 2px 8px rgba(17, 24, 39, 0.28); transform: translate(-50%, -50%); pointer-events: none; }
-    .click-marker::after { content: ""; position: absolute; left: 50%; top: 50%; width: 6px; height: 6px; border-radius: 999px; background: #ef4444; transform: translate(-50%, -50%); }
   </style>
 </head>
 <body>
@@ -54,12 +53,9 @@ export function exportGuideToHtml(session: GuideSession): string {
 }
 
 function renderStepHtml(step: GeneratedGuideStep, session: GuideSession): string {
-	const clickPoint = resolveStepClickPoint(step, session);
-	const marker = clickPoint
-		? `<span class="click-marker" style="left: ${formatPercent(clickPoint.x)}%; top: ${formatPercent(clickPoint.y)}%;" aria-label="Click position"></span>`
-		: "";
-	const image = step.screenshotPath
-		? `<figure class="shot"><img src="${escapeHtml(path.basename(step.screenshotPath))}" alt="${escapeHtml(step.title)}">${marker}</figure>`
+	const screenshotPath = resolveStepScreenshotPath(step, session);
+	const image = screenshotPath
+		? `<figure class="shot"><img src="${escapeHtml(path.basename(screenshotPath))}" alt="${escapeHtml(step.title)}"></figure>`
 		: "";
 	return `<section class="step">
   <h2>${step.order}. ${escapeHtml(step.title)}</h2>
@@ -88,54 +84,32 @@ function escapeHtml(value: string): string {
 		.replace(/'/g, "&#39;");
 }
 
-function resolveStepClickPoint(
+function resolveStepScreenshotPath(
 	step: GeneratedGuideStep,
 	session: GuideSession,
-): { x: number; y: number } | null {
+): string | undefined {
+	const snapshot = resolveStepSnapshot(step, session);
+	return snapshot?.markedPath ?? step.screenshotPath ?? snapshot?.path;
+}
+
+function resolveStepSnapshot(step: GeneratedGuideStep, session: GuideSession) {
 	const candidate = step.sourceCandidateId
 		? session.candidates.find((item) => item.id === step.sourceCandidateId)
 		: undefined;
-	const eventId = candidate?.eventId;
-	const event = eventId ? session.events.find((item) => item.id === eventId) : undefined;
-	if (!event || (event.kind !== "click" && event.kind !== "hotkey")) {
-		return null;
-	}
-	if (isNormalizedNumber(event.normalizedX) && isNormalizedNumber(event.normalizedY)) {
-		return { x: clamp01(event.normalizedX), y: clamp01(event.normalizedY) };
-	}
-
 	const screenshotFileName = step.screenshotPath ? path.basename(step.screenshotPath) : undefined;
-	const snapshot =
+	return (
 		(candidate?.snapshotId
 			? session.snapshots.find((item) => item.id === candidate.snapshotId)
 			: undefined) ??
+		(candidate?.eventId
+			? session.snapshots.find((item) => item.eventId === candidate.eventId)
+			: undefined) ??
 		(screenshotFileName
-			? session.snapshots.find((item) => path.basename(item.path) === screenshotFileName)
-			: undefined);
-	if (
-		!snapshot ||
-		typeof event.x !== "number" ||
-		typeof event.y !== "number" ||
-		snapshot.width <= 0 ||
-		snapshot.height <= 0
-	) {
-		return null;
-	}
-
-	return {
-		x: clamp01(event.x / snapshot.width),
-		y: clamp01(event.y / snapshot.height),
-	};
-}
-
-function formatPercent(value: number): string {
-	return (clamp01(value) * 100).toFixed(2);
-}
-
-function isNormalizedNumber(value: unknown): value is number {
-	return typeof value === "number" && Number.isFinite(value) && value >= 0 && value <= 1;
-}
-
-function clamp01(value: number): number {
-	return Math.min(1, Math.max(0, value));
+			? session.snapshots.find(
+					(item) =>
+						path.basename(item.path) === screenshotFileName ||
+						(item.markedPath ? path.basename(item.markedPath) === screenshotFileName : false),
+				)
+			: undefined)
+	);
 }

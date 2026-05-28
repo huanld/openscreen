@@ -81,3 +81,21 @@ target_compile_options(guide-hotkey-listener PRIVATE /EHsc /W4 /utf-8)
 target_link_libraries(guide-hotkey-listener PRIVATE
   user32
 )
+
+add_executable(openscreen-ocr-service-wrapper
+  src/ocr-service-wrapper.cpp
+)
+
+target_compile_definitions(openscreen-ocr-service-wrapper PRIVATE
+  NOMINMAX
+  WIN32_LEAN_AND_MEAN
+  UNICODE
+  _UNICODE
+  _WIN32_WINNT=0x0A00
+)
+
+target_compile_options(openscreen-ocr-service-wrapper PRIVATE /EHsc /W4 /utf-8)
+
+target_link_libraries(openscreen-ocr-service-wrapper PRIVATE
+  advapi32
+)

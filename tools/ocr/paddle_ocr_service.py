@@ -7,7 +7,7 @@ import sys
 import tempfile
 from dataclasses import dataclass
 from pathlib import Path
-from threading import Lock
+from threading import Lock, Thread
 from typing import Any
 
 from fastapi import FastAPI, HTTPException
@@ -18,6 +18,8 @@ app = FastAPI(title="OpenScreen PaddleOCR service")
 
 _engines: dict[str, Any] = {}
 _engine_lock = Lock()
+_warmup_lock = Lock()
+_warmup_started = False
 _LATIN_RECOGNITION_LANGS = {
     "af",
     "az",
@@ -87,6 +89,20 @@ class OcrRequest(BaseModel):
     profile: str | None = None
 
 
+@app.on_event("startup")
+def start_ocr_warmup() -> None:
+    if os.getenv("OPENSCREEN_OCR_WARMUP", "0") != "1":
+        return
+
+    global _warmup_started
+    with _warmup_lock:
+        if _warmup_started:
+            return
+        _warmup_started = True
+
+    Thread(target=_warmup_default_engines, name="openscreen-ocr-warmup", daemon=True).start()
+
+
 @app.get("/health")
 def health() -> dict[str, Any]:
     return {
@@ -98,6 +114,15 @@ def health() -> dict[str, Any]:
         "defaultProfile": os.getenv("OPENSCREEN_OCR_PROFILE") or "vietnamese",
         "loadedEngines": sorted(_engines.keys()),
     }
+
+
+def _warmup_default_engines() -> None:
+    try:
+        profile = _resolve_ocr_profile(None)
+        for paddle_lang in _resolve_paddle_languages(None, profile):
+            _get_engine(paddle_lang)
+    except Exception as error:
+        print(f"OpenScreen OCR warmup failed: {error}", file=sys.stderr, flush=True)
 
 
 @app.post("/ocr")

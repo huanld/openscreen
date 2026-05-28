@@ -213,10 +213,19 @@ export class GuideStore {
 
 		this.assertGuidePathIsAllowed(session.outputDir);
 		await fs.mkdir(session.outputDir, { recursive: true });
-		const fileName = `step-${String(eventIndex + 1).padStart(3, "0")}.png`;
+		const fileBaseName = `step-${String(eventIndex + 1).padStart(3, "0")}`;
+		const fileName = `${fileBaseName}.png`;
 		const snapshotPath = path.join(session.outputDir, fileName);
+		const markedSnapshotPath = path.join(session.outputDir, `${fileBaseName}-marked.png`);
 		this.assertGuidePathIsAllowed(snapshotPath);
+		this.assertGuidePathIsAllowed(markedSnapshotPath);
 		await fs.writeFile(snapshotPath, Buffer.from(new Uint8Array(input.pngBytes)));
+		const hasMarkedSnapshot = Boolean(input.markedPngBytes?.byteLength);
+		if (hasMarkedSnapshot && input.markedPngBytes) {
+			await fs.writeFile(markedSnapshotPath, Buffer.from(new Uint8Array(input.markedPngBytes)));
+		} else {
+			await fs.unlink(markedSnapshotPath).catch(() => undefined);
+		}
 
 		const snapshot: GuideSnapshot = {
 			id: `snapshot-${input.eventId}`,
@@ -224,6 +233,7 @@ export class GuideStore {
 			timeMs: Math.max(0, input.timeMs),
 			offsetMs: input.offsetMs,
 			path: snapshotPath,
+			markedPath: hasMarkedSnapshot ? markedSnapshotPath : undefined,
 			width: Math.round(input.width),
 			height: Math.round(input.height),
 		};
@@ -668,6 +678,7 @@ function normalizeGuideSnapshot(input: unknown): GuideSnapshot | null {
 	const id = normalizeString(input.id);
 	const eventId = normalizeString(input.eventId);
 	const pathValue = normalizeString(input.path);
+	const markedPath = normalizeOptionalString(input.markedPath);
 	const timeMs = normalizeNonNegativeNumber(input.timeMs);
 	const offsetMs = normalizeOptionalNumber(input.offsetMs);
 	const width = normalizePositiveInteger(input.width);
@@ -683,7 +694,7 @@ function normalizeGuideSnapshot(input: unknown): GuideSnapshot | null {
 	) {
 		return null;
 	}
-	return { id, eventId, timeMs, offsetMs, path: pathValue, width, height };
+	return { id, eventId, timeMs, offsetMs, path: pathValue, markedPath, width, height };
 }
 
 function normalizeOcrBlock(input: unknown): OcrBlock | null {

@@ -29,6 +29,7 @@ const session: GuideSession = {
 			timeMs: 1500,
 			offsetMs: 500,
 			path: "/tmp/recording-guide/step-001.png",
+			markedPath: "/tmp/recording-guide/step-001-marked.png",
 			width: 1280,
 			height: 720,
 		},
@@ -71,7 +72,7 @@ describe("guide exporters", () => {
 
 		expect(markdown).toContain("# User guide");
 		expect(markdown).toContain("## 1. Open Settings");
-		expect(markdown).toContain("](step-001.png)");
+		expect(markdown).toContain("](step-001-marked.png)");
 	});
 
 	it("exports escaped HTML", () => {
@@ -79,12 +80,11 @@ describe("guide exporters", () => {
 
 		expect(html).toContain("<!doctype html>");
 		expect(html).toContain("<h1>User guide</h1>");
-		expect(html).toContain('src="step-001.png"');
-		expect(html).toContain("click-marker");
-		expect(html).toContain("left: 25.00%; top: 75.00%;");
+		expect(html).toContain('src="step-001-marked.png"');
+		expect(html).not.toContain("click-marker");
 	});
 
-	it("draws click markers for hotkey events with coordinates", () => {
+	it("uses marker snapshots for hotkey events with coordinates", () => {
 		const hotkeySession: GuideSession = {
 			...session,
 			events: [
@@ -98,7 +98,21 @@ describe("guide exporters", () => {
 
 		const html = exportGuideToHtml(hotkeySession);
 
-		expect(html).toContain("click-marker");
-		expect(html).toContain("left: 25.00%; top: 75.00%;");
+		expect(html).toContain('src="step-001-marked.png"');
+		expect(html).not.toContain("click-marker");
+	});
+
+	it("falls back to the unmarked screenshot when no marker snapshot exists", () => {
+		const unmarkedSession: GuideSession = {
+			...session,
+			snapshots: session.snapshots.map((snapshot) => ({
+				...snapshot,
+				markedPath: undefined,
+			})),
+		};
+
+		const markdown = exportGuideToMarkdown(unmarkedSession);
+
+		expect(markdown).toContain("](step-001.png)");
 	});
 });

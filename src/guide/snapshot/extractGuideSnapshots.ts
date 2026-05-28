@@ -35,18 +35,29 @@ export async function captureGuideSnapshots(
 		canvas.height = Math.max(1, Math.round(sourceHeight * scale));
 
 		let latestSession = input.session;
+		const existingSnapshotsByEventId = new Set(
+			input.session.snapshots.map((snapshot) => snapshot.eventId),
+		);
 		for (const event of events) {
+			if (existingSnapshotsByEventId.has(event.id)) {
+				continue;
+			}
 			const offsetMs = event.screenshotOffsetMs ?? 500;
 			const timeMs = getSnapshotTimeMs(event, offsetMs, video.duration);
 			await seekVideo(video, timeMs / 1000);
 			context.drawImage(video, 0, 0, canvas.width, canvas.height);
 			const pngBytes = await canvasToPngBytes(canvas);
+			const markerPoint = getSnapshotMarkerPoint(event, canvas.width, canvas.height);
+			const markedPngBytes = markerPoint
+				? await canvasToMarkedPngBytes(canvas, markerPoint)
+				: undefined;
 			const result = await window.electronAPI.guide.writeSnapshot({
 				recordingId: input.session.recordingId,
 				eventId: event.id,
 				timeMs,
 				offsetMs,
 				pngBytes,
+				markedPngBytes,
 				width: canvas.width,
 				height: canvas.height,
 			});
@@ -142,4 +153,86 @@ function canvasToPngBytes(canvas: HTMLCanvasElement): Promise<ArrayBuffer> {
 			blob.arrayBuffer().then(resolve, reject);
 		}, "image/png");
 	});
+}
+
+async function canvasToMarkedPngBytes(
+	canvas: HTMLCanvasElement,
+	point: { x: number; y: number },
+): Promise<ArrayBuffer> {
+	const markedCanvas = document.createElement("canvas");
+	markedCanvas.width = canvas.width;
+	markedCanvas.height = canvas.height;
+	const markedContext = markedCanvas.getContext("2d");
+	if (!markedContext) {
+		throw new Error("Canvas 2D context is unavailable.");
+	}
+	markedContext.drawImage(canvas, 0, 0);
+	drawSnapshotMarker(markedContext, markedCanvas, point);
+	return await canvasToPngBytes(markedCanvas);
+}
+
+function drawSnapshotMarker(
+	context: CanvasRenderingContext2D,
+	canvas: HTMLCanvasElement,
+	point: { x: number; y: number },
+) {
+	const shortSide = Math.max(1, Math.min(canvas.width, canvas.height));
+	const haloRadius = clampNumber(Math.round(shortSide * 0.012), 8, 14);
+	const dotRadius = clampNumber(Math.round(shortSide * 0.0045), 3, 6);
+	const lineWidth = Math.max(1, Math.round(shortSide * 0.0015));
+
+	context.beginPath();
+	context.arc(point.x, point.y, haloRadius, 0, Math.PI * 2);
+	context.fillStyle = "rgba(250, 204, 21, 0.34)";
+	context.fill();
+	context.lineWidth = lineWidth;
+	context.strokeStyle = "rgba(239, 68, 68, 0.72)";
+	context.stroke();
+
+	context.beginPath();
+	context.arc(point.x, point.y, dotRadius, 0, Math.PI * 2);
+	context.fillStyle = "rgba(220, 38, 38, 0.92)";
+	context.fill();
+}
+
+function getSnapshotMarkerPoint(
+	event: GuideEvent,
+	width: number,
+	height: number,
+): { x: number; y: number } | null {
+	if (event.kind !== "click" && event.kind !== "hotkey") {
+		return null;
+	}
+	if (isNormalizedNumber(event.normalizedX) && isNormalizedNumber(event.normalizedY)) {
+		return {
+			x: clampNumber(event.normalizedX * width, 0, width),
+			y: clampNumber(event.normalizedY * height, 0, height),
+		};
+	}
+	if (isNormalizedNumber(event.x) && isNormalizedNumber(event.y)) {
+		return {
+			x: clampNumber(event.x * width, 0, width),
+			y: clampNumber(event.y * height, 0, height),
+		};
+	}
+	if (
+		typeof event.x === "number" &&
+		typeof event.y === "number" &&
+		Number.isFinite(event.x) &&
+		Number.isFinite(event.y)
+	) {
+		return {
+			x: clampNumber(event.x, 0, width),
+			y: clampNumber(event.y, 0, height),
+		};
+	}
+	return null;
+}
+
+function isNormalizedNumber(value: unknown): value is number {
+	return typeof value === "number" && Number.isFinite(value) && value >= 0 && value <= 1;
+}
+
+function clampNumber(value: number, min = 0, max = Number.POSITIVE_INFINITY): number {
+	return Math.min(max, Math.max(min, value));
 }

@@ -168,6 +168,7 @@ describe("GuideStore", () => {
 			width: 800,
 			height: 600,
 			pngBytes: new Uint8Array([137, 80, 78, 71]).buffer,
+			markedPngBytes: new Uint8Array([137, 80, 78, 71, 1]).buffer,
 		});
 
 		expect(session.status).toBe("snapshots-ready");
@@ -175,6 +176,9 @@ describe("GuideStore", () => {
 		expect(session.candidates[0]).toMatchObject({ targetText: "Save" });
 		await expect(fs.readFile(session.snapshots[0]?.path ?? "")).resolves.toEqual(
 			Buffer.from([137, 80, 78, 71]),
+		);
+		await expect(fs.readFile(session.snapshots[0]?.markedPath ?? "")).resolves.toEqual(
+			Buffer.from([137, 80, 78, 71, 1]),
 		);
 	});
 
