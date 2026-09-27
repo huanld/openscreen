@@ -1,0 +1,14 @@
+.surface { position: fixed; inset: 0; overflow: hidden; background: #111315; cursor: crosshair; user-select: none; touch-action: none; outline: none; color: #fff; }
+.image { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: fill; pointer-events: none; }
+.shade { position: absolute; inset: 0; background: #0008; pointer-events: none; }
+.selection { position: absolute; outline: 2px solid #57dfa0; box-shadow: 0 0 0 99999px #0008; pointer-events: none; }
+.instructions { position: absolute; display: flex; flex-direction: column; align-items: center; gap: 7px; top: 24px; left: 50%; max-width: min(520px, calc(100% - 280px)); transform: translateX(-50%); padding: 14px 22px; background: transparent; border: 1px solid transparent; border-radius: 10px; box-shadow: none; text-shadow: 0 1px 4px #000, 0 0 10px #000; pointer-events: none; text-align: center; font-size: 13px; line-height: 1.5; }
+.instructions strong { font-size: 15px; }
+.instructions span { color: #d4d8dc; }
+.instructions .dimensions { color: #70ecb1; font-size: 14px; font-variant-numeric: tabular-nums; }
+.cancel { position: absolute; display: flex; align-items: center; justify-content: center; gap: 7px; top: 24px; right: 24px; min-height: 44px; padding: 10px 15px; color: #fff; background: transparent; border: 1px solid transparent; border-radius: 8px; text-shadow: 0 1px 4px #000; font-size: 13px; cursor: pointer; }
+.cancel:hover { background: #0005; }
+.cancel:focus-visible { outline: 2px solid #70ecb1; outline-offset: 3px; }
+.cancel:disabled { opacity: .5; cursor: default; }
+.error { position: absolute; bottom: 24px; left: 50%; transform: translateX(-50%); max-width: min(700px, calc(100% - 48px)); padding: 14px 18px; border: 1px solid #ff999988; border-radius: 8px; background: #351c1cf5; color: #ffd1d1; font-size: 14px; pointer-events: none; }
+@media (max-width: 640px) { .instructions { top: 82px; max-width: calc(100% - 48px); width: max-content; } }

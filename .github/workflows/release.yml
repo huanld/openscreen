@@ -1,0 +1,135 @@
+name: Release (Windows + macOS)
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    timeout-minutes: 90
+    env:
+      PYTHON: python
+      AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+      AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+      AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+      AZURE_TRUSTED_SIGNING_ENDPOINT: ${{ secrets.AZURE_TRUSTED_SIGNING_ENDPOINT }}
+      AZURE_TRUSTED_SIGNING_ACCOUNT_NAME: ${{ secrets.AZURE_TRUSTED_SIGNING_ACCOUNT_NAME }}
+      AZURE_TRUSTED_SIGNING_CERTIFICATE_PROFILE_NAME: ${{ secrets.AZURE_TRUSTED_SIGNING_CERTIFICATE_PROFILE_NAME }}
+      AZURE_TRUSTED_SIGNING_PUBLISHER_NAME: ${{ secrets.AZURE_TRUSTED_SIGNING_PUBLISHER_NAME }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: tools/ocr/requirements.txt
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Normalize version artifacts name
+        shell: pwsh
+        run: |
+          $version = (Get-Content package.json -Raw | ConvertFrom-Json).version
+          "version=$version" >> $env:GITHUB_OUTPUT
+          echo "Building version $version (tag ${{ github.ref_name }})"
+
+      - name: Build signed Windows installer
+        # Azure Trusted Signing via repository secrets; falls back to the
+        # unsigned default config only when secrets are absent (checked below).
+        id: build
+        shell: pwsh
+        env:
+          AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+          AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+        run: |
+          $signed = -not [string]::IsNullOrWhiteSpace($env:AZURE_TENANT_ID) -and -not [string]::IsNullOrWhiteSpace($env:AZURE_CLIENT_SECRET)
+          if ($signed) {
+            Write-Host "Signing secrets present - building SIGNED installer"
+            npm run build:win:private-trust -- --publish never
+          } else {
+            Write-Host "##vso[task.logissue type=warning]Azure signing secrets missing - building UNSIGNED installer"
+            npm run build:win -- --publish never
+          }
+
+      - name: Normalize artifacts
+        shell: pwsh
+        run: |
+          $version = (Get-Content package.json -Raw | ConvertFrom-Json).version
+          $dir = "release/$version"
+          Copy-Item "$dir/Openscreen Setup $version.exe" "$dir/Openscreen-Setup-$version.exe" -Force
+          Copy-Item "$dir/Openscreen Setup $version.exe.blockmap" "$dir/Openscreen-Setup-$version.exe.blockmap" -Force
+          (Get-Content "$dir/latest.yml" -Raw) -replace [regex]::Escape("Openscreen Setup $version.exe"), "Openscreen-Setup-$version.exe" |
+            Set-Content "$dir/latest.yml" -Encoding utf8NoBOM
+          $hash = (Get-FileHash "$dir/Openscreen-Setup-$version.exe" -Algorithm SHA256).Hash.ToLower()
+          "$hash  Openscreen-Setup-$version.exe" | Set-Content "$dir/Openscreen-Setup-$version.exe.sha256" -Encoding ascii
+
+      - name: Upload Windows release artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-windows
+          path: |
+            release/*/Openscreen-Setup-*.exe
+            release/*/Openscreen-Setup-*.exe.blockmap
+            release/*/Openscreen-Setup-*.exe.sha256
+            release/*/latest.yml
+          if-no-files-found: error
+          retention-days: 7
+
+  macos:
+    runs-on: macos-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build macOS dmg (unsigned, x64 + arm64)
+        run: npm run build:mac -- --publish never
+
+      - name: Upload macOS release artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-macos
+          path: |
+            release/*/Openscreen-Mac-*.dmg
+            release/*/latest-mac.yml
+          if-no-files-found: error
+          retention-days: 7
+
+  publish:
+    needs: [windows, macos]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Publish GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: OpenScreen ${{ github.ref_name }}
+          generate_release_notes: true
+          files: |
+            artifacts/release-windows/*
+            artifacts/release-macos/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

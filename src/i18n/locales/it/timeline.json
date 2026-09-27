@@ -1,0 +1,69 @@
+{
+	"buttons": {
+		"addZoom": "Aggiungi zoom (Z)",
+		"suggestZooms": "Suggerisci zoom dal cursore",
+		"addTrim": "Aggiungi taglio (T)",
+		"addAnnotation": "Aggiungi annotazione (A)",
+		"addBlur": "Aggiungi sfocatura (B)",
+		"addSpeed": "Aggiungi velocità (S)"
+	},
+	"hints": {
+		"pressZoom": "Premi Z per aggiungere zoom",
+		"pressTrim": "Premi T per aggiungere taglio",
+		"pressAnnotation": "Premi A per aggiungere annotazione",
+		"pressBlur": "Premi B per aggiungere regione sfocatura",
+		"pressSpeed": "Premi S per aggiungere velocità",
+		"textTrack": "Testo — premi A per aggiungere un'annotazione",
+		"imageTrack": "Immagine — aggiungi un'annotazione e imposta il tipo su Immagine",
+		"figureTrack": "Freccia — aggiungi un'annotazione e imposta il tipo su Freccia",
+		"magnifierTrack": "Lenti"
+	},
+	"lanes": {
+		"count": "Corsie: {{count}}",
+		"add": "Aggiungi una corsia a questa riga",
+		"remove": "Rimuovi l'ultima corsia",
+		"removeBlocked": "L'ultima corsia contiene ancora annotazioni. Spostale prima in un'altra corsia.",
+		"dropForNewLane": "Rilascia qui per una nuova corsia"
+	},
+	"labels": {
+		"pan": "Panoramica",
+		"zoom": "Zoom",
+		"trim": "Taglio",
+		"speed": "Velocità",
+		"zoomItem": "Zoom {{index}}",
+		"trimItem": "Taglio {{index}}",
+		"speedItem": "Velocità {{index}}",
+		"annotationItem": "Annotazione",
+		"blurItem": "Sfocatura {{index}}",
+		"imageItem": "Immagine",
+		"emptyText": "Testo vuoto",
+		"arrowItem": "Freccia",
+		"magnifierItem": "Lente"
+	},
+	"emptyState": {
+		"noVideo": "Nessun video caricato",
+		"dragAndDrop": "Trascina e rilascia un video per iniziare a modificare"
+	},
+	"errors": {
+		"cannotPlaceZoom": "Impossibile posizionare lo zoom qui",
+		"zoomExistsAtLocation": "Lo zoom esiste già in questa posizione o non c'è spazio sufficiente.",
+		"zoomSuggestionUnavailable": "Gestore suggerimenti zoom non disponibile",
+		"noCursorTelemetry": "Nessuna telemetria del cursore disponibile",
+		"noCursorTelemetryDescription": "Registra prima uno screencast per generare suggerimenti basati sul cursore.",
+		"noUsableTelemetry": "Nessuna telemetria del cursore utilizzabile",
+		"noUsableTelemetryDescription": "La registrazione non include dati sufficienti sul movimento del cursore.",
+		"noDwellMoments": "Nessun momento di sosta del cursore trovato",
+		"noDwellMomentsDescription": "Prova una registrazione con pause del cursore più lente sulle azioni importanti.",
+		"noAutoZoomSlots": "Nessuno slot di zoom automatico disponibile",
+		"noAutoZoomSlotsDescription": "I punti di sosta rilevati si sovrappongono alle regioni zoom esistenti.",
+		"cannotPlaceTrim": "Impossibile posizionare il taglio qui",
+		"trimExistsAtLocation": "Il taglio esiste già in questa posizione o non c'è spazio sufficiente.",
+		"cannotPlaceSpeed": "Impossibile posizionare la velocità qui",
+		"speedExistsAtLocation": "La regione velocità esiste già in questa posizione o non c'è spazio sufficiente.",
+		"laneOccupied": "Quella corsia ha già un'annotazione in quel momento."
+	},
+	"success": {
+		"addedZoomSuggestions": "Aggiunto {{count}} suggerimento zoom basato sul cursore",
+		"addedZoomSuggestionsPlural": "Aggiunti {{count}} suggerimenti zoom basati sul cursore"
+	}
+}
