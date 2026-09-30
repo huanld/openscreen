@@ -1,0 +1,71 @@
+{
+	"buttons": {
+		"addZoom": "إضافة تكبير (Z)",
+		"suggestZooms": "اقتراح تكبير من المؤشر",
+		"addTrim": "إضافة قص (T)",
+		"addAnnotation": "إضافة شرح (A)",
+		"addBlur": "إضافة تمويه (B)",
+		"addSpeed": "إضافة سرعة (S)"
+	},
+	"hints": {
+		"pressZoom": "اضغط Z لإضافة تكبير",
+		"pressTrim": "اضغط T لإضافة قص",
+		"pressAnnotation": "اضغط A لإضافة شرح",
+		"pressBlur": "اضغط B لإضافة منطقة تمويه",
+		"pressSpeed": "اضغط S لإضافة سرعة",
+		"textTrack": "نص — اضغط A لإضافة شرح",
+		"imageTrack": "صورة — أضف شرحًا ثم غيّر نوعه إلى صورة",
+		"figureTrack": "سهم — أضف شرحًا ثم غيّر نوعه إلى سهم",
+		"rectangleTrack": "مستطيل — أضف شرحًا ثم غيّر نوعه إلى مستطيل",
+		"magnifierTrack": "العدسات المكبّرة"
+	},
+	"lanes": {
+		"count": "المسارات: {{count}}",
+		"add": "إضافة مسار إلى هذا الصف",
+		"remove": "إزالة المسار الأخير",
+		"removeBlocked": "لا يزال المسار الأخير يحتوي على شروح. انقلها إلى مسار آخر أولًا.",
+		"dropForNewLane": "أفلت هنا لإنشاء مسار جديد"
+	},
+	"labels": {
+		"pan": "تحريك",
+		"zoom": "تكبير",
+		"trim": "قص",
+		"speed": "سرعة",
+		"zoomItem": "تكبير {{index}}",
+		"trimItem": "قص {{index}}",
+		"speedItem": "سرعة {{index}}",
+		"annotationItem": "شرح",
+		"blurItem": "تمويه {{index}}",
+		"imageItem": "صورة",
+		"emptyText": "نص فارغ",
+		"arrowItem": "سهم",
+		"rectangleItem": "مستطيل",
+		"magnifierItem": "عدسة مكبّرة"
+	},
+	"emptyState": {
+		"noVideo": "لم يتم تحميل أي فيديو",
+		"dragAndDrop": "اسحب وأفلت مقطع فيديو لبدء التعديل"
+	},
+	"errors": {
+		"cannotPlaceZoom": "لا يمكن وضع التكبير هنا",
+		"zoomExistsAtLocation": "يوجد تكبير بالفعل في هذا الموقع أو لا توجد مساحة كافية متاحة.",
+		"zoomSuggestionUnavailable": "معالج اقتراح التكبير غير متوفر",
+		"noCursorTelemetry": "لا تتوفر بيانات قياس المؤشر",
+		"noCursorTelemetryDescription": "قم بتسجيل الشاشة أولاً لإنشاء اقتراحات بناءً على المؤشر.",
+		"noUsableTelemetry": "لا توجد بيانات قياس مؤشر قابلة للاستخدام",
+		"noUsableTelemetryDescription": "التسجيل لا يتضمن بيانات حركة مؤشر كافية.",
+		"noDwellMoments": "لم يتم العثور على لحظات توقف واضحة للمؤشر",
+		"noDwellMomentsDescription": "جرب تسجيلاً مع توقفات مؤشر أبطأ عند الإجراءات المهمة.",
+		"noAutoZoomSlots": "لا تتوفر خانات تكبير تلقائي",
+		"noAutoZoomSlotsDescription": "نقاط التوقف المكتشفة تتداخل مع مناطق التكبير الحالية.",
+		"cannotPlaceTrim": "لا يمكن وضع القص هنا",
+		"trimExistsAtLocation": "يوجد قص بالفعل في هذا الموقع أو لا توجد مساحة كافية متاحة.",
+		"cannotPlaceSpeed": "لا يمكن وضع السرعة هنا",
+		"speedExistsAtLocation": "توجد منطقة سرعة بالفعل في هذا الموقع أو لا توجد مساحة كافية متاحة.",
+		"laneOccupied": "يحتوي هذا المسار بالفعل على شرح في هذا الوقت."
+	},
+	"success": {
+		"addedZoomSuggestions": "تمت إضافة {{count}} اقتراح تكبير بناءً على المؤشر",
+		"addedZoomSuggestionsPlural": "تمت إضافة {{count}} اقتراحات تكبير بناءً على المؤشر"
+	}
+}
