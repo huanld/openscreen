@@ -1,0 +1,13 @@
+name: Auto CI Test
+on:
+  push:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Probe
+        run: |
+          echo "Auto CI OK - runner ssdnodes-runner"
+          uname -a
+          date

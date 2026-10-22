@@ -1,0 +1,1193 @@
+uid=158_0 RootWebArea "Undeliverable: tài khoản email - huanld - Outlook" url="https://outlook.office.com/mail/inbox/id/AAQkADMwNDRlOTdjLTc4OWItNDViOS1hMWYxLWQ3YzIxN2ViODU4YwAQAJOytusPZy5Ag3g6KrLz%2BgQ%3D"
+  uid=158_1 ignored
+    uid=158_2 application
+      uid=158_3 generic
+        uid=158_4 generic
+          uid=158_5 ignored
+            uid=158_6 generic
+              uid=158_7 ignored
+                uid=158_8 generic
+                  uid=158_9 generic
+                    uid=158_10 ignored
+                      uid=158_11 ignored
+                        uid=158_12 ignored
+                          uid=158_13 tabpanel
+                            uid=158_14 generic
+                              uid=158_15 generic
+                                uid=158_16 generic
+                                  uid=158_17 generic
+                                    uid=158_18 ignored
+                                      uid=158_19 generic
+                                        uid=158_20 generic
+                                          uid=158_21 generic
+                                            uid=158_22 generic
+                                              uid=158_23 group "Move & delete"
+                                                uid=158_24 group
+                                                  uid=158_25 button "Delete" description="this message. (Delete)"
+                                                    uid=158_26 ignored
+                                                    uid=158_27 ignored
+                                                      uid=158_28 StaticText "Delete"
+                                                        uid=158_29 InlineTextBox "Delete"
+                                                    uid=158_30 generic
+                                                      uid=158_31 StaticText "this message. (Delete)"
+                                                        uid=158_29 InlineTextBox "this message. (Delete)"
+                                                  uid=158_32 button " Expand to see delete options" expandable haspopup="menu"
+                                                    uid=158_33 generic
+                                                    uid=158_34 ignored
+                                                uid=158_35 button "Archive" description="Move this message to your archive folder. (E)"
+                                                  uid=158_36 ignored
+                                                  uid=158_37 ignored
+                                                    uid=158_38 StaticText "Archive"
+                                                      uid=158_29 InlineTextBox "Archive"
+                                                  uid=158_39 generic
+                                                    uid=158_40 StaticText "Move this message to your archive folder. (E)"
+                                                      uid=158_29 InlineTextBox "Move this message to your archive folder. (E)"
+                                                uid=158_41 group
+                                                  uid=158_42 button "Report" description="this message as phishing."
+                                                    uid=158_43 ignored
+                                                    uid=158_44 ignored
+                                                      uid=158_45 StaticText "Report"
+                                                        uid=158_29 InlineTextBox "Report"
+                                                    uid=158_46 generic
+                                                      uid=158_47 StaticText "this message as phishing."
+                                                        uid=158_29 InlineTextBox "this message as phishing."
+                                                  uid=158_48 button " Expand to see more report options" expandable haspopup="menu"
+                                                    uid=158_49 generic
+                                                    uid=158_50 ignored
+                                                uid=158_51 generic
+                                                  uid=158_52 button "Move to" description="a folder. (V)" expandable haspopup="menu"
+                                                    uid=158_53 ignored
+                                                    uid=158_54 ignored
+                                                      uid=158_55 StaticText "Move to"
+                                                        uid=158_29 InlineTextBox "Move to"
+                                                    uid=158_56 generic
+                                                      uid=158_57 StaticText "a folder. (V)"
+                                                        uid=158_29 InlineTextBox "a folder. (V)"
+                                                    uid=158_58 ignored
+                                          uid=158_59 generic
+                                            uid=158_60 ignored
+                                        uid=158_61 generic
+                                          uid=158_62 generic
+                                            uid=158_63 generic
+                                              uid=158_64 group "Respond"
+                                                uid=158_65 button "Reply" description="to this message. (R / Ctrl+R)" disableable disabled
+                                                  uid=158_66 ignored
+                                                  uid=158_67 ignored
+                                                    uid=158_68 StaticText "Reply"
+                                                      uid=158_29 InlineTextBox "Reply"
+                                                  uid=158_69 generic
+                                                    uid=158_70 StaticText "to this message. (R / Ctrl+R)"
+                                                      uid=158_29 InlineTextBox "to this message. (R / Ctrl+R)"
+                                                uid=158_71 button "Reply all" description="to this message. (Shift+R / Ctrl+Shift+R)" disableable disabled
+                                                  uid=158_72 ignored
+                                                  uid=158_73 ignored
+                                                    uid=158_74 StaticText "Reply all"
+                                                      uid=158_29 InlineTextBox "Reply all"
+                                                  uid=158_75 generic
+                                                    uid=158_76 StaticText "to this message. (Shift+R / Ctrl+Shift+R)"
+                                                      uid=158_29 InlineTextBox "to this message. (Shift+R / Ctrl+Shift+R)"
+                                                uid=158_77 group
+                                                  uid=158_78 button "Forward" description="this message. (Shift+F / Ctrl+Shift+F)"
+                                                    uid=158_79 ignored
+                                                    uid=158_80 ignored
+                                                      uid=158_81 StaticText "Forward"
+                                                        uid=158_29 InlineTextBox "Forward"
+                                                    uid=158_82 generic
+                                                      uid=158_83 StaticText "this message. (Shift+F / Ctrl+Shift+F)"
+                                                        uid=158_29 InlineTextBox "this message. (Shift+F / Ctrl+Shift+F)"
+                                                  uid=158_84 button " Expand to see forward options" expandable haspopup="menu"
+                                                    uid=158_85 generic
+                                                    uid=158_86 ignored
+                                          uid=158_87 generic
+                                            uid=158_88 ignored
+                                        uid=158_89 generic
+                                          uid=158_90 generic
+                                            uid=158_91 generic
+                                              uid=158_92 group "Zoom"
+                                                uid=158_93 button "Zoom" description="in or out on this email. (Ctrl++ / Ctrl+- / Ctrl+0)"
+                                                  uid=158_94 ignored
+                                                  uid=158_95 ignored
+                                                    uid=158_96 StaticText "Zoom"
+                                                      uid=158_29 InlineTextBox "Zoom"
+                                                  uid=158_97 generic
+                                                    uid=158_98 StaticText "in or out on this email. (Ctrl++ / Ctrl+- / Ctrl+0)"
+                                                      uid=158_29 InlineTextBox "in or out on this email. (Ctrl++ / Ctrl+- / Ctrl+0)"
+                                          uid=158_99 generic
+                                            uid=158_100 ignored
+                                        uid=158_101 generic
+                                          uid=158_102 generic
+                                            uid=158_103 generic
+                                              uid=158_104 group "Tags"
+                                                uid=158_105 generic
+                                                  uid=158_106 button "Quick steps" description="With quick steps, you can take multiple actions on a message in a single click. For example, you can set to move a message to a specific folder, flag it, and mark it as read." expandable haspopup="menu"
+                                                    uid=158_107 ignored
+                                                    uid=158_108 ignored
+                                                      uid=158_109 StaticText "Quick steps"
+                                                        uid=158_29 InlineTextBox "Quick steps"
+                                                    uid=158_110 generic
+                                                      uid=158_111 StaticText "With quick steps, you can take multiple actions on a message in a single click. For example, you can set to move a message to a specific folder, flag it, and mark it as read."
+                                                        uid=158_29 InlineTextBox "With quick steps, you can take multiple actions on a message in a single click. For example, you can set to move a message to a specific folder, flag it, and mark it as read."
+                                                    uid=158_112 ignored
+                                                uid=158_113 button "Read / Unread" description="Mark this message as read or unread. (Ctrl+Q / Ctrl+U)"
+                                                  uid=158_114 ignored
+                                                  uid=158_115 ignored
+                                                    uid=158_116 StaticText "Read / Unread"
+                                                      uid=158_29 InlineTextBox "Read / Unread"
+                                                  uid=158_117 generic
+                                                    uid=158_118 StaticText "Mark this message as read or unread. (Ctrl+Q / Ctrl+U)"
+                                                      uid=158_29 InlineTextBox "Mark this message as read or unread. (Ctrl+Q / Ctrl+U)"
+                                                uid=158_119 generic
+                                                  uid=158_120 button "Categorize" description="this item. Categories applied to a conversation will be applied to all current and future items in the conversation. (C)" expandable haspopup="menu"
+                                                    uid=158_121 ignored
+                                                    uid=158_122 ignored
+                                                      uid=158_123 StaticText "Categorize"
+                                                        uid=158_29 InlineTextBox "Categorize"
+                                                    uid=158_124 generic
+                                                      uid=158_125 StaticText "this item. Categories applied to a conversation will be applied to all current and future items in the conversation. (C)"
+                                                        uid=158_29 InlineTextBox "this item. Categories applied to a conversation will be applied to all current and future items in the conversation. (C)"
+                                                    uid=158_126 ignored
+                                                uid=158_127 group
+                                                  uid=158_128 button "Flag / Unflag" description="Flag or unflag this message."
+                                                    uid=158_129 ignored
+                                                    uid=158_130 ignored
+                                                      uid=158_131 StaticText "Flag / Unflag"
+                                                        uid=158_29 InlineTextBox "Flag / Unflag"
+                                                    uid=158_132 generic
+                                                      uid=158_133 StaticText "Flag or unflag this message."
+                                                        uid=158_29 InlineTextBox "Flag or unflag this message."
+                                                  uid=158_134 button " Expand to see flag options" expandable haspopup="menu"
+                                                    uid=158_135 generic
+                                                    uid=158_136 ignored
+                                          uid=158_137 generic
+                                            uid=158_138 ignored
+                                        uid=158_139 generic
+                                          uid=158_140 generic
+                                            uid=158_141 generic
+                                              uid=158_142 group "Print"
+                                                uid=158_143 button "Print" description="this email."
+                                                  uid=158_144 ignored
+                                                  uid=158_145 ignored
+                                                    uid=158_146 StaticText "Print"
+                                                      uid=158_29 InlineTextBox "Print"
+                                                  uid=158_147 generic
+                                                    uid=158_148 StaticText "this email."
+                                                      uid=158_29 InlineTextBox "this email."
+                                          uid=158_149 generic
+                                            uid=158_150 ignored
+                                        uid=158_151 generic
+                                          uid=158_152 generic
+                                            uid=158_153 generic
+                                              uid=158_154 group "Add-ins"
+                                                uid=158_155 button "More apps" description="Enhance Outlook with apps."
+                                                  uid=158_156 ignored
+                                                  uid=158_157 generic
+                                                    uid=158_158 StaticText "Enhance Outlook with apps."
+                                                      uid=158_29 InlineTextBox "Enhance Outlook with apps."
+                                          uid=158_159 generic
+                                            uid=158_160 ignored
+                                        uid=158_161 generic
+                                          uid=158_162 generic
+                                            uid=158_163 generic
+                                              uid=158_164 generic
+                                                uid=158_165 group "More options"
+                                                  uid=158_166 ignored
+                                                    uid=158_167 generic
+                                                      uid=158_168 button "More options" expandable haspopup="menu"
+                                                        uid=158_169 ignored
+                                          uid=158_170 generic
+                                            uid=158_171 ignored
+                            uid=158_172 ignored
+                              uid=158_173 button "Switch layouts"
+                                uid=158_174 ignored
+                  uid=158_175 generic
+                uid=158_176 generic
+                  uid=158_177 generic
+                    uid=158_178 generic
+                      uid=158_179 ignored
+                        uid=158_180 ignored
+                          uid=158_181 generic
+                            uid=158_182 ignored
+                              uid=158_183 heading "Undeliverable: tài khoản email " level="3"
+                                uid=158_184 generic
+                                  uid=158_185 ignored
+                                    uid=158_186 generic
+                                      uid=158_187 generic
+                                        uid=158_188 StaticText "Undeliverable: tài khoản email "
+                                          uid=158_29 InlineTextBox "Undeliverable: tài khoản email "
+                                      uid=158_189 generic
+                                      uid=158_190 generic
+                            uid=158_191 generic
+                              uid=158_192 ignored
+                                uid=158_193 ignored
+                                  uid=158_194 ignored
+                                    uid=158_195 ignored
+                                      uid=158_196 ignored
+                                        uid=158_197 heading "Undeliverable: tài khoản email " level="3"
+                                        uid=158_198 ignored
+                                          uid=158_199 ignored
+                                            uid=158_200 ignored
+                                              uid=158_201 generic
+                                                uid=158_202 generic
+                                                  uid=158_203 button "Opens card for Microsoft Outlook" haspopup="dialog"
+                                                    uid=158_204 image "Microsoft Outlook"
+                                                      uid=158_205 generic
+                                                        uid=158_206 StaticText "MO"
+                                                          uid=158_29 InlineTextBox "MO"
+                                              uid=158_207 ignored
+                                                uid=158_208 ignored
+                                                  uid=158_209 heading "From: Microsoft Outlook" level="3"
+                                                    uid=158_210 ignored
+                                                      uid=158_211 button "From: Microsoft Outlook" haspopup="dialog"
+                                                        uid=158_212 generic
+                                                          uid=158_213 ignored
+                                                            uid=158_214 StaticText "Microsoft Outlook"
+                                                              uid=158_29 InlineTextBox "Microsoft Outlook"
+                                            uid=158_215 generic
+                                              uid=158_216 ignored
+                                                uid=158_217 toolbar orientation="horizontal"
+                                                  uid=158_218 ignored
+                                                    uid=158_219 generic
+                                                      uid=158_220 button "Reactions" expandable
+                                                        uid=158_221 ignored
+                                                  uid=158_222 menuitem "Reply" disableable disabled
+                                                    uid=158_223 ignored
+                                                      uid=158_224 ignored
+                                                    uid=158_225 ignored
+                                                      uid=158_226 StaticText "Reply"
+                                                        uid=158_29 InlineTextBox "Reply"
+                                                  uid=158_227 menuitem "Reply all" disableable disabled
+                                                    uid=158_228 ignored
+                                                      uid=158_229 ignored
+                                                    uid=158_230 ignored
+                                                      uid=158_231 StaticText "Reply all"
+                                                        uid=158_29 InlineTextBox "Reply all"
+                                                  uid=158_232 menuitem "Forward"
+                                                    uid=158_233 ignored
+                                                    uid=158_234 ignored
+                                                      uid=158_235 StaticText "Forward"
+                                                        uid=158_29 InlineTextBox "Forward"
+                                                  uid=158_236 separator orientation="vertical"
+                                                  uid=158_237 button "More items" haspopup="menu"
+                                                    uid=158_238 ignored
+                                          uid=158_239 ignored
+                                            uid=158_240 ignored
+                                              uid=158_241 generic
+                                                uid=158_242 ignored
+                                                  uid=158_243 heading "To: huanld" level="3"
+                                                    uid=158_244 generic "To: huanld"
+                                                      uid=158_245 LabelText
+                                                        uid=158_246 StaticText "To:"
+                                                          uid=158_29 InlineTextBox "To:"
+                                                      uid=158_247 StaticText "​"
+                                                        uid=158_29 InlineTextBox "​"
+                                                      uid=158_248 generic
+                                                        uid=158_249 button "huanld" haspopup="dialog"
+                                                      uid=158_250 StaticText "​"
+                                                        uid=158_29 InlineTextBox "​"
+                                            uid=158_251 ignored
+                                              uid=158_252 heading "Wed 7/1/2026 5:53 PM" level="3"
+                                                uid=158_253 StaticText "Wed 7/1/2026 5:53 PM"
+                                                  uid=158_29 InlineTextBox "Wed 7/1/2026 5:53 PM"
+                                              uid=158_254 ignored
+                                          uid=158_255 ignored
+                                            uid=158_256 ignored
+                                              uid=158_257 group
+                                                uid=158_258 ignored
+                                                uid=158_259 ignored
+                                                  uid=158_260 generic
+                                                    uid=158_261 StaticText "This message is able to be sent again"
+                                                      uid=158_29 InlineTextBox "This message is able to be sent again"
+                                                uid=158_262 ignored
+                                                  uid=158_263 button "Send again"
+                                                    uid=158_264 StaticText "Send again"
+                                                      uid=158_29 InlineTextBox "Send again"
+                                        uid=158_265 ignored
+                                          uid=158_266 heading "file attachments" level="3"
+                                            uid=158_267 listbox "file attachments" orientation="vertical"
+                                              uid=158_268 generic
+                                                uid=158_269 option "tài khoản email Open 28 KB" selectable value="tài khoản email Open 28 KB"
+                                                  uid=158_270 ignored
+                                                    uid=158_271 ignored
+                                                      uid=158_272 ignored
+                                                        uid=158_273 image url="https://res.public.onecdn.static.microsoft/assets/fluentui-resources/1.1.0/app-min/assets/item-types/20/email.svg"
+                                                        uid=158_274 ignored
+                                                          uid=158_275 generic
+                                                            uid=158_276 StaticText "tài khoản email"
+                                                              uid=158_29 InlineTextBox "tài khoản email"
+                                                          uid=158_277 generic
+                                                            uid=158_278 ignored
+                                                              uid=158_279 StaticText "Outlook Item"
+                                                                uid=158_29 InlineTextBox "Outlook Item"
+                                                      uid=158_280 generic
+                                                        uid=158_281 button "More actions" description="More actions" expandable haspopup="menu"
+                                                          uid=158_282 ignored
+                                            uid=158_283 ignored
+                                              uid=158_284 ignored
+                                        uid=158_285 generic
+                                          uid=158_286 ignored
+                                            uid=158_287 document "Message body" live="polite" relevant="additions text"
+                                              uid=158_288 ignored
+                                                uid=158_289 ignored
+                                                  uid=158_290 ignored
+                                                    uid=158_291 generic
+                                                      uid=158_292 generic
+                                                        uid=158_293 button "Show original size" description="Show original size"
+                                                          uid=158_294 ignored
+                                                      uid=158_295 LayoutTable
+                                                        uid=158_296 ignored
+                                                          uid=158_297 LayoutTableRow
+                                                            uid=158_298 LayoutTableCell
+                                                              uid=158_299 image url="https://products.office.com/en-us/CMSImages/Office365Logo_Orange.png?version=b8d100a9-0a8b-8e6a-88e1-ef488fee0470"
+                                                          uid=158_300 LayoutTableRow
+                                                            uid=158_301 LayoutTableCell "Your message couldn't be delivered to the recipients shown below. "
+                                                              uid=158_302 StaticText "Your message couldn't be delivered to the recipients shown below."
+                                                                uid=158_29 InlineTextBox "Your message couldn't be delivered to the recipients shown below."
+                                                              uid=158_303 LineBreak "
+"
+                                                                uid=158_29 InlineTextBox "
+"
+                                                          uid=158_304 LayoutTableRow
+                                                            uid=158_305 LayoutTableCell "gmail.com suspects your message is spam and rejected it. "
+                                                              uid=158_306 StaticText "gmail.com"
+                                                                uid=158_29 InlineTextBox "gmail.com"
+                                                              uid=158_307 StaticText " suspects your message is spam and rejected it."
+                                                                uid=158_29 InlineTextBox " suspects your message is spam and "
+                                                                uid=158_29 InlineTextBox "rejected it."
+                                                              uid=158_308 LineBreak "
+"
+                                                                uid=158_29 InlineTextBox "
+"
+                                                          uid=158_309 LayoutTableRow
+                                                            uid=158_310 LayoutTableCell "huanld Office 365 gmail.com Sender Action Required Messages suspected as spam"
+                                                              uid=158_311 LayoutTable
+                                                                uid=158_312 ignored
+                                                                  uid=158_313 LayoutTableRow
+                                                                    uid=158_314 LayoutTableCell "huanld"
+                                                                      uid=158_315 StaticText "huanld"
+                                                                        uid=158_29 InlineTextBox "huanld"
+                                                                    uid=158_316 LayoutTableCell "Office 365"
+                                                                      uid=158_317 StaticText "Office 365"
+                                                                        uid=158_29 InlineTextBox "Office 365"
+                                                                    uid=158_318 LayoutTableCell "gmail.com"
+                                                                      uid=158_319 StaticText "gmail.com"
+                                                                        uid=158_29 InlineTextBox "gmail.com"
+                                                                  uid=158_320 LayoutTableRow
+                                                                    uid=158_321 LayoutTableCell "Sender"
+                                                                      uid=158_322 StaticText "Sender"
+                                                                        uid=158_29 InlineTextBox "Sender"
+                                                                    uid=158_323 LayoutTableCell
+                                                                    uid=158_324 LayoutTableCell "Action Required"
+                                                                      uid=158_325 StaticText "Action Required"
+                                                                        uid=158_29 InlineTextBox "Action Required"
+                                                                  uid=158_326 LayoutTableRow
+                                                                    uid=158_327 LayoutTableCell
+                                                                      uid=158_328 LayoutTable
+                                                                        uid=158_329 ignored
+                                                                          uid=158_330 LayoutTableRow
+                                                                            uid=158_331 LayoutTableCell
+                                                                            uid=158_332 LayoutTableCell
+                                                                            uid=158_333 LayoutTableCell
+                                                                            uid=158_334 LayoutTableCell
+                                                                            uid=158_335 LayoutTableCell
+                                                                  uid=158_336 LayoutTableRow
+                                                                    uid=158_337 LayoutTableCell
+                                                                    uid=158_338 LayoutTableCell
+                                                                    uid=158_339 LayoutTableCell "Messages suspected as spam"
+                                                                      uid=158_340 StaticText "Messages suspected as spam"
+                                                                        uid=158_29 InlineTextBox "Messages suspected as spam"
+                                                          uid=158_341 LayoutTableRow
+                                                            uid=158_342 LayoutTableCell "Couldn't deliver the message to the following recipients:"
+                                                              uid=158_343 StaticText "Couldn't deliver the message to the following recipients:"
+                                                                uid=158_29 InlineTextBox "Couldn't deliver the message to the following recipients:"
+                                                          uid=158_344 LayoutTableRow
+                                                            uid=158_345 LayoutTableCell "huanld.dev@gmail.com, manhbaosoft@gmail.com"
+                                                              uid=158_346 StaticText "huanld.dev@gmail.com, manhbaosoft@gmail.com"
+                                                                uid=158_29 InlineTextBox "huanld.dev@gmail.com, manhbaosoft@gmail.com"
+                                                          uid=158_347 LayoutTableRow
+                                                            uid=158_348 LayoutTableCell " How to Fix It Try to modify your message, or change how you're sending the message, using the guidance in this article: Bulk E-mailing Best Practices for Senders Using Forefront Online Protection for Exchange. Then resend your message. If you continue to experience the problem, contact the recipient by some other means (by phone, for example) and ask them to ask their email admin to add your email address, or your domain name, to their allowed senders list."
+                                                              uid=158_349 LineBreak "
+"
+                                                                uid=158_29 InlineTextBox "
+"
+                                                              uid=158_350 LayoutTable
+                                                                uid=158_351 ignored
+                                                                  uid=158_352 LayoutTableRow
+                                                                    uid=158_353 LayoutTableCell "How to Fix It"
+                                                                      uid=158_354 StaticText "How to Fix It"
+                                                                        uid=158_29 InlineTextBox "How to Fix It"
+                                                                  uid=158_355 LayoutTableRow
+                                                                    uid=158_356 LayoutTableCell "Try to modify your message, or change how you're sending the message, using the guidance in this article: Bulk E-mailing Best Practices for Senders Using Forefront Online Protection for Exchange. Then resend your message."
+                                                                      uid=158_357 StaticText "Try to modify your message, or change how you're sending the message, using the guidance in this article: "
+                                                                        uid=158_29 InlineTextBox "Try to modify your message, or change how you're sending the "
+                                                                        uid=158_29 InlineTextBox "message, using the guidance in this article: "
+                                                                      uid=158_358 link "Bulk E-mailing Best Practices for Senders Using Forefront Online Protection for Exchange" description="https://aka.ms/EmailingBestPractices" focusable focused url="https://aka.ms/EmailingBestPractices"
+                                                                        uid=158_359 StaticText "Bulk E-mailing Best Practices for Senders Using Forefront Online Protection for Exchange"
+                                                                          uid=158_29 InlineTextBox "Bulk E-mailing Best "
+                                                                          uid=158_29 InlineTextBox "Practices for Senders Using Forefront Online Protection for Exchange"
+                                                                      uid=158_360 StaticText ". Then resend your message."
+                                                                        uid=158_29 InlineTextBox ". "
+                                                                        uid=158_29 InlineTextBox "Then resend your message."
+                                                                  uid=158_361 LayoutTableRow
+                                                                    uid=158_362 LayoutTableCell "If you continue to experience the problem, contact the recipient by some other means (by phone, for example) and ask them to ask their email admin to add your email address, or your domain name, to their allowed senders list."
+                                                                      uid=158_363 StaticText "If you continue to experience the problem, contact the recipient by some other means (by phone, for example) and ask them to ask their email admin to add your email address, or your domain name, to their allowed senders list."
+                                                                        uid=158_29 InlineTextBox "If you continue to experience the problem, contact the recipient by "
+                                                                        uid=158_29 InlineTextBox "some other means (by phone, for example) and ask them to ask their "
+                                                                        uid=158_29 InlineTextBox "email admin to add your email address, or your domain name, to their "
+                                                                        uid=158_29 InlineTextBox "allowed senders list."
+                                                          uid=158_364 LayoutTableRow
+                                                            uid=158_365 LayoutTableCell " Was this helpful? Send feedback to Microsoft."
+                                                              uid=158_366 LineBreak "
+"
+                                                                uid=158_29 InlineTextBox "
+"
+                                                              uid=158_367 emphasis
+                                                                uid=158_368 StaticText "Was this helpful? "
+                                                                  uid=158_29 InlineTextBox "Was this helpful? "
+                                                                uid=158_369 link "Send feedback to Microsoft" description="https://go.microsoft.com/fwlink/p/?LinkID=717204" url="https://go.microsoft.com/fwlink/p/?LinkID=717204"
+                                                                  uid=158_370 StaticText "Send feedback to Microsoft"
+                                                                    uid=158_29 InlineTextBox "Send feedback to Microsoft"
+                                                                uid=158_371 StaticText "."
+                                                                  uid=158_29 InlineTextBox "."
+                                                          uid=158_372 LayoutTableRow
+                                                            uid=158_373 LayoutTableCell
+                                                              uid=158_374 separator orientation="horizontal"
+                                                          uid=158_375 LayoutTableRow
+                                                            uid=158_376 LayoutTableCell " More Info for Email Admins"
+                                                              uid=158_377 LineBreak "
+"
+                                                                uid=158_29 InlineTextBox "
+"
+                                                              uid=158_378 StaticText "More Info for Email Admins"
+                                                                uid=158_29 InlineTextBox "More Info for Email Admins"
+                                                          uid=158_379 LayoutTableRow
+                                                            uid=158_380 LayoutTableCell "Status code: 550 5.7.350 When Office 365 tried to send the message to the recipient (outside Office 365), the recipient's email server (or email filtering service) suspected the sender's message is spam. If the sender can't fix the problem by modifying their message, contact the recipient's email admin and ask them to add your domain name, or the sender's email address, to their list of allowed senders. Although the sender may be able to alter the message contents to fix this issue, it's likely that only the recipient's email admin can fix this problem. Unfortunately, Office 365 Support is unlikely to be able to help fix these kinds of externally reported errors. "
+                                                              uid=158_381 emphasis
+                                                                uid=158_382 StaticText "Status code: 550 5.7.350"
+                                                                  uid=158_29 InlineTextBox "Status code: 550 5.7.350"
+                                                              uid=158_383 LineBreak "
+"
+                                                                uid=158_29 InlineTextBox "
+"
+                                                              uid=158_384 LineBreak "
+"
+                                                                uid=158_29 InlineTextBox "
+"
+                                                              uid=158_385 StaticText "When Office 365 tried to send the message to the recipient (outside Office 365), the recipient's email server (or email filtering service) suspected the sender's message is spam."
+                                                                uid=158_29 InlineTextBox "When Office 365 tried to send the message to the recipient (outside Office 365), the "
+                                                                uid=158_29 InlineTextBox "recipient's email server (or email filtering service) suspected the sender's message is "
+                                                                uid=158_29 InlineTextBox "spam."
+                                                              uid=158_386 LineBreak "
+"
+                                                                uid=158_29 InlineTextBox "
+"
+                                                              uid=158_387 LineBreak "
+"
+                                                                uid=158_29 InlineTextBox "
+"
+                                                              uid=158_388 StaticText "If the sender can't fix the problem by modifying their message, contact the recipient's email admin and ask them to add your domain name, or the sender's email address, to their list of allowed senders."
+                                                                uid=158_29 InlineTextBox "If the sender can't fix the problem by modifying their message, contact the recipient's "
+                                                                uid=158_29 InlineTextBox "email admin and ask them to add your domain name, or the sender's email address, to "
+                                                                uid=158_29 InlineTextBox "their list of allowed senders."
+                                                              uid=158_389 LineBreak "
+"
+                                                                uid=158_29 InlineTextBox "
+"
+                                                              uid=158_390 LineBreak "
+"
+                                                                uid=158_29 InlineTextBox "
+"
+                                                              uid=158_391 StaticText "Although the sender may be able to alter the message contents to fix this issue, it's likely that only the recipient's email admin can fix this problem. Unfortunately, Office 365 Support is unlikely to be able to help fix these kinds of externally reported errors."
+                                                                uid=158_29 InlineTextBox "Although the sender may be able to alter the message contents to fix this issue, it's likely "
+                                                                uid=158_29 InlineTextBox "that only the recipient's email admin can fix this problem. Unfortunately, Office 365 "
+                                                                uid=158_29 InlineTextBox "Support is unlikely to be able to help fix these kinds of externally reported errors."
+                                                              uid=158_392 LineBreak "
+"
+                                                                uid=158_29 InlineTextBox "
+"
+                                                              uid=158_393 LineBreak "
+"
+                                                                uid=158_29 InlineTextBox "
+"
+                                                          uid=158_394 LayoutTableRow
+                                                            uid=158_395 LayoutTableCell "Original Message Details"
+                                                              uid=158_396 StaticText "Original Message Details"
+                                                                uid=158_29 InlineTextBox "Original Message Details"
+                                                          uid=158_397 LayoutTableRow
+                                                            uid=158_398 LayoutTableCell "Created Date: 7/1/2026 10:52:53 AM Sender Address: huanld@instratech.net Recipient Address: huanld.dev@gmail.com, manhbaosoft@gmail.com Subject: tài khoản email"
+                                                              uid=158_399 LayoutTable
+                                                                uid=158_400 ignored
+                                                                  uid=158_401 LayoutTableRow
+                                                                    uid=158_402 LayoutTableCell "Created Date:"
+                                                                      uid=158_403 StaticText "Created Date:"
+                                                                        uid=158_29 InlineTextBox "Created Date:"
+                                                                    uid=158_404 LayoutTableCell "7/1/2026 10:52:53 AM"
+                                                                      uid=158_405 StaticText "7/1/2026 10:52:53 AM"
+                                                                        uid=158_29 InlineTextBox "7/1/2026 10:52:53 AM"
+                                                                  uid=158_406 LayoutTableRow
+                                                                    uid=158_407 LayoutTableCell "Sender Address:"
+                                                                      uid=158_408 StaticText "Sender Address:"
+                                                                        uid=158_29 InlineTextBox "Sender Address:"
+                                                                    uid=158_409 LayoutTableCell "huanld@instratech.net"
+                                                                      uid=158_410 StaticText "huanld@instratech.net"
+                                                                        uid=158_29 InlineTextBox "huanld@instratech.net"
+                                                                  uid=158_411 LayoutTableRow
+                                                                    uid=158_412 LayoutTableCell "Recipient Address:"
+                                                                      uid=158_413 StaticText "Recipient Address:"
+                                                                        uid=158_29 InlineTextBox "Recipient Address:"
+                                                                    uid=158_414 LayoutTableCell "huanld.dev@gmail.com, manhbaosoft@gmail.com"
+                                                                      uid=158_415 StaticText "huanld.dev@gmail.com, manhbaosoft@gmail.com"
+                                                                        uid=158_29 InlineTextBox "huanld.dev@gmail.com, manhbaosoft@gmail.com"
+                                                                  uid=158_416 LayoutTableRow
+                                                                    uid=158_417 LayoutTableCell "Subject:"
+                                                                      uid=158_418 StaticText "Subject:"
+                                                                        uid=158_29 InlineTextBox "Subject:"
+                                                                    uid=158_419 LayoutTableCell "tài khoản email"
+                                                                      uid=158_420 StaticText "tài khoản email"
+                                                                        uid=158_29 InlineTextBox "tài khoản email"
+                                                          uid=158_421 LayoutTableRow
+                                                            uid=158_422 LayoutTableCell " Error Details"
+                                                              uid=158_423 LineBreak "
+"
+                                                                uid=158_29 InlineTextBox "
+"
+                                                              uid=158_424 StaticText "Error Details"
+                                                                uid=158_29 InlineTextBox "Error Details"
+                                                          uid=158_425 LayoutTableRow
+                                                            uid=158_426 LayoutTableCell "Error: 550 5.7.350 Remote server returned message detected as spam -> 550 5.7.1 [2a01:111:f403:c405::7 19] Gmail has detected that this message;is likely suspicious due to the very low reputation of the sending;domain. To best protect our users from spam, the message has been;blocked. For more information, go to; https://support.google.com/mail/answer/188131 d9443c01a7336-2ca37c738ddsi90528745ad.42 - gsmtp Message rejected by: mx.google.com"
+                                                              uid=158_427 LayoutTable
+                                                                uid=158_428 ignored
+                                                                  uid=158_429 LayoutTableRow
+                                                                    uid=158_430 LayoutTableCell "Error:"
+                                                                      uid=158_431 StaticText "Error:"
+                                                                        uid=158_29 InlineTextBox "Error:"
+                                                                    uid=158_432 LayoutTableCell "550 5.7.350 Remote server returned message detected as spam -> 550 5.7.1 [2a01:111:f403:c405::7 19] Gmail has detected that this message;is likely suspicious due to the very low reputation of the sending;domain. To best protect our users from spam, the message has been;blocked. For more information, go to; https://support.google.com/mail/answer/188131 d9443c01a7336-2ca37c738ddsi90528745ad.42 - gsmtp"
+                                                                      uid=158_433 emphasis
+                                                                        uid=158_434 StaticText "550 5.7.350 Remote server returned message detected as spam -> 550 5.7.1 [2a01:111:f403:c405::7 19] Gmail has detected that this message;is likely suspicious due to the very low reputation of the sending;domain. To best protect our users from spam, the message has been;blocked. For more information, go to; https://support.google.com/mail/answer/188131 d9443c01a7336-2ca37c738ddsi90528745ad.42 - gsmtp"
+                                                                          uid=158_29 InlineTextBox "550 5.7.350 Remote server returned message detected as spam -> "
+                                                                          uid=158_29 InlineTextBox "550 5.7.1 [2a01:111:f403:c405::7 19] Gmail has detected that this "
+                                                                          uid=158_29 InlineTextBox "message;is likely suspicious due to the very low reputation of the "
+                                                                          uid=158_29 InlineTextBox "sending;domain. To best protect our users from spam, the message "
+                                                                          uid=158_29 InlineTextBox "has been;blocked. For more information, go to; "
+                                                                          uid=158_29 InlineTextBox "https://support.google.com/mail/answer/188131 d9443c01a7336-"
+                                                                          uid=158_29 InlineTextBox "2ca37c738ddsi90528745ad.42 - gsmtp"
+                                                                  uid=158_435 LayoutTableRow
+                                                                    uid=158_436 LayoutTableCell "Message rejected by:"
+                                                                      uid=158_437 StaticText "Message rejected by:"
+                                                                        uid=158_29 InlineTextBox "Message rejected by:"
+                                                                    uid=158_438 LayoutTableCell "mx.google.com"
+                                                                      uid=158_439 StaticText "mx.google.com"
+                                                                        uid=158_29 InlineTextBox "mx.google.com"
+                                                          uid=158_440 LayoutTableRow
+                                                            uid=158_441 LayoutTableCell " Notification Details"
+                                                              uid=158_442 LineBreak "
+"
+                                                                uid=158_29 InlineTextBox "
+"
+                                                              uid=158_443 StaticText "Notification Details"
+                                                                uid=158_29 InlineTextBox "Notification Details"
+                                                          uid=158_444 LayoutTableRow
+                                                            uid=158_445 LayoutTableCell "Sent by: KL1PR0601MB5703.apcprd06.prod.outlook.com"
+                                                              uid=158_446 LayoutTable
+                                                                uid=158_447 ignored
+                                                                  uid=158_448 LayoutTableRow
+                                                                    uid=158_449 LayoutTableCell "Sent by:"
+                                                                      uid=158_450 StaticText "Sent by:"
+                                                                        uid=158_29 InlineTextBox "Sent by:"
+                                                                    uid=158_451 LayoutTableCell "KL1PR0601MB5703.apcprd06.prod.outlook.com"
+                                                                      uid=158_452 emphasis
+                                                                        uid=158_453 StaticText "KL1PR0601MB5703.apcprd06.prod.outlook.com"
+                                                                          uid=158_29 InlineTextBox "KL1PR0601MB5703.apcprd06.prod.outlook.com"
+                                                    uid=158_454 LineBreak "
+"
+                                                      uid=158_29 InlineTextBox "
+"
+                                                    uid=158_455 generic
+                                                      uid=158_456 generic
+                                                        uid=158_457 button "Show original size" description="Show original size"
+                                                          uid=158_458 ignored
+                                                      uid=158_459 table
+                                                        uid=158_460 ignored
+                                                          uid=158_461 row
+                                                            uid=158_462 cell "Message Hops"
+                                                              uid=158_463 StaticText "Message Hops"
+                                                                uid=158_29 InlineTextBox "Message Hops"
+                                                          uid=158_464 row
+                                                            uid=158_465 cell "HOP"
+                                                              uid=158_466 StaticText "HOP"
+                                                                uid=158_29 InlineTextBox "HOP"
+                                                            uid=158_467 cell "TIME (UTC)"
+                                                              uid=158_468 StaticText "TIME (UTC)"
+                                                                uid=158_29 InlineTextBox "TIME "
+                                                                uid=158_29 InlineTextBox "(UTC)"
+                                                            uid=158_469 cell "FROM"
+                                                              uid=158_470 StaticText "FROM"
+                                                                uid=158_29 InlineTextBox "FROM"
+                                                            uid=158_471 cell "TO"
+                                                              uid=158_472 StaticText "TO"
+                                                                uid=158_29 InlineTextBox "TO"
+                                                            uid=158_473 cell "WITH"
+                                                              uid=158_474 StaticText "WITH"
+                                                                uid=158_29 InlineTextBox "WITH"
+                                                            uid=158_475 cell "RELAY TIME"
+                                                              uid=158_476 StaticText "RELAY TIME"
+                                                                uid=158_29 InlineTextBox "RELAY "
+                                                                uid=158_29 InlineTextBox "TIME"
+                                                          uid=158_477 row
+                                                            uid=158_478 cell "1"
+                                                              uid=158_479 StaticText "1"
+                                                                uid=158_29 InlineTextBox "1"
+                                                            uid=158_480 cell "7/1/2026 10:52:53 AM"
+                                                              uid=158_481 StaticText "7/1/2026"
+                                                                uid=158_29 InlineTextBox "7/1/2026"
+                                                              uid=158_482 LineBreak "
+"
+                                                                uid=158_29 InlineTextBox "
+"
+                                                              uid=158_483 StaticText "10:52:53 AM"
+                                                                uid=158_29 InlineTextBox "10:52:53 "
+                                                                uid=158_29 InlineTextBox "AM"
+                                                            uid=158_484 cell "SE2PPFB51DBEFA3.apcprd06.prod.outlook.com"
+                                                              uid=158_485 StaticText "SE2PPFB51DBEFA3.apcprd06.prod.outlook.com"
+                                                                uid=158_29 InlineTextBox "SE2PPFB51DBEFA3.apcprd06.prod.outlook.com"
+                                                            uid=158_486 cell "SE2PPFB51DBEFA3.apcprd06.prod.outlook.com"
+                                                              uid=158_487 StaticText "SE2PPFB51DBEFA3.apcprd06.prod.outlook.com"
+                                                                uid=158_29 InlineTextBox "SE2PPFB51DBEFA3.apcprd06.prod.outlook.com"
+                                                            uid=158_488 cell "mapi"
+                                                              uid=158_489 StaticText "mapi"
+                                                                uid=158_29 InlineTextBox "mapi"
+                                                            uid=158_490 cell "*"
+                                                              uid=158_491 StaticText "*"
+                                                                uid=158_29 InlineTextBox "*"
+                                                          uid=158_492 row
+                                                            uid=158_493 cell "2"
+                                                              uid=158_494 StaticText "2"
+                                                                uid=158_29 InlineTextBox "2"
+                                                            uid=158_495 cell "7/1/2026 10:52:54 AM"
+                                                              uid=158_496 StaticText "7/1/2026"
+                                                                uid=158_29 InlineTextBox "7/1/2026"
+                                                              uid=158_497 LineBreak "
+"
+                                                                uid=158_29 InlineTextBox "
+"
+                                                              uid=158_498 StaticText "10:52:54 AM"
+                                                                uid=158_29 InlineTextBox "10:52:54 "
+                                                                uid=158_29 InlineTextBox "AM"
+                                                            uid=158_499 cell "SE2PPFB51DBEFA3.apcprd06.prod.outlook.com"
+                                                              uid=158_500 StaticText "SE2PPFB51DBEFA3.apcprd06.prod.outlook.com"
+                                                                uid=158_29 InlineTextBox "SE2PPFB51DBEFA3.apcprd06.prod.outlook.com"
+                                                            uid=158_501 cell "KL1PR0601MB5703.apcprd06.prod.outlook.com"
+                                                              uid=158_502 StaticText "KL1PR0601MB5703.apcprd06.prod.outlook.com"
+                                                                uid=158_29 InlineTextBox "KL1PR0601MB5703.apcprd06.prod.outlook.com"
+                                                            uid=158_503 cell "Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384)"
+                                                              uid=158_504 StaticText "Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384)"
+                                                                uid=158_29 InlineTextBox "Microsoft SMTP Server (version=TLS1_2, "
+                                                                uid=158_29 InlineTextBox "cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384)"
+                                                            uid=158_505 cell "1 sec"
+                                                              uid=158_506 StaticText "1 sec"
+                                                                uid=158_29 InlineTextBox "1 sec"
+                                                    uid=158_507 paragraph
+                                                      uid=158_508 StaticText "Original Message Headers"
+                                                        uid=158_29 InlineTextBox "Original Message Headers"
+                                                    uid=158_509 generic
+                                                      uid=158_510 StaticText "ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=iF9xWwBxmwS9HGoTpbmt+ix1T48SW3yVRPmQqE4k4vdq2ivTblaRh289+Hm4/dl623+V/46HDV1p6m9jpJwOIZ0zMaL2ask4t7YgO7CnAG/BpMbXoVMbu/CgjRHdvoap1J5Y06Z82ca321p3vHk0IWm268YtGHDSBJmzDvHiiotRnvcpsG7KbZ6GcSSbZrVFVdpuQXbdzjvgFHjiI3NXDEo5Tq6kzOmDw9kNB02w/DfYq5WoxRdXpuRbMzjR1hz9QwTPuum01w/4RkoCjddNtb0EzOJ6b+lsYT3wPg63B1osfo+KpEtoivYS9oG8RX30ElOl45Cozul5t7rfcMHJ5w==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=tMx9m02EFSgX4hp25BUj2f8d1irpMghGkPBhKQ6at6U=;
+ b=uZYY72doyt8+08sFDPnhMzcSiPSsxmfxZS56cffV1TRdsSqUgfG+Rcgh9ykJ2qIyZlW15Hh9kWlKYzjVuDb6w55ovwdtpQJtUaPPz5NvpIn3BlAe+LTP6JohTEFXK7nB729F/WHfh5EaNuJKCGg4UH+7Oo1976lW+2dQ1nVfQDmRFVvTvHYCOq/4k9ubN5q17SQpmd2pFsBPlNE/wWSclGOgCc5oI1BzAn0kjQtWchSIRCjmFreKMNyoCLiouuMhGDtAJOHvAiZPcHKjVwS9bmVX4T7xO2trcQjxLb7t5U7lRmqPN6IbY97Rr2vyR5x6ry1Wka5v0eQW9gAOT7MX6w==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=instratech.net; dmarc=pass action=none
+ header.from=instratech.net; dkim=pass header.d=instratech.net; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=instratech.net;
+ s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=tMx9m02EFSgX4hp25BUj2f8d1irpMghGkPBhKQ6at6U=;
+ b=XjsFrzsx1eIKa2iB2+n2jhEn5Rm3R1pdgkPTRsC8ZhAj07d6jo+o6EPrnFhYQUKIgFfvE+2KPNltPGq0P69qKdM0QX22KcPMpxJ+Bt7gvcMBpLEwwByarOhi4U8lSsebN5sH0E+jJfgvO3yu8tbpi+RQxxmLgTG9AzLB3WKmtI/UYqOg+HOUaFs6uOUN7Uz3y8OstuiRCu20erOxWjGupDjIr5/cdWWQcHhZk7RfxUzTr2dGZpUvxtMEZfH3K0j1jRewGEGhU5NQQyB0RMkLsa8lxTOZUmO0MHCuRTqZMmMgO6UP0YdjninKuO+vesBIVks+PCdVSGoU/lkrf+lVBQ==
+Received: from SE2PPFB51DBEFA3.apcprd06.prod.outlook.com
+ (2603:1096:108:1::7e6) by KL1PR0601MB5703.apcprd06.prod.outlook.com
+ (2603:1096:820:b9::9) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.181.8; Wed, 1 Jul 2026
+ 10:52:54 +0000
+Received: from SE2PPFB51DBEFA3.apcprd06.prod.outlook.com
+ ([fe80::2770:daf1:14e0:12bb]) by SE2PPFB51DBEFA3.apcprd06.prod.outlook.com
+ ([fe80::2770:daf1:14e0:12bb%8]) with mapi id 15.21.0159.018; Wed, 1 Jul 2026
+ 10:52:53 +0000
+From: huanld <huanld@instratech.net>
+To: "huanld.dev@gmail.com" <huanld.dev@gmail.com>, "manhbaosoft@gmail.com"
+	<manhbaosoft@gmail.com>
+Subject: =?utf-8?B?dMOgaSBraG/huqNuIGVtYWlsIA==?=
+Thread-Topic: =?utf-8?B?dMOgaSBraG/huqNuIGVtYWlsIA==?=
+Thread-Index: AQHdCUe2k7K26w9nLkCDeDoqsvP6BA==
+Date: Wed, 1 Jul 2026 10:52:53 +0000
+Message-ID: <SE2PPFB51DBEFA3780A2C0121A7D6D260CAB8F62@SE2PPFB51DBEFA3.apcprd06.prod.outlook.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach:
+X-MS-TNEF-Correlator:
+msip_labels:
+authentication-results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=instratech.net;
+x-ms-publictraffictype: Email
+x-ms-traffictypediagnostic: SE2PPFB51DBEFA3:EE_|KL1PR0601MB5703:EE_
+x-ms-office365-filtering-correlation-id: 29de07a5-9d66-4229-f1b9-08ded75ee714
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam: BCL:0;ARA:13230040|1800799024|10070799003|376014|586017|34096008|23010399003|366016|18002099003|38070700021|8096899003|56012099006;
+x-microsoft-antispam-message-info: CfpUM/ZDsHFJBqxxiVsDSo0RNrjnep+4wvzuXgInzIDKRhYiQ3HdFyv/LoSY+LpHpcpfonKQyz8aJK3VVoRRETeV9uAaMik3W8s4rtTnQYsyxBinsSH1er5twaSnyAQ3WCVGb8DBds5cet4uhGYjGG/AWaMgZmUCsqvRt40QksffjLvwAoSjLUFMwChwH5sMCDq5bcLB92f2iUaHfW+rry670aeVoBtFpLClHvnvDbpnucqyLiQljeNSjw6TheWzgIlxiQM7p7URWA8kQAlIyI7yrqb4Z3d9u1wb8EUP2ZM2tk2PmZGEnzkYzeZq5EiutLdKP2QVjkkXisuSe11ULtfUReXt6Vgk57GMSP8QA+CgPZ1j0j6TpdbFYhbU9c93l2deQHKLKeNF+ejWP/PFXYmDmNqXT8XPMfDbVJS9G8w73S++wlbyY+/VD156BIQypia7JvTiThe1P1q/Hj7aNE9ukUAxc/k1BPF18j3QCiig0CO26OtHI0CVVjTzw45LQSlenKwtyOdcH82F+7CBYC9bf8oMf099TxtWECevq9SngQmE1gpkGbcNPT8+cpVAb+p//7O4YHGZyY0+OGQmPLwH1wmLS6pJAwIRK29A6mRU4BgfLj64jik5runMbP1/3RMeaIjJSMjF4j9T2d/KpByjY0VQL40qwQj7SHZAWqgX9Du+eeoUM+L7y3SMjghZMPyuvhyzqrbTbYU6286neAcKrQl4RSj6gLif9Pnp7WM=
+x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:vi;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SE2PPFB51DBEFA3.apcprd06.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(10070799003)(376014)(586017)(34096008)(23010399003)(366016)(18002099003)(38070700021)(8096899003)(56012099006);DIR:OUT;SFP:1102;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0: =?utf-8?B?ZDR1WVdVRVNlaVhHQ3NUN3h4dTNBTHJrWThxdTJkS042aHoxUWZ0S3ZqMXhh?=
+ =?utf-8?B?TkE0UnEwUDJFdDNuTE1jNVlJcVZ0bEhyM3JlQWozbUlDK3ZJaTY1RGhHa2k0?=
+ =?utf-8?B?cXhmRVJ4b3p5SU00L3RLOUs4V1RZanRFaE1MbUQ5OEdRa2ZYZWJLc0ROd0hh?=
+ =?utf-8?B?aEZVSjhvdEViYkNVQ2VFeXZic2lqYW1oTDRWYkxHM3lLYTZwTTBCWWlXSi9j?=
+ =?utf-8?B?bWVGUzVzL3BMZTc1Z3JIRVV0c0RVSW5mK0lFMkZlV2JHMEY0SlJEQkd0N1VB?=
+ =?utf-8?B?WFZhQmo1RWhPZEtEWElKc2FDbnZMa0duR3RJSUR3T3IxSUMyKzhXVkl1eWpB?=
+ =?utf-8?B?K21Jdkt5UkFhMEVKQVBkdTFOdE1uMjh3eVRLNE5WNW9HbUF3MmM4eWtkT1U4?=
+ =?utf-8?B?V3ZuZFpETVBaNGljZDFjdWx2SUFsclpvaklMOVV0S3VQaEt1UE9tSlV4YWNz?=
+ =?utf-8?B?ZkZUbWRKZUFoQWtYNE1UYjdlRDh0UU9JY2lXQktMZHJhSHZRY3kwVUxReHEx?=
+ =?utf-8?B?a1lLekg4djB5K1RsZXo4YXJ3VzYySmZXNzdZeEV3N2RUWFF1eTJXUGIvSlNU?=
+ =?utf-8?B?U094akwxWEQ0b1V2OVo5cHY5L3VnR0F2WXQ1eXR4RHZEaUh0d1hUK0ZGNkhU?=
+ =?utf-8?B?UlNsQzh0cWVsdGFFeWdYWmcvaUw4cUV4dHg2YWpKQlhZQ1FzS3hxakhBQWk1?=
+ =?utf-8?B?dWg0VUNDbzh2OU1MSFMrTFA4cmRPSE5JempRRTZYV0tmTThpWXZZU0tvbmkr?=
+ =?utf-8?B?Z2JiOVZSVUlNbDVQdzh1Z2JvY1VsMjlrNUxLaWFGcEdzR2xOZUdYRGVBZjAv?=
+ =?utf-8?B?RlJUaVVtUmFJQVFPMlZaRFkxV3oxRnErME9CQUVvekFGNnNEL2VjSDBqMWsz?=
+ =?utf-8?B?TkZLcUVuQkU5bFNOUktWZ0R1SVd6dGRlMDR3R2xyQlVOMkc2YlBZM2plYVNT?=
+ =?utf-8?B?V01ncU1FRTRBVXpUZzl0dm92TGhMc29OaEpTdHNIOXBCdnZic1VLdG1EcGVU?=
+ =?utf-8?B?T3g5T01XY0puQUIzanlBZnNQWXAxN1BZVU9hN3UwZ1RRVklGUU5lc0cvdjNi?=
+ =?utf-8?B?TmRRa0hIbVZuU2ZkZENIUG9YOUFuSkRaRHgwYjN2SnpYUnBtdE94S2pka3FW?=
+ =?utf-8?B?MGU3a3hXRWZ2SXBDYXRkM04xaSs4a2d3elpLV3J0enJGWlNiNmp3UDI4STQr?=
+ =?utf-8?B?d0xRMWlOdXBtTHV5V0VIVzFoV0hDRkZWdWsrVXFiMmFLaG1ZMWhRVVZIV3Fy?=
+ =?utf-8?B?ampIQ2tWUXFiRnNuT2hHNUt5RDJvWDdZd1RhT3IyK3QyYjlwRWpwRTFCb2Ev?=
+ =?utf-8?B?WHhacitWSTdSaHdpMXo5dER2c1RRM212b2xmUVB3SDZQREptK290cTZia3Iw?=
+ =?utf-8?B?aGxUcmNkQWNqVG9ZMGFQSU4xSitUNW5wNXd2UGNWMVh2TmJXMEVBb3lTQ1FS?=
+ =?utf-8?B?MXRCektxa0FUb2h0RS9Ma0FESUVNak9zU2lnekpHQjNHRi9CZk9XUnVaRGli?=
+ =?utf-8?B?L2w1NXJUNDZ5Z1pTZ0VvcnAxVnZEaUhOcE5YYy9IYk1LOVF4a3p5aXBrQzBY?=
+ =?utf-8?B?UVpNc0tEcEoxVkZ4cTR4RFBRL2hyRVdsalhhNTRYODBwQ1VQOVRhTE05SnNa?=
+ =?utf-8?B?eVhsQ0ZyZTQzQ2FJM1VHaWhMNjM4RnVFaGF3enNVdXphUzQrQ3VkamNCU1Ry?=
+ =?utf-8?B?aUkyakpLN0ZFYTlVV2dHaXRvcHc3RGdzSDJzL1owSnpMeDF4RWpkVWtpZzVw?=
+ =?utf-8?B?TjhhRHBTR01aZHVkc2JNVHcyR2I5T2VDdldjOG84WmFmazNXYkNwM2dibWhp?=
+ =?utf-8?B?d1FNWkJHQUUyV2ZJRi9XZS9DTGUrd3ZtWHg0T3lsOTdFYUdpL0VyWHVjaHF2?=
+ =?utf-8?B?Z2ZQbTdydDV4cjFucGUxdlZjazd1Wk1ZUXp2RnFpN0Z6RGNocnhLODBDWHpF?=
+ =?utf-8?B?WWwxRVErQ05MdE1Yb0ZYclU0N1AvR0VhaWxGSlJSRVh3NDRFMW1EM1F2aUhh?=
+ =?utf-8?B?MTlRUFJhYm1zY2g0Yk5PNlg1eEg1bnhBUDZySWJKUlJleksxOHZFTGtzTHRY?=
+ =?utf-8?B?NnQzRWRpeFVKUG5nYWZaL2lMSGJud0xvdGl3MnlLWmtGYkEvODZLTDAzYkFR?=
+ =?utf-8?B?TVE4RDBNaXFybE45RXQwRzBuQ1ZtaHZhL2tpUEFyQlhWajBZWFpSaUl1S0ZW?=
+ =?utf-8?B?WU5XTVo1Rk1hTVZ5YnY0a0x6L2IraGNma2VTWVBPTjRpQjVGbmFkeHhqbHBU?=
+ =?utf-8?B?dDFmWC80WlA0MFE0UzB5elI2SGd3S2lNTHZqVUVDMTRoV0tsTzNmWWVndWNn?=
+ =?utf-8?B?cUJPR01ESko4d09Na3VGSVpPTUo2cW1JMkduUHlXaGprYVJGZ3VPOGQzL2xZ?=
+ =?utf-8?Q?mydXbY9lxEk2lqZeJz0OsG17PnC5wvG15vJJJ?=
+Content-Type: multipart/alternative;
+	boundary="_000_SE2PPFB51DBEFA3780A2C0121A7D6D260CAB8F62SE2PPFB51DBEFA3_"
+MIME-Version: 1.0
+X-OriginatorOrg: instratech.net
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: SE2PPFB51DBEFA3.apcprd06.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 29de07a5-9d66-4229-f1b9-08ded75ee714
+X-MS-Exchange-CrossTenant-originalarrivaltime: 01 Jul 2026 10:52:53.6462
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 80abf2d6-9e69-40c8-8d30-2a15c57f51b7
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: uamc9RhzSJDkbl4qWp+VG0DRDy0Dv+exObcG5l7wOWwukRqniejCaxdOVOle8+q8PSm88IVBSfpb4GEkgBfl2Q==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: KL1PR0601MB5703
+"
+                                                        uid=158_29 InlineTextBox "ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;"
+                                                        uid=158_29 InlineTextBox "
+"
+                                                        uid=158_29 InlineTextBox " "
+                                                        uid=158_29 InlineTextBox "b=iF9xWwBxmwS9HGoTpbmt+ix1T48SW3yVRPmQqE4k4vdq2ivTblaRh289+Hm4/dl623+V/46HDV1p6m9jpJwOIZ0zMaL2ask4t7YgO7CnAG/BpMbXoVMbu/CgjRHdvoap1J5Y06Z82ca321p3vHk0IWm268YtGHDSBJmzDvHiiotRnvcpsG7KbZ6GcSSbZrVFVdpuQXbdzjvgFHjiI3NXDEo5Tq6kzO"
+                                                        uid=158_29 InlineTextBox "mDw9kNB02w/DfYq5WoxRdXpuRbMzjR1hz9QwTPuum01w/4RkoCjddNtb0EzOJ6b+lsYT3wPg63B1osfo+KpEtoivYS9oG8RX30ElOl45Cozul5t7rfcMHJ5w=="
+                                                        uid=158_29 InlineTextBox "
+"
+                                                        uid=158_29 InlineTextBox "ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;"
+                                                        uid=158_29 InlineTextBox "
+"
+                                                        uid=158_29 InlineTextBox " "
+                                                        uid=158_29 InlineTextBox "s=arcselector10001;"
+                                                        uid=158_29 InlineTextBox "
+"
+                                                        uid=158_29 InlineTextBox " "
+                                                        uid=158_29 InlineTextBox "h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;"
+                                                        uid=158_29 InlineTextBox "
+"
+                                                        uid=158_29 InlineTextBox " "
+                                                        uid=158_29 InlineTextBox "bh=tMx9m02EFSgX4hp25BUj2f8d1irpMghGkPBhKQ6at6U=;"
+                                                        uid=158_29 InlineTextBox "
+"
+                                                        uid=158_29 InlineTextBox " "
+                                                        uid=158_29 InlineTextBox "b=uZYY72doyt8+08sFDPnhMzcSiPSsxmfxZS56cffV1TRdsSqUgfG+Rcgh9ykJ2qIyZlW15Hh9kWlKYzjVuDb6w55ovwdtpQJtUaPPz5NvpIn3BlAe+LTP6JohTEFXK7nB729F/WHfh5EaNuJKCGg4UH+7Oo1976lW+2dQ1nVfQDmRFVvTvHYCOq/4k9ubN5q17SQpmd2pFsBPlNE/wWSclGOgCc5oI1"
+                                                        uid=158_29 InlineTextBox "BzAn0kjQtWchSIRCjmFreKMNyoCLiouuMhGDtAJOHvAiZPcHKjVwS9bmVX4T7xO2trcQjxLb7t5U7lRmqPN6IbY97Rr2vyR5x6ry1Wka5v0eQW9gAOT7MX6w=="
+                                                        uid=158_29 InlineTextBox "
+"
+                                                        uid=158_29 InlineTextBox "ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass"
+                                                        uid=158_29 InlineTextBox "
+"
+                                                        uid=158_29 InlineTextBox " "
+                                                        uid=158_29 InlineTextBox "smtp.mailfrom=instratech.net; dmarc=pass action=none"
+                                                        uid=158_29 InlineTextBox "
+"
+                                                        uid=158_29 InlineTextBox " "
+                                                        uid=158_29 InlineTextBox "header.from=instratech.net; dkim=pass header.d=instratech.net; arc=none"
+                                                        uid=158_29 InlineTextBox "
+"
+                                                        uid=158_29 InlineTextBox "DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=instratech.net;"
+                                                        uid=158_29 InlineTextBox "
+"
+                                                        uid=158_29 InlineTextBox " "
+                                                        uid=158_29 InlineTextBox "s=selector1;"
+                                                        uid=158_29 InlineTextBox "
+"
+                                                        uid=158_29 InlineTextBox " "
+                                                        uid=158_29 InlineTextBox "h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;"
+                                                        uid=158_29 InlineTextBox "
+"
+                                                        uid=158_29 InlineTextBox " "
+                                                        uid=158_29 InlineTextBox "bh=tMx9m02EFSgX4hp25BUj2f8d1irpMghGkPBhKQ6at6U=;"
+                                                        uid=158_29 InlineTextBox "
+"
+                                                        uid=158_29 InlineTextBox " "
+                                                        uid=158_29 InlineTextBox "b=XjsFrzsx1eIKa2iB2+n2jhEn5Rm3R1pdgkPTRsC8ZhAj07d6jo+o6EPrnFhYQUKIgFfvE+2KPNltPGq0P69qKdM0QX22KcPMpxJ+Bt7gvcMBpLEwwByarOhi4U8lSsebN5sH0E+jJfgvO3yu8tbpi+RQxxmLgTG9AzLB3WKmtI/UYqOg+HOUaFs6uOUN7Uz3y8OstuiRCu20erOxWjGupDjIr5/cdW"
+                                                        uid=158_29 InlineTextBox "WQcHhZk7RfxUzTr2dGZpUvxtMEZfH3K0j1jRewGEGhU5NQQyB0RMkLsa8lxTOZUmO0MHCuRTqZMmMgO6UP0YdjninKuO+vesBIVks+PCdVSGoU/lkrf+lVBQ=="
+                                                        uid=158_29 InlineTextBox "
+"
+                                                        uid=158_29 InlineTextBox "Received: from SE2PPFB51DBEFA3.apcprd06.prod.outlook.com"
+                                                        uid=158_29 InlineTextBox "
+"
+                                                        uid=158_29 InlineTextBox " "
+                                                        uid=158_29 InlineTextBox "(2603:1096:108:1::7e6) by KL1PR0601MB5703.apcprd06.prod.outlook.com"
+                                                        uid=158_29 InlineTextBox "
+"
+                                                        uid=158_29 InlineTextBox " "
+                                                        uid=158_29 InlineTextBox "(2603:1096:820:b9::9) with Microsoft SMTP Server (version=TLS1_2,"
+                                                        uid=158_29 InlineTextBox "
+"
+                                                        uid=158_29 InlineTextBox " "
+                                                        uid=158_29 InlineTextBox "cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.181.8; Wed, 1 Jul 2026"
+                                                        uid=158_29 InlineTextBox "
+"
+                                                        uid=158_29 InlineTextBox " "
+                                                        uid=158_29 InlineTextBox "10:52:54 +0000"
+                                                        uid=158_29 InlineTextBox "
+"
+                                                        uid=158_29 InlineTextBox "Received: from SE2PPFB51DBEFA3.apcprd06.prod.outlook.com"
+                                                        uid=158_29 InlineTextBox "
+"
+                                                        uid=158_29 InlineTextBox " "
+                                                        uid=158_29 InlineTextBox "([fe80::2770:daf1:14e0:12bb]) by SE2PPFB51DBEFA3.apcprd06.prod.outlook.com"
+                                                        uid=158_29 InlineTextBox "
+"
+                                                        uid=158_29 InlineTextBox " "
+                                                        uid=158_29 InlineTextBox "([fe80::2770:daf1:14e0:12bb%8]) with mapi id 15.21.0159.018; Wed, 1 Jul 2026"
+                                                        uid=158_29 InlineTextBox "
+"
+                                                        uid=158_29 InlineTextBox " "
+                                                        uid=158_29 InlineTextBox "10:52:53 +0000"
+                                                        uid=158_29 InlineTextBox "
+"
+                                                        uid=158_29 InlineTextBox "From: huanld <huanld@instratech.net>"
+                                                        uid=158_29 InlineTextBox "
+"
+                                                        uid=158_29 InlineTextBox "To: "huanld.dev@gmail.com" <huanld.dev@gmail.com>, "manhbaosoft@gmail.com""
+                                                        uid=158_29 InlineTextBox "
+"
+                                                        uid=158_29 InlineTextBox "	"
+                                                        uid=158_29 InlineTextBox "<manhbaosoft@gmail.com>"
+                                                        uid=158_29 InlineTextBox "
+"
+                                                        uid=158_29 InlineTextBox "Subject: =?utf-8?B?dMOgaSBraG/huqNuIGVtYWlsIA==?="
+                                                        uid=158_29 InlineTextBox "
+"
+                                                        uid=158_29 InlineTextBox "Thread-Topic: =?utf-8?B?dMOgaSBraG/huqNuIGVtYWlsIA==?="
+                                                        uid=158_29 InlineTextBox "
+"
+                                                        uid=158_29 InlineTextBox "Thread-Index: AQHdCUe2k7K26w9nLkCDeDoqsvP6BA=="
+                                                        uid=158_29 InlineTextBox "
+"
+                                                        uid=158_29 InlineTextBox "Date: Wed, 1 Jul 2026 10:52:53 +0000"
+                                                        uid=158_29 InlineTextBox "
+"
+                                                        uid=158_29 InlineTextBox "Message-ID: <SE2PPFB51DBEFA3780A2C0121A7D6D260CAB8F62@SE2PPFB51DBEFA3.apcprd06.prod.outlook.com>"
+                                                        uid=158_29 InlineTextBox "
+"
+                                                        uid=158_29 InlineTextBox "Accept-Language: en-US"
+                                                        uid=158_29 InlineTextBox "
+"
+                                                        uid=158_29 InlineTextBox "Content-Language: en-US"
+                                                        uid=158_29 InlineTextBox "
+"
+                                                        uid=158_29 InlineTextBox "X-MS-Has-Attach:"
+                                                        uid=158_29 InlineTextBox "
+"
+                                                        uid=158_29 InlineTextBox "X-MS-TNEF-Correlator:"
+                                                        uid=158_29 InlineTextBox "
+"
+                                                        uid=158_29 InlineTextBox "msip_labels:"
+                                                        uid=158_29 InlineTextBox "
+"
+                                                        uid=158_29 InlineTextBox "authentication-results: dkim=none (message not signed)"
+                                                        uid=158_29 InlineTextBox "
+"
+                                                        uid=158_29 InlineTextBox " "
+                                                        uid=158_29 InlineTextBox "header.d=none;dmarc=none action=none header.from=instratech.net;"
+                                                        uid=158_29 InlineTextBox "
+"
+                                                        uid=158_29 InlineTextBox "x-ms-publictraffictype: Email"
+                                                        uid=158_29 InlineTextBox "
+"
+                                                        uid=158_29 InlineTextBox "x-ms-traffictypediagnostic: SE2PPFB51DBEFA3:EE_|KL1PR0601MB5703:EE_"
+                                                        uid=158_29 InlineTextBox "
+"
+                                                        uid=158_29 InlineTextBox "x-ms-office365-filtering-correlation-id: 29de07a5-9d66-4229-f1b9-08ded75ee714"
+                                                        uid=158_29 InlineTextBox "
+"
+                                                        uid=158_29 InlineTextBox "x-ms-exchange-senderadcheck: 1"
+                                                        uid=158_29 InlineTextBox "
+"
+                                                        uid=158_29 InlineTextBox "x-ms-exchange-antispam-relay: 0"
+                                                        uid=158_29 InlineTextBox "
+"
+                                                        uid=158_29 InlineTextBox "x-microsoft-antispam: BCL:0;ARA:13230040|1800799024|10070799003|376014|586017|34096008|23010399003|366016|18002099003|38070700021|8096899003|56012099006;"
+                                                        uid=158_29 InlineTextBox "
+"
+                                                        uid=158_29 InlineTextBox "x-microsoft-antispam-message-info:"
+                                                        uid=158_29 InlineTextBox " "
+                                                        uid=158_29 InlineTextBox "CfpUM/ZDsHFJBqxxiVsDSo0RNrjnep+4wvzuXgInzIDKRhYiQ3HdFyv/LoSY+LpHpcpfonKQyz8aJK3VVoRRETeV9uAaMik3W8s4rtTnQYsyxBinsSH1er5twaSnyAQ3WCVGb8DBds5cet4uhGYjGG/AWaMgZmUCsqvRt40QksffjLvwAoSjLUFMwChwH5sMCDq5bcLB92f2iUaHfW+rry670aeVoBtF"
+                                                        uid=158_29 InlineTextBox "pLClHvnvDbpnucqyLiQljeNSjw6TheWzgIlxiQM7p7URWA8kQAlIyI7yrqb4Z3d9u1wb8EUP2ZM2tk2PmZGEnzkYzeZq5EiutLdKP2QVjkkXisuSe11ULtfUReXt6Vgk57GMSP8QA+CgPZ1j0j6TpdbFYhbU9c93l2deQHKLKeNF+ejWP/PFXYmDmNqXT8XPMfDbVJS9G8w73S++wlbyY+/VD156BIQy"
+                                                        uid=158_29 InlineTextBox "pia7JvTiThe1P1q/Hj7aNE9ukUAxc/k1BPF18j3QCiig0CO26OtHI0CVVjTzw45LQSlenKwtyOdcH82F+7CBYC9bf8oMf099TxtWECevq9SngQmE1gpkGbcNPT8+cpVAb+p//7O4YHGZyY0+OGQmPLwH1wmLS6pJAwIRK29A6mRU4BgfLj64jik5runMbP1/3RMeaIjJSMjF4j9T2d/KpByjY0VQL40q"
+                                                        uid=158_29 InlineTextBox "wQj7SHZAWqgX9Du+eeoUM+L7y3SMjghZMPyuvhyzqrbTbYU6286neAcKrQl4RSj6gLif9Pnp7WM="
+                                                        uid=158_29 InlineTextBox "
+"
+                                                        uid=158_29 InlineTextBox "x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:vi;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SE2PPFB51DBEFA3.apcprd06.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(10070799003)(376014)(586017)(34096008)"
+                                                        uid=158_29 InlineTextBox "(23010399003)(366016)(18002099003)(38070700021)(8096899003)(56012099006);DIR:OUT;SFP:1102;"
+                                                        uid=158_29 InlineTextBox "
+"
+                                                        uid=158_29 InlineTextBox "x-ms-exchange-antispam-messagedata-chunkcount: 1"
+                                                        uid=158_29 InlineTextBox "
+"
+                                                        uid=158_29 InlineTextBox "x-ms-exchange-antispam-messagedata-0: =?utf-8?B?ZDR1WVdVRVNlaVhHQ3NUN3h4dTNBTHJrWThxdTJkS042aHoxUWZ0S3ZqMXhh?="
+                                                        uid=158_29 InlineTextBox "
+"
+                                                        uid=158_29 InlineTextBox " "
+                                                        uid=158_29 InlineTextBox "=?utf-8?B?TkE0UnEwUDJFdDNuTE1jNVlJcVZ0bEhyM3JlQWozbUlDK3ZJaTY1RGhHa2k0?="
+                                                        uid=158_29 InlineTextBox "
+"
+                                                        uid=158_29 InlineTextBox " "
+                                                        uid=158_29 InlineTextBox "=?utf-8?B?cXhmRVJ4b3p5SU00L3RLOUs4V1RZanRFaE1MbUQ5OEdRa2ZYZWJLc0ROd0hh?="
+                                                        uid=158_29 InlineTextBox "
+"
+                                                        uid=158_29 InlineTextBox " "
+                                                        uid=158_29 InlineTextBox "=?utf-8?B?aEZVSjhvdEViYkNVQ2VFeXZic2lqYW1oTDRWYkxHM3lLYTZwTTBCWWlXSi9j?="
+                                                        uid=158_29 InlineTextBox "
+"
+                                                        uid=158_29 InlineTextBox " "
+                                                        uid=158_29 InlineTextBox "=?utf-8?B?bWVGUzVzL3BMZTc1Z3JIRVV0c0RVSW5mK0lFMkZlV2JHMEY0SlJEQkd0N1VB?="
+                                                        uid=158_29 InlineTextBox "
+"
+                                                        uid=158_29 InlineTextBox " "
+                                                        uid=158_29 InlineTextBox "=?utf-8?B?WFZhQmo1RWhPZEtEWElKc2FDbnZMa0duR3RJSUR3T3IxSUMyKzhXVkl1eWpB?="
+                                                        uid=158_29 InlineTextBox "
+"
+                                                        uid=158_29 InlineTextBox " "
+                                                        uid=158_29 InlineTextBox "=?utf-8?B?K21Jdkt5UkFhMEVKQVBkdTFOdE1uMjh3eVRLNE5WNW9HbUF3MmM4eWtkT1U4?="
+                                                        uid=158_29 InlineTextBox "
+"
+                                                        uid=158_29 InlineTextBox " "
+                                                        uid=158_29 InlineTextBox "=?utf-8?B?V3ZuZFpETVBaNGljZDFjdWx2SUFsclpvaklMOVV0S3VQaEt1UE9tSlV4YWNz?="
+                                                        uid=158_29 InlineTextBox "
+"
+                                                        uid=158_29 InlineTextBox " "
+                                                        uid=158_29 InlineTextBox "=?utf-8?B?ZkZUbWRKZUFoQWtYNE1UYjdlRDh0UU9JY2lXQktMZHJhSHZRY3kwVUxReHEx?="
+                                                        uid=158_29 InlineTextBox "
+"
+                                                        uid=158_29 InlineTextBox " "
+                                                        uid=158_29 InlineTextBox "=?utf-8?B?a1lLekg4djB5K1RsZXo4YXJ3VzYySmZXNzdZeEV3N2RUWFF1eTJXUGIvSlNU?="
+                                                        uid=158_29 InlineTextBox "
+"
+                                                        uid=158_29 InlineTextBox " "
+                                                        uid=158_29 InlineTextBox "=?utf-8?B?U094akwxWEQ0b1V2OVo5cHY5L3VnR0F2WXQ1eXR4RHZEaUh0d1hUK0ZGNkhU?="
+                                                        uid=158_29 InlineTextBox "
+"
+                                                        uid=158_29 InlineTextBox " "
+                                                        uid=158_29 InlineTextBox "=?utf-8?B?UlNsQzh0cWVsdGFFeWdYWmcvaUw4cUV4dHg2YWpKQlhZQ1FzS3hxakhBQWk1?="
+                                                        uid=158_29 InlineTextBox "
+"
+                                                        uid=158_29 InlineTextBox " "
+                                                        uid=158_29 InlineTextBox "=?utf-8?B?dWg0VUNDbzh2OU1MSFMrTFA4cmRPSE5JempRRTZYV0tmTThpWXZZU0tvbmkr?="
+                                                        uid=158_29 InlineTextBox "
+"
+                                                        uid=158_29 InlineTextBox " "
+                                                        uid=158_29 InlineTextBox "=?utf-8?B?Z2JiOVZSVUlNbDVQdzh1Z2JvY1VsMjlrNUxLaWFGcEdzR2xOZUdYRGVBZjAv?="
+                                                        uid=158_29 InlineTextBox "
+"
+                                                        uid=158_29 InlineTextBox " "
+                                                        uid=158_29 InlineTextBox "=?utf-8?B?RlJUaVVtUmFJQVFPMlZaRFkxV3oxRnErME9CQUVvekFGNnNEL2VjSDBqMWsz?="
+                                                        uid=158_29 InlineTextBox "
+"
+                                                        uid=158_29 InlineTextBox " "
+                                                        uid=158_29 InlineTextBox "=?utf-8?B?TkZLcUVuQkU5bFNOUktWZ0R1SVd6dGRlMDR3R2xyQlVOMkc2YlBZM2plYVNT?="
+                                                        uid=158_29 InlineTextBox "
+"
+                                                        uid=158_29 InlineTextBox " "
+                                                        uid=158_29 InlineTextBox "=?utf-8?B?V01ncU1FRTRBVXpUZzl0dm92TGhMc29OaEpTdHNIOXBCdnZic1VLdG1EcGVU?="
+                                                        uid=158_29 InlineTextBox "
+"
+                                                        uid=158_29 InlineTextBox " "
+                                                        uid=158_29 InlineTextBox "=?utf-8?B?T3g5T01XY0puQUIzanlBZnNQWXAxN1BZVU9hN3UwZ1RRVklGUU5lc0cvdjNi?="
+                                                        uid=158_29 InlineTextBox "
+"
+                                                        uid=158_29 InlineTextBox " "
+                                                        uid=158_29 InlineTextBox "=?utf-8?B?TmRRa0hIbVZuU2ZkZENIUG9YOUFuSkRaRHgwYjN2SnpYUnBtdE94S2pka3FW?="
+                                                        uid=158_29 InlineTextBox "
+"
+                                                        uid=158_29 InlineTextBox " "
+                                                        uid=158_29 InlineTextBox "=?utf-8?B?MGU3a3hXRWZ2SXBDYXRkM04xaSs4a2d3elpLV3J0enJGWlNiNmp3UDI4STQr?="
+                                                        uid=158_29 InlineTextBox "
+"
+                                                        uid=158_29 InlineTextBox " "
+                                                        uid=158_29 InlineTextBox "=?utf-8?B?d0xRMWlOdXBtTHV5V0VIVzFoV0hDRkZWdWsrVXFiMmFLaG1ZMWhRVVZIV3Fy?="
+                                                        uid=158_29 InlineTextBox "
+"
+                                                        uid=158_29 InlineTextBox " "
+                                                        uid=158_29 InlineTextBox "=?utf-8?B?ampIQ2tWUXFiRnNuT2hHNUt5RDJvWDdZd1RhT3IyK3QyYjlwRWpwRTFCb2Ev?="
+                                                        uid=158_29 InlineTextBox "
+"
+                                                        uid=158_29 InlineTextBox " "
+                                                        uid=158_29 InlineTextBox "=?utf-8?B?WHhacitWSTdSaHdpMXo5dER2c1RRM212b2xmUVB3SDZQREptK290cTZia3Iw?="
+                                                        uid=158_29 InlineTextBox "
+"
+                                                        uid=158_29 InlineTextBox " "
+                                                        uid=158_29 InlineTextBox "=?utf-8?B?aGxUcmNkQWNqVG9ZMGFQSU4xSitUNW5wNXd2UGNWMVh2TmJXMEVBb3lTQ1FS?="
+                                                        uid=158_29 InlineTextBox "
+"
+                                                        uid=158_29 InlineTextBox " "
+                                                        uid=158_29 InlineTextBox "=?utf-8?B?MXRCektxa0FUb2h0RS9Ma0FESUVNak9zU2lnekpHQjNHRi9CZk9XUnVaRGli?="
+                                                        uid=158_29 InlineTextBox "
+"
+                                                        uid=158_29 InlineTextBox " "
+                                                        uid=158_29 InlineTextBox "=?utf-8?B?L2w1NXJUNDZ5Z1pTZ0VvcnAxVnZEaUhOcE5YYy9IYk1LOVF4a3p5aXBrQzBY?="
+                                                        uid=158_29 InlineTextBox "
+"
+                                                        uid=158_29 InlineTextBox " "
+                                                        uid=158_29 InlineTextBox "=?utf-8?B?UVpNc0tEcEoxVkZ4cTR4RFBRL2hyRVdsalhhNTRYODBwQ1VQOVRhTE05SnNa?="
+                                                        uid=158_29 InlineTextBox "
+"
+                                                        uid=158_29 InlineTextBox " "
+                                                        uid=158_29 InlineTextBox "=?utf-8?B?eVhsQ0ZyZTQzQ2FJM1VHaWhMNjM4RnVFaGF3enNVdXphUzQrQ3VkamNCU1Ry?="
+                                                        uid=158_29 InlineTextBox "
+"
+                                                        uid=158_29 InlineTextBox " "
+                                                        uid=158_29 InlineTextBox "=?utf-8?B?aUkyakpLN0ZFYTlVV2dHaXRvcHc3RGdzSDJzL1owSnpMeDF4RWpkVWtpZzVw?="
+                                                        uid=158_29 InlineTextBox "
+"
+                                                        uid=158_29 InlineTextBox " "
+                                                        uid=158_29 InlineTextBox "=?utf-8?B?TjhhRHBTR01aZHVkc2JNVHcyR2I5T2VDdldjOG84WmFmazNXYkNwM2dibWhp?="
+                                                        uid=158_29 InlineTextBox "
+"
+                                                        uid=158_29 InlineTextBox " "
+                                                        uid=158_29 InlineTextBox "=?utf-8?B?d1FNWkJHQUUyV2ZJRi9XZS9DTGUrd3ZtWHg0T3lsOTdFYUdpL0VyWHVjaHF2?="
+                                                        uid=158_29 InlineTextBox "
+"
+                                                        uid=158_29 InlineTextBox " "
+                                                        uid=158_29 InlineTextBox "=?utf-8?B?Z2ZQbTdydDV4cjFucGUxdlZjazd1Wk1ZUXp2RnFpN0Z6RGNocnhLODBDWHpF?="
+                                                        uid=158_29 InlineTextBox "
+"
+                                                        uid=158_29 InlineTextBox " "
+                                                        uid=158_29 InlineTextBox "=?utf-8?B?WWwxRVErQ05MdE1Yb0ZYclU0N1AvR0VhaWxGSlJSRVh3NDRFMW1EM1F2aUhh?="
+                                                        uid=158_29 InlineTextBox "
+"
+                                                        uid=158_29 InlineTextBox " "
+                                                        uid=158_29 InlineTextBox "=?utf-8?B?MTlRUFJhYm1zY2g0Yk5PNlg1eEg1bnhBUDZySWJKUlJleksxOHZFTGtzTHRY?="
+                                                        uid=158_29 InlineTextBox "
+"
+                                                        uid=158_29 InlineTextBox " "
+                                                        uid=158_29 InlineTextBox "=?utf-8?B?NnQzRWRpeFVKUG5nYWZaL2lMSGJud0xvdGl3MnlLWmtGYkEvODZLTDAzYkFR?="
+                                                        uid=158_29 InlineTextBox "
+"
+                                                        uid=158_29 InlineTextBox " "
+                                                        uid=158_29 InlineTextBox "=?utf-8?B?TVE4RDBNaXFybE45RXQwRzBuQ1ZtaHZhL2tpUEFyQlhWajBZWFpSaUl1S0ZW?="
+                                                        uid=158_29 InlineTextBox "
+"
+                                                        uid=158_29 InlineTextBox " "
+                                                        uid=158_29 InlineTextBox "=?utf-8?B?WU5XTVo1Rk1hTVZ5YnY0a0x6L2IraGNma2VTWVBPTjRpQjVGbmFkeHhqbHBU?="
+                                                        uid=158_29 InlineTextBox "
+"
+                                                        uid=158_29 InlineTextBox " "
+                                                        uid=158_29 InlineTextBox "=?utf-8?B?dDFmWC80WlA0MFE0UzB5elI2SGd3S2lNTHZqVUVDMTRoV0tsTzNmWWVndWNn?="
+                                                        uid=158_29 InlineTextBox "
+"
+                                                        uid=158_29 InlineTextBox " "
+                                                        uid=158_29 InlineTextBox "=?utf-8?B?cUJPR01ESko4d09Na3VGSVpPTUo2cW1JMkduUHlXaGprYVJGZ3VPOGQzL2xZ?="
+                                                        uid=158_29 InlineTextBox "
+"
+                                                        uid=158_29 InlineTextBox " "
+                                                        uid=158_29 InlineTextBox "=?utf-8?Q?mydXbY9lxEk2lqZeJz0OsG17PnC5wvG15vJJJ?="
+                                                        uid=158_29 InlineTextBox "
+"
+                                                        uid=158_29 InlineTextBox "Content-Type: multipart/alternative;"
+                                                        uid=158_29 InlineTextBox "
+"
+                                                        uid=158_29 InlineTextBox "	"
+                                                        uid=158_29 InlineTextBox "boundary="_000_SE2PPFB51DBEFA3780A2C0121A7D6D260CAB8F62SE2PPFB51DBEFA3_""
+                                                        uid=158_29 InlineTextBox "
+"
+                                                        uid=158_29 InlineTextBox "MIME-Version: 1.0"
+                                                        uid=158_29 InlineTextBox "
+"
+                                                        uid=158_29 InlineTextBox "X-OriginatorOrg: instratech.net"
+                                                        uid=158_29 InlineTextBox "
+"
+                                                        uid=158_29 InlineTextBox "X-MS-Exchange-CrossTenant-AuthAs: Internal"
+                                                        uid=158_29 InlineTextBox "
+"
+                                                        uid=158_29 InlineTextBox "X-MS-Exchange-CrossTenant-AuthSource: SE2PPFB51DBEFA3.apcprd06.prod.outlook.com"
+                                                        uid=158_29 InlineTextBox "
+"
+                                                        uid=158_29 InlineTextBox "X-MS-Exchange-CrossTenant-Network-Message-Id: 29de07a5-9d66-4229-f1b9-08ded75ee714"
+                                                        uid=158_29 InlineTextBox "
+"
+                                                        uid=158_29 InlineTextBox "X-MS-Exchange-CrossTenant-originalarrivaltime: 01 Jul 2026 10:52:53.6462"
+                                                        uid=158_29 InlineTextBox "
+"
+                                                        uid=158_29 InlineTextBox " "
+                                                        uid=158_29 InlineTextBox "(UTC)"
+                                                        uid=158_29 InlineTextBox "
+"
+                                                        uid=158_29 InlineTextBox "X-MS-Exchange-CrossTenant-fromentityheader: Hosted"
+                                                        uid=158_29 InlineTextBox "
+"
+                                                        uid=158_29 InlineTextBox "X-MS-Exchange-CrossTenant-id: 80abf2d6-9e69-40c8-8d30-2a15c57f51b7"
+                                                        uid=158_29 InlineTextBox "
+"
+                                                        uid=158_29 InlineTextBox "X-MS-Exchange-CrossTenant-mailboxtype: HOSTED"
+                                                        uid=158_29 InlineTextBox "
+"
+                                                        uid=158_29 InlineTextBox "X-MS-Exchange-CrossTenant-userprincipalname: uamc9RhzSJDkbl4qWp+VG0DRDy0Dv+exObcG5l7wOWwukRqniejCaxdOVOle8+q8PSm88IVBSfpb4GEkgBfl2Q=="
+                                                        uid=158_29 InlineTextBox "
+"
+                                                        uid=158_29 InlineTextBox "X-MS-Exchange-Transport-CrossTenantHeadersStamped: KL1PR0601MB5703"
+                                                        uid=158_29 InlineTextBox "
+"
+                                          uid=158_511 ignored
+                                        uid=158_512 toolbar "Quick actions" orientation="horizontal"
+                                          uid=158_513 menuitem "Reply" disableable disabled
+                                            uid=158_514 ignored
+                                            uid=158_515 StaticText "Reply"
+                                              uid=158_29 InlineTextBox "Reply"
+                                          uid=158_516 menuitem "Reply all" disableable disabled
+                                            uid=158_517 ignored
+                                            uid=158_518 StaticText "Reply all"
+                                              uid=158_29 InlineTextBox "Reply all"
+                                          uid=158_519 menuitem "Forward"
+                                            uid=158_520 ignored
+                                            uid=158_521 StaticText "Forward"
+                                              uid=158_29 InlineTextBox "Forward"
+                                        uid=158_522 ignored
+                                uid=158_523 ignored
+                      uid=158_524 ignored
+                      uid=158_525 alert atomic live="assertive" relevant="additions"
+      uid=158_526 generic
+        uid=158_527 generic
+          uid=158_528 ignored
+          uid=158_529 ignored
+      uid=158_530 generic live="assertive" relevant="additions text"
