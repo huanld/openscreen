@@ -1,0 +1,277 @@
+name: Windows Release
+
+on:
+  # Releases are started manually so pushing a locally signed release tag cannot
+  # launch a second build that replaces the verified artifacts or updater feed.
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-publish:
+    runs-on: windows-latest
+    env:
+      AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+      AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+      AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+      AZURE_TRUSTED_SIGNING_ENDPOINT: ${{ secrets.AZURE_TRUSTED_SIGNING_ENDPOINT }}
+      AZURE_TRUSTED_SIGNING_ACCOUNT_NAME: ${{ secrets.AZURE_TRUSTED_SIGNING_ACCOUNT_NAME }}
+      AZURE_TRUSTED_SIGNING_CERTIFICATE_PROFILE_NAME: ${{ secrets.AZURE_TRUSTED_SIGNING_CERTIFICATE_PROFILE_NAME }}
+      AZURE_TRUSTED_SIGNING_PUBLISHER_NAME: ${{ secrets.AZURE_TRUSTED_SIGNING_PUBLISHER_NAME }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Require signing configuration and an unpublished version
+        shell: pwsh
+        env:
+          GITEA_TOKEN: ${{ secrets.GITEA_TOKEN }}
+        run: |
+          $ErrorActionPreference = "Stop"
+          $required = @(
+            "AZURE_TENANT_ID", "AZURE_CLIENT_ID", "AZURE_CLIENT_SECRET",
+            "AZURE_TRUSTED_SIGNING_ENDPOINT", "AZURE_TRUSTED_SIGNING_ACCOUNT_NAME",
+            "AZURE_TRUSTED_SIGNING_CERTIFICATE_PROFILE_NAME",
+            "AZURE_TRUSTED_SIGNING_PUBLISHER_NAME", "GITEA_TOKEN"
+          )
+          foreach ($name in $required) {
+            if ([string]::IsNullOrWhiteSpace([Environment]::GetEnvironmentVariable($name))) {
+              throw "Missing required release secret: $name"
+            }
+          }
+          $version = (Get-Content -LiteralPath package.json -Raw | ConvertFrom-Json).version
+          $releaseUri = "${{ github.server_url }}/api/v1/repos/${{ github.repository }}/releases/tags/v$version"
+          $headers = @{ Authorization = "token $env:GITEA_TOKEN"; Accept = "application/json" }
+          $existingRelease = $null
+          try {
+            $existingRelease = Invoke-RestMethod -Uri $releaseUri -Headers $headers
+          } catch {
+            if ([int]$_.Exception.Response.StatusCode -ne 404) { throw }
+          }
+          if ($existingRelease -and !$existingRelease.draft) {
+            throw "Release v$version is already published. Refusing to replace its artifacts."
+          }
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build and sign Windows setup
+        # npm appends these arguments to the script's final electron-builder call.
+        run: npm run build:win:private-trust -- --publish never
+
+      - name: Normalize release artifacts
+        id: artifacts
+        shell: pwsh
+        run: |
+          $version = node -p "require('./package.json').version"
+          $releaseDir = "release/$version"
+          $setupName = "Openscreen-Setup-$version.exe"
+          $blockmapName = "$setupName.blockmap"
+          $setupPath = Join-Path $releaseDir "Openscreen Setup $version.exe"
+          $blockmapPath = Join-Path $releaseDir "Openscreen Setup $version.exe.blockmap"
+          $normalizedSetupPath = Join-Path $releaseDir $setupName
+          $normalizedBlockmapPath = Join-Path $releaseDir $blockmapName
+          $latestPath = Join-Path $releaseDir "latest.yml"
+
+          if (!(Test-Path -LiteralPath $setupPath)) {
+            throw "Missing Windows setup file: $setupPath"
+          }
+          if (!(Test-Path -LiteralPath $blockmapPath)) {
+            throw "Missing Windows setup blockmap: $blockmapPath"
+          }
+          if (!(Test-Path -LiteralPath $latestPath)) {
+            throw "Missing electron-builder metadata: $latestPath"
+          }
+
+          Copy-Item -LiteralPath $setupPath -Destination $normalizedSetupPath -Force
+          Copy-Item -LiteralPath $blockmapPath -Destination $normalizedBlockmapPath -Force
+
+          (Get-Content -LiteralPath $latestPath -Raw) `
+            -replace "Openscreen Setup $version\.exe", $setupName |
+            Set-Content -LiteralPath $latestPath -Encoding utf8
+
+          $hash = Get-FileHash -LiteralPath $normalizedSetupPath -Algorithm SHA256
+          $sha256Path = "$normalizedSetupPath.sha256"
+          "$($hash.Hash.ToLowerInvariant())  $setupName" |
+            Set-Content -LiteralPath $sha256Path -Encoding ascii
+
+          "version=$version" >> $env:GITHUB_OUTPUT
+          "tag=v$version" >> $env:GITHUB_OUTPUT
+          "release_dir=$releaseDir" >> $env:GITHUB_OUTPUT
+          "setup_name=$setupName" >> $env:GITHUB_OUTPUT
+          "setup_path=$normalizedSetupPath" >> $env:GITHUB_OUTPUT
+          "blockmap_path=$normalizedBlockmapPath" >> $env:GITHUB_OUTPUT
+          "sha256_path=$sha256Path" >> $env:GITHUB_OUTPUT
+          "latest_path=$latestPath" >> $env:GITHUB_OUTPUT
+
+      - name: Upload workflow artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: openscreen-windows-${{ steps.artifacts.outputs.version }}
+          path: |
+            ${{ steps.artifacts.outputs.setup_path }}
+            ${{ steps.artifacts.outputs.blockmap_path }}
+            ${{ steps.artifacts.outputs.sha256_path }}
+            ${{ steps.artifacts.outputs.latest_path }}
+          retention-days: 30
+
+      - name: Ensure release tag exists
+        shell: pwsh
+        run: |
+          $tag = "${{ steps.artifacts.outputs.tag }}"
+          git config user.name "gitea-actions"
+          git config user.email "actions@gitea.local"
+          git fetch --tags
+          if (!(git tag --list $tag)) {
+            git tag -a $tag -m "Release $tag"
+            git push origin $tag
+          }
+
+      - name: Publish Gitea release assets
+        shell: pwsh
+        env:
+          GITEA_TOKEN: ${{ secrets.GITEA_TOKEN }}
+        run: |
+          if (!$env:GITEA_TOKEN) {
+            throw "Missing secrets.GITEA_TOKEN. Gitea Actions should provide this built-in token."
+          }
+
+          $apiBase = "${{ github.server_url }}/api/v1"
+          $repo = "${{ github.repository }}"
+          $tag = "${{ steps.artifacts.outputs.tag }}"
+          $version = "${{ steps.artifacts.outputs.version }}"
+          $setupName = "${{ steps.artifacts.outputs.setup_name }}"
+          $rawBase = "${{ github.server_url }}/${{ github.repository }}/raw/branch/release-assets%2F$tag"
+          $headers = @{
+            Authorization = "token $env:GITEA_TOKEN"
+            Accept = "application/json"
+          }
+          $releaseBody = @"
+          OpenScreen Windows setup $tag
+
+          Setup EXE:
+          $rawBase/$setupName
+
+          SHA256:
+          $rawBase/$setupName.sha256
+
+          Auto-update feed:
+          ${{ github.server_url }}/${{ github.repository }}/raw/branch/release-assets%2Flatest/latest.yml
+          "@
+
+          try {
+            $release = Invoke-RestMethod `
+              -Method Get `
+              -Uri "$apiBase/repos/$repo/releases/tags/$tag" `
+              -Headers $headers
+          } catch {
+            if ([int]$_.Exception.Response.StatusCode -ne 404) { throw }
+          }
+          if ($release -and !$release.draft) {
+            throw "Release $tag is already published. Refusing to replace its artifacts."
+          }
+          if (!$release) {
+            $body = @{
+              tag_name = $tag
+              target_commitish = "${{ github.sha }}"
+              name = $tag
+              body = $releaseBody
+              draft = $false
+              prerelease = $false
+            } | ConvertTo-Json
+
+            $release = Invoke-RestMethod `
+              -Method Post `
+              -Uri "$apiBase/repos/$repo/releases" `
+              -Headers $headers `
+              -ContentType "application/json" `
+              -Body $body
+          }
+
+          $updateBody = @{
+            tag_name = $tag
+            target_commitish = "${{ github.sha }}"
+            name = "OpenScreen $version"
+            body = $releaseBody
+            draft = $false
+            prerelease = $false
+          } | ConvertTo-Json
+          $release = Invoke-RestMethod `
+            -Method Patch `
+            -Uri "$apiBase/repos/$repo/releases/$($release.id)" `
+            -Headers $headers `
+            -ContentType "application/json" `
+            -Body $updateBody
+
+          $assets = @(
+            "${{ steps.artifacts.outputs.blockmap_path }}",
+            "${{ steps.artifacts.outputs.sha256_path }}",
+            "${{ steps.artifacts.outputs.latest_path }}"
+          )
+
+          foreach ($assetPath in $assets) {
+            $assetName = Split-Path -Leaf $assetPath
+            $existing = @($release.assets | Where-Object { $_.name -eq $assetName })
+            foreach ($asset in $existing) {
+              Invoke-RestMethod `
+                -Method Delete `
+                -Uri "$apiBase/repos/$repo/releases/$($release.id)/assets/$($asset.id)" `
+                -Headers $headers | Out-Null
+            }
+
+            $uploadUri = "$apiBase/repos/$repo/releases/$($release.id)/assets?name=$([uri]::EscapeDataString($assetName))"
+            & curl.exe `
+              -sS `
+              -f `
+              -X POST `
+              -H "Authorization: token $env:GITEA_TOKEN" `
+              -H "Accept: application/json" `
+              -F "attachment=@$assetPath" `
+              $uploadUri | Out-Null
+            if ($LASTEXITCODE -ne 0) {
+              throw "Failed to upload release asset: $assetName"
+            }
+          }
+
+      - name: Publish generic updater branch
+        shell: pwsh
+        run: |
+          $version = "${{ steps.artifacts.outputs.version }}"
+          $tag = "${{ steps.artifacts.outputs.tag }}"
+          $branch = "release-assets/$tag"
+          $releaseDir = "${{ steps.artifacts.outputs.release_dir }}"
+          $setupName = "${{ steps.artifacts.outputs.setup_name }}"
+          $blockmapName = "$setupName.blockmap"
+          $sha256Name = "$setupName.sha256"
+
+          git config user.name "gitea-actions"
+          git config user.email "actions@gitea.local"
+          git checkout -B $branch
+
+          Copy-Item -LiteralPath (Join-Path $releaseDir $setupName) -Destination $setupName -Force
+          Copy-Item -LiteralPath (Join-Path $releaseDir $blockmapName) -Destination $blockmapName -Force
+          Copy-Item -LiteralPath (Join-Path $releaseDir $sha256Name) -Destination $sha256Name -Force
+          Copy-Item -LiteralPath (Join-Path $releaseDir "latest.yml") -Destination "latest.yml" -Force
+
+          git add latest.yml $setupName $blockmapName $sha256Name
+          if (git status --short) {
+            git commit -m "Publish $tag Windows release assets"
+          } else {
+            Write-Host "Release asset branch is already up to date."
+          }
+          git push origin $branch --force
+          git push origin "${branch}:release-assets/latest" --force

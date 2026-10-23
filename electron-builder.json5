@@ -1,0 +1,151 @@
+// @see - https://www.electron.build/configuration/configuration
+{
+  "$schema": "https://raw.githubusercontent.com/electron-userland/electron-builder/master/packages/app-builder-lib/scheme.json",
+  "appId": "com.siddharthvaddem.openscreen",
+  "asar": true,
+  // .node binaries can't be dlopen'd from inside an asar — must live unpacked.
+  "asarUnpack": [
+    "**/*.node",
+    // Tesseract starts a Node worker by filesystem path; worker_threads cannot
+    // execute that entrypoint from inside app.asar.
+    "node_modules/tesseract.js/**/*",
+    "node_modules/tesseract.js-core/**/*",
+    "node_modules/regenerator-runtime/**/*",
+    "node_modules/wasm-feature-detect/**/*",
+    "node_modules/is-url/**/*",
+    "node_modules/bmp-js/**/*",
+    "node_modules/zlibjs/**/*"
+  ],
+  "productName": "Openscreen",
+  "toolsets": {
+    "winCodeSign": "1.1.0"
+  },
+  // Fetch the auto-caption model + ORT wasm into caption-assets/ before packaging (idempotent).
+  "beforePack": "scripts/before-pack.cjs",
+  "npmRebuild": true,
+  // sharp ships ABI-stable (napi) prebuilt binaries with bundled libvips. Building it from source
+  // needs a system libvips we don't provide and breaks on CI/local ("vips-cpp.42 not found"), so we
+  // let electron-builder use the prebuilt instead of recompiling.
+  "buildDependenciesFromSource": false,
+  "compression": "normal",
+  "directories": {
+    "output": "release/${version}"
+  },
+  "publish": [
+    {
+      "provider": "generic",
+      // Public static dir on the gitea VPS (nginx serves /opt/openscreen-releases/
+      // without the IP gate). The gated raw-branch feed breaks download-manager
+      // segments and the electron-updater, which cannot authenticate.
+      "url": "https://gittea.softs.business/os-releases"
+    }
+  ],
+  "files": [
+    "dist",
+    "dist-electron",
+    "!*.png",
+    "!preview*.png",
+    "!*.md",
+    "!README.md",
+    "!CONTRIBUTING.md",
+    "!LICENSE"
+  ],
+  // Asset layout contract: "wallpapers/" and "cursors/" under resourcesPath must
+  // align with assetBaseDir in electron/preload.ts (packaged branch).
+  "extraResources": [
+    {
+      "from": "public/wallpapers",
+      "to": "wallpapers"
+    },
+    {
+      "from": "public/cursors",
+      "to": "cursors"
+    },
+    {
+      "from": "caption-assets",
+      "to": "caption-assets"
+    },
+    {
+      "from": "node_modules/@tesseract.js-data/vie/4.0.0_best_int/vie.traineddata.gz",
+      "to": "tesseract-data/vie.traineddata.gz"
+    },
+    {
+      "from": "node_modules/@tesseract.js-data/eng/4.0.0_best_int/eng.traineddata.gz",
+      "to": "tesseract-data/eng.traineddata.gz"
+    }
+  ],
+
+  "mac": {
+    "notarize": false,
+    "hardenedRuntime": true,
+    "entitlements": "macos.entitlements",
+    "entitlementsInherit": "macos.entitlements",
+    "target": [
+      {
+        "target": "dmg",
+        "arch": ["x64", "arm64"]
+      }
+    ],
+    "icon": "icons/icons/mac/icon.icns",
+    "artifactName": "${productName}-Mac-${arch}-${version}-Installer.${ext}",
+    "extraResources": [
+      {
+        "from": "electron/native/bin",
+        "to": "electron/native/bin",
+        "filter": ["darwin-*/*"]
+      }
+    ],
+    "extendInfo": {
+      "NSAudioCaptureUsageDescription": "OpenScreen needs audio capture permission to record system audio.",
+      "NSMicrophoneUsageDescription": "OpenScreen needs microphone access to record voice audio.",
+      "NSCameraUsageDescription": "OpenScreen needs camera access to record webcam video.",
+      "NSScreenCaptureUsageDescription": "OpenScreen needs screen recording permission to detect and capture windows.",
+      "NSCameraUseContinuityCameraDeviceType": true
+    }
+  },
+  "linux": {
+    "target": [
+      "AppImage",
+      "deb",
+      "pacman"
+    ],
+    "icon": "icons/icons/png",
+    "artifactName": "${productName}-Linux-${version}.${ext}",
+    "category": "AudioVideo"
+  },
+  "win": {
+    "target": [
+      "nsis"
+    ],
+    "icon": "icons/icons/win/icon.ico",
+    // The app must run unelevated so Windows can launch it at sign-in. The
+    // per-machine NSIS installer still requests elevation when replacing an
+    // existing installation and when installing the OCR service.
+    "requestedExecutionLevel": "asInvoker",
+    "signAndEditExecutable": false,
+    "signExts": ["!.exe"],
+    "extraResources": [
+      {
+        "from": "electron/native/bin",
+        "to": "electron/native/bin",
+        "filter": ["win32-*/*"]
+      },
+      {
+        "from": "tools/ocr/dist/openscreen-ocr-service",
+        "to": "ocr-service",
+        "filter": ["**/*"]
+      },
+      {
+        "from": "tools/ocr/models/paddlex",
+        "to": "ocr-models/paddlex",
+        "filter": ["**/*"]
+      }
+    ]
+  },
+  "nsis": {
+    "oneClick": false,
+    "allowToChangeInstallationDirectory": true,
+    "perMachine": true,
+    "include": "build/installer.nsh"
+  }
+}
